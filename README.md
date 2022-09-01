@@ -1,1 +1,2 @@
-# ranma-dress-up
+# Ranma dress-up game
+made with Adobe Animate
