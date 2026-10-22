@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f1e8">
     <meta name="description" content="Mix and match Ranma's original outfits, hairstyles, and accessories.">
-    <title>Ranma Dress-up Studio</title>
+    <title>Ranma 1/2 Dress-up</title>
     <link rel="stylesheet" href="styles.css">
     <script src="sprite-catalog.js" defer></script>
     <script src="app.js" defer></script>
@@ -13,27 +13,17 @@
   <body>
     <div class="page-shell">
       <header class="site-header">
-        <a class="brand" href="./" aria-label="Ranma Dress-up Studio home">
+        <a class="brand" href="./" aria-label="Ranma 1/2 Dress-up home">
           <span class="brand-mark" aria-hidden="true">R</span>
-          <span class="brand-copy">
+          <h1 class="brand-copy">
             <span class="brand-kicker">RANMA 1/2</span>
-            <span class="brand-name">Dress-up studio</span>
-          </span>
+            <span class="brand-name">Dress-up</span>
+          </h1>
         </a>
-        <p class="collection-note">Original sprite collection</p>
       </header>
 
       <main class="workspace">
-        <section class="preview-panel" aria-labelledby="preview-title">
-          <div class="panel-intro">
-            <div>
-              <p class="eyebrow">THE DOJO WARDROBE</p>
-              <h1 id="preview-title">Make it your look.</h1>
-              <p class="intro-copy">Mix, match, and find a new favorite combination.</p>
-            </div>
-            <span class="look-stamp" aria-hidden="true">STYLE<br>YOUR<br>WAY</span>
-          </div>
-
+        <section class="preview-panel" aria-label="Outfit preview">
           <div class="stage-frame">
             <canvas
               id="outfit-preview"
@@ -44,7 +34,6 @@
             >
               Your browser does not support the outfit preview.
             </canvas>
-            <span class="stage-caption">RANMA'S LOOKBOOK / 01</span>
           </div>
 
           <div class="preview-footer">
@@ -78,14 +67,9 @@
           tabindex="-1"
           inert
         ></button>
-        <aside id="wardrobe-panel" class="wardrobe-panel" aria-labelledby="wardrobe-title">
+        <aside id="wardrobe-panel" class="wardrobe-panel" aria-label="Wardrobe">
           <div class="wardrobe-heading">
-            <div>
-              <p class="eyebrow">THE COLLECTION</p>
-              <h2 id="wardrobe-title">Wardrobe</h2>
-            </div>
             <div class="wardrobe-heading-actions">
-              <span class="hanger-icon" aria-hidden="true">+</span>
               <button
                 id="wardrobe-close"
                 class="wardrobe-close"
@@ -96,19 +80,9 @@
           </div>
 
           <nav id="category-tabs" class="category-tabs" aria-label="Wardrobe categories"></nav>
-          <div class="item-section-heading">
-            <span>Choose a piece</span>
-            <span class="tap-hint">Tap to try it on</span>
-          </div>
           <div id="item-list" class="item-grid" aria-label="Items in the selected category"></div>
-          <p class="wardrobe-note">Your picks are layered on the original character art.</p>
         </aside>
       </main>
-
-      <footer class="site-footer">
-        <span>RANMA DRESS-UP STUDIO</span>
-        <span>Made for a little creative fun</span>
-      </footer>
     </div>
   </body>
 </html>

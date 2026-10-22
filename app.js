@@ -69,18 +69,31 @@ function drawItem(context, item, offsetX = 0) {
   context.drawImage(image, left, top, image.naturalWidth * scale, image.naturalHeight * scale);
 }
 
+function drawBackground(context) {
+  const image = getImage(catalog.background);
+  const scale = Math.max(preview.width / image.naturalWidth, preview.height / image.naturalHeight);
+  const sourceWidth = preview.width / scale;
+  const sourceHeight = preview.height / scale;
+  const sourceX = (image.naturalWidth - sourceWidth) / 2;
+  const sourceY = (image.naturalHeight - sourceHeight) / 2;
+
+  context.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+    0,
+    0,
+    preview.width,
+    preview.height
+  );
+}
+
 function drawOutfit() {
   const context = previewContext;
   context.clearRect(0, 0, preview.width, preview.height);
-  context.fillStyle = "#eee2d2";
-  context.fillRect(0, 0, preview.width, preview.height);
-  drawItem(context, catalog.background, -300);
-
-  const roomFade = context.createLinearGradient(760, 0, 960, 0);
-  roomFade.addColorStop(0, "rgba(238, 226, 210, 0)");
-  roomFade.addColorStop(1, "#eee2d2");
-  context.fillStyle = roomFade;
-  context.fillRect(760, 0, 200, preview.height);
+  drawBackground(context);
 
   context.fillStyle = "rgba(65, 47, 39, 0.14)";
   context.beginPath();
