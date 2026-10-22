@@ -24,74 +24,46 @@ window.RanmaDressUpCatalog = {
   ],
   items: [
     {
-      id: "body002",
-      category: "bodysuits",
-      label: "Bodysuit 01",
-      source: "images/sprites/body002.png",
-      placement: { x: 963.75, y: 402.65, scale: 0.18, regX: 338.6, regY: 673.6 }
-    },
-    {
-      id: "body003",
-      category: "bodysuits",
-      label: "Bodysuit 02",
-      source: "images/sprites/body003.png",
-      placement: { x: 964.25, y: 390.25, scale: 0.18, regX: 337.5, regY: 740.1 }
-    },
-    {
-      id: "body004",
-      category: "bodysuits",
-      label: "Bodysuit 03",
-      source: "images/sprites/body004.png",
-      placement: { x: 984.75, y: 528.1, scale: 0.18, regX: 612, regY: 1475 }
-    },
-    {
-      id: "body006",
-      category: "bodysuits",
-      label: "Bodysuit 04",
-      source: "images/sprites/body006.png",
-      placement: { x: 963.45, y: 422.2, scale: 0.18, regX: 343.1, regY: 561.7 }
-    },
-    {
-      id: "body007",
-      category: "bodysuits",
-      label: "Bodysuit 05",
-      source: "images/sprites/body007.png",
-      placement: { x: 963.2, y: 403.2, scale: 0.18, regX: 339.4, regY: 669.2 }
-    },
-    {
-      id: "slip001",
-      category: "underwear",
-      label: "Underwear",
-      source: "images/sprites/slip001.png",
-      placement: { x: 960.05, y: 483, scale: 0.18, regX: 301.1, regY: 223.6 }
-    },
-    {
       id: "top001",
       category: "tops",
-      label: "Top",
+      label: "Top 01",
       source: "images/sprites/top001.png",
       placement: { x: 965.55, y: 394.2, scale: 0.18, regX: 875.9, regY: 675.6 }
     },
     {
-      id: "dress004",
-      category: "dresses",
-      label: "Dress 01",
-      source: "images/sprites/dress004.png",
-      placement: { x: 957.65, y: 395.9, scale: 0.18, regX: 492.2, regY: 709.5 }
+      id: "top002",
+      category: "tops",
+      label: "Top 02",
+      source: "images/sprites/top002.png",
+      placement: { x: 965.55, y: 394.2, scale: 0.18, regX: 875.9, regY: 675.6 }
     },
     {
-      id: "dress005",
-      category: "dresses",
-      label: "Dress 02",
-      source: "images/sprites/dress005.png",
-      placement: { x: 919.8, y: 646.1, scale: 0.18, regX: 1100, regY: 1791.8 }
+      id: "top003",
+      category: "tops",
+      label: "Top 03",
+      source: "images/sprites/top003.png",
+      placement: { x: 965.55, y: 394.2, scale: 0.18, regX: 875.9, regY: 675.6 }
     },
     {
-      id: "dress006",
+      id: "pants001",
       category: "dresses",
-      label: "Dress 03",
-      source: "images/sprites/dress006.png",
-      placement: { x: 938.15, y: 507.6, scale: 0.18, regX: 488.1, regY: 1327 }
+      label: "Pants 01",
+      source: "images/sprites/pants001.png",
+      placement: { x: 960, y: 600, scale: 0.18, regX: 500, regY: 800 }
+    },
+    {
+      id: "pants003",
+      category: "dresses",
+      label: "Pants 02",
+      source: "images/sprites/pants003.png",
+      placement: { x: 960, y: 600, scale: 0.18, regX: 500, regY: 800 }
+    },
+    {
+      id: "pant002",
+      category: "dresses",
+      label: "Pant 03",
+      source: "images/sprites/pant002.png",
+      placement: { x: 960, y: 600, scale: 0.18, regX: 500, regY: 800 }
     },
     {
       id: "hair001",
@@ -171,59 +143,31 @@ window.RanmaDressUpCatalog = {
       placement: { x: 955.55, y: 116.15, scale: 0.18, regX: 479.8, regY: 345.3 }
     },
     {
-      id: "shoes003",
+      id: "shoes001",
       category: "shoes",
       label: "Shoes 01",
+      source: "images/sprites/shoes001.png",
+      placement: { x: 1052.2, y: 902.4, scale: 0.18, regX: 603.9, regY: 339.8 }
+    },
+    {
+      id: "shoes003",
+      category: "shoes",
+      label: "Shoes 02",
       source: "images/sprites/shoes003.png",
       placement: { x: 1052.2, y: 902.4, scale: 0.18, regX: 603.9, regY: 339.8 }
     },
     {
-      id: "shoes004",
-      category: "shoes",
-      label: "Shoes 02",
-      source: "images/sprites/shoes004.png",
-      placement: { x: 1051.9, y: 901.35, scale: 0.18, regX: 603.4, regY: 342.8 }
-    },
-    {
-      id: "shoes005",
-      category: "shoes",
-      label: "Shoes 03",
-      source: "images/sprites/shoes005.png",
-      placement: { x: 1053, y: 902.8, scale: 0.18, regX: 613.1, regY: 341.1 }
-    },
-    {
-      id: "shoes006",
-      category: "shoes",
-      label: "Shoes 04",
-      source: "images/sprites/shoes006.png",
-      placement: { x: 1052.1, y: 902.6, scale: 0.18, regX: 603.7, regY: 347.2 }
-    },
-    {
-      id: "shoes007",
-      category: "shoes",
-      label: "Shoes 05",
-      source: "images/sprites/shoes007.png",
-      placement: { x: 1050.95, y: 901.3, scale: 0.18, regX: 600.9, regY: 340.6 }
-    },
-    {
-      id: "shoes009",
-      category: "shoes",
-      label: "Shoes 06",
-      source: "images/sprites/shoes009.png",
-      placement: { x: 1051.65, y: 908.7, scale: 0.18, regX: 599.5, regY: 383.1 }
-    },
-    {
-      id: "collier006",
-      category: "necklace",
-      label: "Necklace",
-      source: "images/sprites/collier006.png",
-      placement: { x: 957.8, y: 278.65, scale: 0.18, regX: 147.5, regY: 83.6 }
-    },
-    {
-      id: "bracelets006",
+      id: "bracelets001",
       category: "bracelets",
-      label: "Bracelets",
-      source: "images/sprites/bracelets006.png",
+      label: "Bracelets 01",
+      source: "images/sprites/bracelets001.png",
+      placement: { x: 960.45, y: 463.9, scale: 0.18, regX: 849.8, regY: 240 }
+    },
+    {
+      id: "bracelets003",
+      category: "bracelets",
+      label: "Bracelets 02",
+      source: "images/sprites/bracelets003.png",
       placement: { x: 960.45, y: 463.9, scale: 0.18, regX: 849.8, regY: 240 }
     }
   ]
