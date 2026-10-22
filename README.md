@@ -14,8 +14,6 @@ Open `http://localhost:8000` in a browser. The app has no build step or external
 
 ## Sprite assets
 
-The app loads the standalone PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. Composite atlas frames are split ahead of time; the browser does not load or crop the atlases while running. The original PNGs, Animate export, and project files remain intact.
-
-To regenerate the standalone PNGs after updating the Animate export or sprite catalog, run `python scripts/extract_sprites.py`. This one-time development tool reads asset IDs from the catalog and sprite frames from the Animate export, and requires Pillow (`python -m pip install Pillow`) and Node.js. The app itself still has no build step or external runtime dependencies.
+The app loads the individual PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. The app does not load or crop composite atlases at runtime and has no build step or external runtime dependencies.
 
 The app is served from the repository root and remains compatible with the existing GitHub Pages deployment workflow.
