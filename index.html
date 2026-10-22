@@ -50,6 +50,16 @@
           <div class="preview-footer">
             <p id="status-message" class="status-message" role="status" aria-live="polite">Loading the wardrobe...</p>
             <div class="action-buttons">
+              <button
+                id="wardrobe-toggle"
+                class="button button-secondary wardrobe-trigger"
+                type="button"
+                aria-controls="wardrobe-panel"
+                aria-expanded="false"
+                aria-haspopup="dialog"
+              >
+                Wardrobe
+              </button>
               <button id="reset-look" class="button button-secondary" type="button">
                 Reset
               </button>
@@ -60,13 +70,29 @@
           </div>
         </section>
 
-        <aside class="wardrobe-panel" aria-labelledby="wardrobe-title">
+        <button
+          id="wardrobe-backdrop"
+          class="wardrobe-backdrop"
+          type="button"
+          aria-label="Close wardrobe"
+          tabindex="-1"
+          inert
+        ></button>
+        <aside id="wardrobe-panel" class="wardrobe-panel" aria-labelledby="wardrobe-title">
           <div class="wardrobe-heading">
             <div>
               <p class="eyebrow">THE COLLECTION</p>
               <h2 id="wardrobe-title">Wardrobe</h2>
             </div>
-            <span class="hanger-icon" aria-hidden="true">+</span>
+            <div class="wardrobe-heading-actions">
+              <span class="hanger-icon" aria-hidden="true">+</span>
+              <button
+                id="wardrobe-close"
+                class="wardrobe-close"
+                type="button"
+                aria-label="Close wardrobe"
+              >×</button>
+            </div>
           </div>
 
           <nav id="category-tabs" class="category-tabs" aria-label="Wardrobe categories"></nav>

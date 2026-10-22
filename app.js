@@ -4,6 +4,11 @@ const previewContext = preview.getContext("2d");
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
 const statusMessage = document.querySelector("#status-message");
+const wardrobePanel = document.querySelector("#wardrobe-panel");
+const wardrobeToggle = document.querySelector("#wardrobe-toggle");
+const wardrobeClose = document.querySelector("#wardrobe-close");
+const wardrobeBackdrop = document.querySelector("#wardrobe-backdrop");
+const mobileWardrobe = window.matchMedia("(max-width: 720px)");
 const imageCache = new Map();
 
 const defaultOutfit = {
@@ -20,6 +25,7 @@ const defaultOutfit = {
 
 let outfit = { ...defaultOutfit };
 let activeCategory = "dresses";
+let wardrobeOpen = false;
 
 if (!previewContext) {
   throw new Error("This browser does not support the canvas preview.");
@@ -263,6 +269,43 @@ function showError(error) {
   statusMessage.classList.add("is-error");
 }
 
+function syncWardrobeMode() {
+  if (!mobileWardrobe.matches) {
+    wardrobeOpen = false;
+  }
+
+  const hidden = mobileWardrobe.matches && !wardrobeOpen;
+  wardrobePanel.inert = hidden;
+  wardrobePanel.setAttribute("aria-hidden", String(hidden));
+  wardrobeToggle.setAttribute("aria-expanded", String(wardrobeOpen));
+  wardrobeBackdrop.inert = !wardrobeOpen;
+  document.body.classList.toggle("wardrobe-open", wardrobeOpen);
+
+  if (mobileWardrobe.matches) {
+    wardrobePanel.setAttribute("role", "dialog");
+    wardrobePanel.setAttribute("aria-modal", String(wardrobeOpen));
+  } else {
+    wardrobePanel.removeAttribute("role");
+    wardrobePanel.removeAttribute("aria-modal");
+    wardrobePanel.removeAttribute("aria-hidden");
+  }
+}
+
+function setWardrobeOpen(open, returnFocus = true) {
+  if (!mobileWardrobe.matches) {
+    return;
+  }
+
+  wardrobeOpen = open;
+  syncWardrobeMode();
+
+  if (open) {
+    wardrobeClose.focus();
+  } else if (returnFocus) {
+    wardrobeToggle.focus();
+  }
+}
+
 function resetOutfit() {
   outfit = { ...defaultOutfit };
   activeCategory = "dresses";
@@ -309,7 +352,36 @@ async function startApp() {
 
 document.querySelector("#reset-look").addEventListener("click", resetOutfit);
 document.querySelector("#download-look").addEventListener("click", downloadPreview);
+wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
+wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
+wardrobeBackdrop.addEventListener("click", () => setWardrobeOpen(false));
+mobileWardrobe.addEventListener("change", () => syncWardrobeMode());
+document.addEventListener("keydown", (event) => {
+  if (!wardrobeOpen) {
+    return;
+  }
 
+  if (event.key === "Escape") {
+    setWardrobeOpen(false);
+    return;
+  }
+
+  if (event.key === "Tab") {
+    const focusable = wardrobePanel.querySelectorAll("button:not(:disabled)");
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+syncWardrobeMode();
 startApp().catch((error) => {
   showError(error);
 });
