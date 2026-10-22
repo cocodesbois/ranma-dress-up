@@ -1,0 +1,327 @@
+const catalog = window.RanmaDressUpCatalog;
+const preview = document.querySelector("#outfit-preview");
+const previewContext = preview.getContext("2d");
+const categoryTabs = document.querySelector("#category-tabs");
+const itemList = document.querySelector("#item-list");
+const statusMessage = document.querySelector("#status-message");
+const imageCache = new Map();
+const spriteCache = new Map();
+
+const defaultOutfit = {
+  bodysuits: null,
+  underwear: null,
+  tops: null,
+  dresses: "dress005",
+  hair: null,
+  hats: null,
+  shoes: null,
+  necklace: null,
+  bracelets: null
+};
+
+let outfit = { ...defaultOutfit };
+let activeCategory = "dresses";
+
+if (!previewContext) {
+  throw new Error("This browser does not support the canvas preview.");
+}
+
+function loadImage(source) {
+  if (imageCache.has(source)) {
+    return imageCache.get(source);
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Could not load image asset: ${source}`));
+    image.src = source;
+  }).then(
+    (image) => {
+      imageCache.set(source, image);
+      return image;
+    },
+    (error) => {
+      imageCache.delete(source);
+      throw error;
+    }
+  );
+
+  imageCache.set(source, promise);
+  return promise;
+}
+
+function getFrame(item, image) {
+  const frame = item.frame ?? [0, 0, image.naturalWidth, image.naturalHeight];
+  const [x, y, width, height] = frame;
+
+  if (
+    width <= 0 ||
+    height <= 0 ||
+    x < 0 ||
+    y < 0 ||
+    x + width > image.naturalWidth ||
+    y + height > image.naturalHeight
+  ) {
+    throw new Error(`Invalid sprite frame for ${item.id ?? "background"} in ${item.source}.`);
+  }
+
+  return frame;
+}
+
+function getSprite(item) {
+  const key = item.id ?? "background";
+  if (!spriteCache.has(key)) {
+    const image = imageCache.get(item.source);
+    const [x, y, width, height] = getFrame(item, image);
+    const sprite = document.createElement("canvas");
+    sprite.width = width;
+    sprite.height = height;
+    const context = sprite.getContext("2d");
+
+    if (!context) {
+      throw new Error("This browser cannot create sprite previews.");
+    }
+
+    context.drawImage(image, x, y, width, height, 0, 0, width, height);
+    spriteCache.set(key, sprite);
+  }
+
+  return spriteCache.get(key);
+}
+
+function drawItem(context, item, offsetX = 0) {
+  const sprite = getSprite(item);
+  const { x, y, scale, regX, regY } = item.placement;
+  const left = x - regX * scale + offsetX;
+  const top = y - regY * scale;
+
+  context.drawImage(sprite, left, top, sprite.width * scale, sprite.height * scale);
+}
+
+function drawOutfit() {
+  const context = previewContext;
+  context.clearRect(0, 0, preview.width, preview.height);
+  context.fillStyle = "#eee2d2";
+  context.fillRect(0, 0, preview.width, preview.height);
+  drawItem(context, catalog.background, -300);
+
+  const roomFade = context.createLinearGradient(760, 0, 960, 0);
+  roomFade.addColorStop(0, "rgba(238, 226, 210, 0)");
+  roomFade.addColorStop(1, "#eee2d2");
+  context.fillStyle = roomFade;
+  context.fillRect(760, 0, 200, preview.height);
+
+  context.fillStyle = "rgba(65, 47, 39, 0.14)";
+  context.beginPath();
+  context.ellipse(480, 969, 145, 17, 0, 0, Math.PI * 2);
+  context.fill();
+
+  drawItem(context, catalog.base, -480);
+
+  const layerOrder = [
+    "underwear",
+    "bodysuits",
+    "tops",
+    "dresses",
+    "shoes",
+    "hair",
+    "hats",
+    "necklace",
+    "bracelets"
+  ];
+
+  for (const category of layerOrder) {
+    const selectedId = outfit[category];
+    if (!selectedId) {
+      continue;
+    }
+
+    const item = catalog.items.find((entry) => entry.id === selectedId);
+    if (!item) {
+      throw new Error(`Unknown outfit item: ${selectedId}.`);
+    }
+
+    drawItem(context, item, -480);
+  }
+}
+
+function makeThumbnail(item) {
+  const canvas = document.createElement("canvas");
+  canvas.className = "item-thumbnail";
+  canvas.width = 112;
+  canvas.height = 112;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("This browser cannot create item thumbnails.");
+  }
+
+  const sprite = getSprite(item);
+  const scale = Math.min(88 / sprite.width, 88 / sprite.height);
+  const width = sprite.width * scale;
+  const height = sprite.height * scale;
+  context.drawImage(sprite, (112 - width) / 2, (112 - height) / 2, width, height);
+  return canvas;
+}
+
+function selectItem(item) {
+  if (["bodysuits", "tops", "dresses"].includes(activeCategory)) {
+    for (const category of ["bodysuits", "tops", "dresses"]) {
+      if (category !== activeCategory) {
+        outfit[category] = null;
+      }
+    }
+  }
+
+  outfit[activeCategory] = item.id;
+  updateItemSelection();
+  drawOutfit();
+  statusMessage.textContent = `${item.label} selected.`;
+}
+
+function makeItemButton(item) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "item-card";
+  button.dataset.itemId = item.id;
+  button.setAttribute("aria-label", item.label);
+
+  button.append(makeThumbnail(item));
+  const label = document.createElement("span");
+  label.className = "item-label";
+  label.textContent = item.label;
+  button.append(label);
+  button.addEventListener("click", () => selectItem(item));
+  return button;
+}
+
+function makeNoneButton(selected) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "item-card none-card";
+  button.dataset.none = "true";
+  button.setAttribute("aria-label", "No item selected");
+
+  const symbol = document.createElement("span");
+  symbol.className = "none-symbol";
+  symbol.setAttribute("aria-hidden", "true");
+  symbol.textContent = "x";
+  button.append(symbol);
+
+  const label = document.createElement("span");
+  label.className = "item-label";
+  label.textContent = "None";
+  button.append(label);
+  button.addEventListener("click", () => {
+    outfit[activeCategory] = null;
+    updateItemSelection();
+    drawOutfit();
+    statusMessage.textContent = "Item removed.";
+  });
+  return button;
+}
+
+function renderCategories() {
+  if (categoryTabs.childElementCount === 0) {
+    for (const category of catalog.categories) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "category-tab";
+      button.dataset.category = category.id;
+      button.textContent = category.label;
+
+      button.addEventListener("click", () => {
+        activeCategory = category.id;
+        renderCategories();
+        renderItems();
+        statusMessage.textContent = `${category.label} selected.`;
+      });
+      categoryTabs.append(button);
+    }
+  }
+
+  for (const button of categoryTabs.querySelectorAll(".category-tab")) {
+    const selected = button.dataset.category === activeCategory;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  }
+}
+
+function renderItems() {
+  itemList.replaceChildren();
+  itemList.append(makeNoneButton());
+
+  for (const item of catalog.items.filter((entry) => entry.category === activeCategory)) {
+    itemList.append(makeItemButton(item));
+  }
+  updateItemSelection();
+}
+
+function updateItemSelection() {
+  for (const button of itemList.querySelectorAll(".item-card")) {
+    const selected = button.dataset.none === "true"
+      ? outfit[activeCategory] === null
+      : outfit[activeCategory] === button.dataset.itemId;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+
+    if (button.dataset.none === "true") {
+      button.setAttribute("aria-label", selected ? "No item selected" : "Remove selected item");
+    } else if (selected) {
+      button.setAttribute("aria-label", `${button.dataset.itemId}, selected`);
+    } else {
+      button.setAttribute("aria-label", button.querySelector(".item-label").textContent);
+    }
+  }
+}
+
+function resetOutfit() {
+  outfit = { ...defaultOutfit };
+  activeCategory = "dresses";
+  renderCategories();
+  renderItems();
+  drawOutfit();
+  statusMessage.textContent = "The original look has been restored.";
+}
+
+function downloadPreview() {
+  preview.toBlob((blob) => {
+    if (!blob) {
+      statusMessage.textContent = "The preview could not be saved.";
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ranma-dress-up.png";
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    statusMessage.textContent = "Your look has been downloaded.";
+  }, "image/png");
+}
+
+async function startApp() {
+  statusMessage.textContent = "Loading the wardrobe...";
+  const sources = new Set([
+    catalog.background.source,
+    catalog.base.source,
+    ...catalog.items.map((item) => item.source)
+  ]);
+
+  await Promise.all([...sources].map(loadImage));
+  renderCategories();
+  renderItems();
+  drawOutfit();
+  statusMessage.textContent = "Choose an item to style the character.";
+}
+
+document.querySelector("#reset-look").addEventListener("click", resetOutfit);
+document.querySelector("#download-look").addEventListener("click", downloadPreview);
+
+startApp().catch((error) => {
+  console.error(error);
+  statusMessage.textContent = error.message;
+  statusMessage.classList.add("is-error");
+});
