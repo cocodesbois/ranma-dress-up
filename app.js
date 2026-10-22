@@ -3,6 +3,7 @@ const preview = document.querySelector("#outfit-preview");
 const previewContext = preview.getContext("2d");
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
+const outfitSelect = document.querySelector("#outfit-select");
 const statusMessage = document.querySelector("#status-message");
 const wardrobePanel = document.querySelector("#wardrobe-panel");
 const wardrobeToggle = document.querySelector("#wardrobe-toggle");
@@ -11,21 +12,18 @@ const wardrobeBackdrop = document.querySelector("#wardrobe-backdrop");
 const mobileWardrobe = window.matchMedia("(max-width: 720px)");
 const imageCache = new Map();
 
-const defaultOutfit = {
-  bodysuits: null,
-  underwear: null,
-  tops: null,
-  dresses: "dress005",
-  hair: null,
-  hats: null,
-  shoes: null,
-  necklace: null,
-  bracelets: null
-};
+const outfitPresets = createOutfitPresets();
+const defaultOutfit = outfitPresets.find((preset) => preset.id === "005")?.look
+  ?? outfitPresets[0]?.look;
+
+if (!defaultOutfit) {
+  throw new Error("No complete outfits with a hairstyle are available.");
+}
 
 let outfit = { ...defaultOutfit };
 let activeCategory = "dresses";
 let wardrobeOpen = false;
+let outfitSelectionRequest = 0;
 
 if (!previewContext) {
   throw new Error("This browser does not support the canvas preview.");
@@ -58,6 +56,45 @@ function loadImage(source) {
 
 function getImage(item) {
   return imageCache.get(item.source);
+}
+
+function getItemNumber(item) {
+  return item.id.match(/(\d{3})$/)?.[1] ?? null;
+}
+
+function createOutfitPresets() {
+  const numbers = [...new Set(catalog.items.map(getItemNumber).filter(Boolean))].sort();
+  const outfitCategories = catalog.categories.map((category) => category.id);
+
+  return numbers
+    .map((id) => {
+      const items = catalog.items.filter((item) => getItemNumber(item) === id);
+      const look = Object.fromEntries(outfitCategories.map((category) => [category, null]));
+
+      for (const item of items) {
+        look[item.category] = item.id;
+      }
+
+      return {
+        id,
+        label: `Outfit ${String(Number(id)).padStart(2, "0")}`,
+        items,
+        look
+      };
+    })
+    .filter((preset) => preset.look.hair && preset.items.some((item) =>
+      ["bodysuits", "underwear", "tops", "dresses"].includes(item.category)
+    ));
+}
+
+function getMatchingOutfit() {
+  return outfitPresets.find((preset) =>
+    catalog.categories.every((category) => outfit[category.id] === preset.look[category.id])
+  );
+}
+
+function updateOutfitSelection() {
+  outfitSelect.value = getMatchingOutfit()?.id ?? "";
 }
 
 function drawItem(context, item, offsetX = 0) {
@@ -149,6 +186,7 @@ function makeThumbnail(item) {
 }
 
 function selectItem(item) {
+  outfitSelectionRequest++;
   if (["bodysuits", "tops", "dresses"].includes(activeCategory)) {
     for (const category of ["bodysuits", "tops", "dresses"]) {
       if (category !== activeCategory) {
@@ -158,6 +196,7 @@ function selectItem(item) {
   }
 
   outfit[activeCategory] = item.id;
+  updateOutfitSelection();
   updateItemSelection();
   drawOutfit();
   statusMessage.textContent = `${item.label} selected.`;
@@ -179,7 +218,7 @@ function makeItemButton(item) {
   return button;
 }
 
-function makeNoneButton(selected) {
+function makeNoneButton() {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "item-card none-card";
@@ -197,7 +236,9 @@ function makeNoneButton(selected) {
   label.textContent = "None";
   button.append(label);
   button.addEventListener("click", () => {
+    outfitSelectionRequest++;
     outfit[activeCategory] = null;
+    updateOutfitSelection();
     updateItemSelection();
     drawOutfit();
     statusMessage.textContent = "Item removed.";
@@ -248,9 +289,32 @@ async function selectCategory(category) {
   }
 }
 
+async function selectOutfit(preset) {
+  const request = ++outfitSelectionRequest;
+  statusMessage.textContent = `Loading ${preset.label.toLowerCase()}...`;
+
+  try {
+    await Promise.all(preset.items.map((item) => loadImage(item.source)));
+    if (request !== outfitSelectionRequest) {
+      return;
+    }
+
+    outfit = { ...preset.look };
+    updateOutfitSelection();
+    renderCategories();
+    renderItems();
+    drawOutfit();
+    statusMessage.textContent = `${preset.label} selected.`;
+  } catch (error) {
+    showError(error);
+  }
+}
+
 function renderItems() {
   itemList.replaceChildren();
-  itemList.append(makeNoneButton());
+  if (activeCategory !== "hair") {
+    itemList.append(makeNoneButton());
+  }
 
   for (const item of catalog.items.filter((entry) => entry.category === activeCategory)) {
     itemList.append(makeItemButton(item));
@@ -320,8 +384,10 @@ function setWardrobeOpen(open, returnFocus = true) {
 }
 
 function resetOutfit() {
+  outfitSelectionRequest++;
   outfit = { ...defaultOutfit };
   activeCategory = "dresses";
+  updateOutfitSelection();
   renderCategories();
   renderItems();
   drawOutfit();
@@ -350,13 +416,22 @@ async function startApp() {
   const initialSources = new Set([
     catalog.background.source,
     catalog.base.source,
-    catalog.items.find((item) => item.id === defaultOutfit.dresses).source,
+    ...catalog.items
+      .filter((item) => defaultOutfit[item.category] === item.id)
+      .map((item) => item.source),
     ...catalog.items
       .filter((item) => item.category === activeCategory)
       .map((item) => item.source)
   ]);
 
   await Promise.all([...initialSources].map(loadImage));
+  for (const preset of outfitPresets) {
+    const option = document.createElement("option");
+    option.value = preset.id;
+    option.textContent = preset.label;
+    outfitSelect.append(option);
+  }
+  updateOutfitSelection();
   renderCategories();
   renderItems();
   drawOutfit();
@@ -365,6 +440,12 @@ async function startApp() {
 
 document.querySelector("#reset-look").addEventListener("click", resetOutfit);
 document.querySelector("#download-look").addEventListener("click", downloadPreview);
+outfitSelect.addEventListener("change", () => {
+  const preset = outfitPresets.find((entry) => entry.id === outfitSelect.value);
+  if (preset) {
+    selectOutfit(preset);
+  }
+});
 wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
 wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
 wardrobeBackdrop.addEventListener("click", () => setWardrobeOpen(false));

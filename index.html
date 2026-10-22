@@ -69,6 +69,7 @@
         ></button>
         <aside id="wardrobe-panel" class="wardrobe-panel" aria-label="Wardrobe">
           <div class="wardrobe-heading">
+            <label class="outfit-label" for="outfit-select">Outfits</label>
             <div class="wardrobe-heading-actions">
               <button
                 id="wardrobe-close"
@@ -79,6 +80,9 @@
             </div>
           </div>
 
+          <select id="outfit-select" class="outfit-select" aria-label="Choose a complete outfit">
+            <option value="">Custom look</option>
+          </select>
           <nav id="category-tabs" class="category-tabs" aria-label="Wardrobe categories"></nav>
           <div id="item-list" class="item-grid" aria-label="Items in the selected category"></div>
         </aside>
