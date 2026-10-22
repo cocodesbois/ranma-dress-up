@@ -14,6 +14,8 @@ Open `http://localhost:8000` in a browser. The app has no build step or external
 
 ## Sprite assets
 
-`sprite-catalog.js` maps the named character items to their source images, atlas rectangles, and original Animate placement transforms. `app.js` crops the atlas frames in the browser, so sprites can be selected individually even when several share one PNG. The source PNGs, `index.js` export, and Animate project files remain available as references; there is no need to re-export or manually split the images in Photoshop.
+The app loads the standalone PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. Composite atlas frames are split ahead of time; the browser does not load or crop the atlases while running. The original PNGs, Animate export, and project files remain intact.
+
+To regenerate the standalone PNGs after updating the Animate export or sprite catalog, run `python scripts/extract_sprites.py`. This one-time development tool reads asset IDs from the catalog and sprite frames from the Animate export, and requires Pillow (`python -m pip install Pillow`) and Node.js. The app itself still has no build step or external runtime dependencies.
 
 The app is served from the repository root and remains compatible with the existing GitHub Pages deployment workflow.

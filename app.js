@@ -5,7 +5,6 @@ const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
 const statusMessage = document.querySelector("#status-message");
 const imageCache = new Map();
-const spriteCache = new Map();
 
 const defaultOutfit = {
   bodysuits: null,
@@ -51,52 +50,17 @@ function loadImage(source) {
   return promise;
 }
 
-function getFrame(item, image) {
-  const frame = item.frame ?? [0, 0, image.naturalWidth, image.naturalHeight];
-  const [x, y, width, height] = frame;
-
-  if (
-    width <= 0 ||
-    height <= 0 ||
-    x < 0 ||
-    y < 0 ||
-    x + width > image.naturalWidth ||
-    y + height > image.naturalHeight
-  ) {
-    throw new Error(`Invalid sprite frame for ${item.id ?? "background"} in ${item.source}.`);
-  }
-
-  return frame;
-}
-
-function getSprite(item) {
-  const key = item.id ?? "background";
-  if (!spriteCache.has(key)) {
-    const image = imageCache.get(item.source);
-    const [x, y, width, height] = getFrame(item, image);
-    const sprite = document.createElement("canvas");
-    sprite.width = width;
-    sprite.height = height;
-    const context = sprite.getContext("2d");
-
-    if (!context) {
-      throw new Error("This browser cannot create sprite previews.");
-    }
-
-    context.drawImage(image, x, y, width, height, 0, 0, width, height);
-    spriteCache.set(key, sprite);
-  }
-
-  return spriteCache.get(key);
+function getImage(item) {
+  return imageCache.get(item.source);
 }
 
 function drawItem(context, item, offsetX = 0) {
-  const sprite = getSprite(item);
+  const image = getImage(item);
   const { x, y, scale, regX, regY } = item.placement;
   const left = x - regX * scale + offsetX;
   const top = y - regY * scale;
 
-  context.drawImage(sprite, left, top, sprite.width * scale, sprite.height * scale);
+  context.drawImage(image, left, top, image.naturalWidth * scale, image.naturalHeight * scale);
 }
 
 function drawOutfit() {
@@ -157,11 +121,11 @@ function makeThumbnail(item) {
     throw new Error("This browser cannot create item thumbnails.");
   }
 
-  const sprite = getSprite(item);
-  const scale = Math.min(88 / sprite.width, 88 / sprite.height);
-  const width = sprite.width * scale;
-  const height = sprite.height * scale;
-  context.drawImage(sprite, (112 - width) / 2, (112 - height) / 2, width, height);
+  const image = getImage(item);
+  const scale = Math.min(88 / image.naturalWidth, 88 / image.naturalHeight);
+  const width = image.naturalWidth * scale;
+  const height = image.naturalHeight * scale;
+  context.drawImage(image, (112 - width) / 2, (112 - height) / 2, width, height);
   return canvas;
 }
 
@@ -232,10 +196,7 @@ function renderCategories() {
       button.textContent = category.label;
 
       button.addEventListener("click", () => {
-        activeCategory = category.id;
-        renderCategories();
-        renderItems();
-        statusMessage.textContent = `${category.label} selected.`;
+        selectCategory(category);
       });
       categoryTabs.append(button);
     }
@@ -245,6 +206,26 @@ function renderCategories() {
     const selected = button.dataset.category === activeCategory;
     button.classList.toggle("is-active", selected);
     button.setAttribute("aria-pressed", String(selected));
+  }
+}
+
+async function selectCategory(category) {
+  activeCategory = category.id;
+  renderCategories();
+  itemList.replaceChildren();
+  statusMessage.textContent = `Loading ${category.label.toLowerCase()}...`;
+
+  try {
+    const items = catalog.items.filter((entry) => entry.category === category.id);
+    await Promise.all(items.map((item) => loadImage(item.source)));
+    if (activeCategory !== category.id) {
+      return;
+    }
+
+    renderItems();
+    statusMessage.textContent = `${category.label} selected.`;
+  } catch (error) {
+    showError(error);
   }
 }
 
@@ -276,6 +257,12 @@ function updateItemSelection() {
   }
 }
 
+function showError(error) {
+  console.error(error);
+  statusMessage.textContent = error.message;
+  statusMessage.classList.add("is-error");
+}
+
 function resetOutfit() {
   outfit = { ...defaultOutfit };
   activeCategory = "dresses";
@@ -304,13 +291,16 @@ function downloadPreview() {
 
 async function startApp() {
   statusMessage.textContent = "Loading the wardrobe...";
-  const sources = new Set([
+  const initialSources = new Set([
     catalog.background.source,
     catalog.base.source,
-    ...catalog.items.map((item) => item.source)
+    catalog.items.find((item) => item.id === defaultOutfit.dresses).source,
+    ...catalog.items
+      .filter((item) => item.category === activeCategory)
+      .map((item) => item.source)
   ]);
 
-  await Promise.all([...sources].map(loadImage));
+  await Promise.all([...initialSources].map(loadImage));
   renderCategories();
   renderItems();
   drawOutfit();
@@ -321,7 +311,5 @@ document.querySelector("#reset-look").addEventListener("click", resetOutfit);
 document.querySelector("#download-look").addEventListener("click", downloadPreview);
 
 startApp().catch((error) => {
-  console.error(error);
-  statusMessage.textContent = error.message;
-  statusMessage.classList.add("is-error");
+  showError(error);
 });
