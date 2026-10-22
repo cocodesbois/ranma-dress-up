@@ -21,7 +21,7 @@ if (!defaultOutfit) {
 }
 
 let outfit = { ...defaultOutfit };
-let activeCategory = "dresses";
+let activeCategory = "tops";
 let wardrobeOpen = false;
 let outfitSelectionRequest = 0;
 
@@ -83,7 +83,7 @@ function createOutfitPresets() {
       };
     })
     .filter((preset) => preset.look.hair && preset.items.some((item) =>
-      ["bodysuits", "underwear", "tops", "dresses"].includes(item.category)
+      ["bodysuits", "underwear", "tops", "dresses", "pants"].includes(item.category)
     ));
 }
 
@@ -142,6 +142,7 @@ function drawOutfit() {
   const layerOrder = [
     "underwear",
     "bodysuits",
+    "pants",
     "tops",
     "dresses",
     "shoes",
@@ -187,12 +188,14 @@ function makeThumbnail(item) {
 
 function selectItem(item) {
   outfitSelectionRequest++;
-  if (["bodysuits", "tops", "dresses"].includes(activeCategory)) {
-    for (const category of ["bodysuits", "tops", "dresses"]) {
-      if (category !== activeCategory) {
-        outfit[category] = null;
-      }
-    }
+  const mutuallyExclusiveCategories = {
+    bodysuits: ["tops", "pants", "dresses"],
+    tops: ["bodysuits", "dresses"],
+    pants: ["bodysuits", "dresses"],
+    dresses: ["bodysuits", "tops", "pants"]
+  };
+  for (const category of mutuallyExclusiveCategories[activeCategory] ?? []) {
+    outfit[category] = null;
   }
 
   outfit[activeCategory] = item.id;
@@ -386,7 +389,7 @@ function setWardrobeOpen(open, returnFocus = true) {
 function resetOutfit() {
   outfitSelectionRequest++;
   outfit = { ...defaultOutfit };
-  activeCategory = "dresses";
+  activeCategory = "tops";
   updateOutfitSelection();
   renderCategories();
   renderItems();
