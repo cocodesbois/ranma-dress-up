@@ -16,6 +16,7 @@ window.RanmaDressUpCatalog = {
     { id: "underwear", label: "Underwear" },
     { id: "tops", label: "Tops" },
     { id: "dresses", label: "Dresses" },
+    { id: "pants", label: "Pants" },
     { id: "hair", label: "Hair" },
     { id: "hats", label: "Hats" },
     { id: "shoes", label: "Shoes" },
@@ -28,42 +29,42 @@ window.RanmaDressUpCatalog = {
       category: "tops",
       label: "Top 01",
       source: "images/sprites/top001.png",
-      placement: { x: 965.55, y: 394.2, scale: 0.18, regX: 875.9, regY: 675.6 }
+      placement: { x: 960.9, y: 394.2, scale: 0.18, regX: 493, regY: 675.6 }
     },
     {
       id: "top002",
       category: "tops",
       label: "Top 02",
       source: "images/sprites/top002.png",
-      placement: { x: 965.55, y: 394.2, scale: 0.18, regX: 875.9, regY: 675.6 }
+      placement: { x: 960.9, y: 394.2, scale: 0.18, regX: 669, regY: 675.6 }
     },
     {
       id: "top003",
       category: "tops",
       label: "Top 03",
       source: "images/sprites/top003.png",
-      placement: { x: 965.55, y: 394.2, scale: 0.18, regX: 875.9, regY: 675.6 }
+      placement: { x: 960.9, y: 394.2, scale: 0.18, regX: 456, regY: 675.6 }
     },
     {
       id: "pants001",
-      category: "dresses",
+      category: "pants",
       label: "Pants 01",
       source: "images/sprites/pants001.png",
-      placement: { x: 960, y: 600, scale: 0.18, regX: 500, regY: 800 }
+      placement: { x: 960, y: 684, scale: 0.18, regX: 500, regY: 800 }
     },
     {
       id: "pants003",
-      category: "dresses",
+      category: "pants",
       label: "Pants 02",
       source: "images/sprites/pants003.png",
-      placement: { x: 960, y: 600, scale: 0.18, regX: 500, regY: 800 }
+      placement: { x: 960, y: 634, scale: 0.18, regX: 500, regY: 800 }
     },
     {
       id: "pant002",
-      category: "dresses",
-      label: "Pant 03",
+      category: "pants",
+      label: "Pants 03",
       source: "images/sprites/pant002.png",
-      placement: { x: 960, y: 600, scale: 0.18, regX: 500, regY: 800 }
+      placement: { x: 960, y: 510, scale: 0.18, regX: 500, regY: 0 }
     },
     {
       id: "hair001",
@@ -120,27 +121,6 @@ window.RanmaDressUpCatalog = {
       label: "Hair 08",
       source: "images/sprites/hair008.png",
       placement: { x: 848.15, y: 281.4, scale: 0.18, regX: 467.2, regY: 474.8 }
-    },
-    {
-      id: "hat001",
-      category: "hats",
-      label: "Hat 01",
-      source: "images/sprites/hat001.png",
-      placement: { x: 971.8, y: 165.3, scale: 0.18, regX: 218.3, regY: 134.4 }
-    },
-    {
-      id: "hat004",
-      category: "hats",
-      label: "Hat 02",
-      source: "images/sprites/hat004.png",
-      placement: { x: 957.65, y: 161.4, scale: 0.18, regX: 204.5, regY: 215.6 }
-    },
-    {
-      id: "hat006",
-      category: "hats",
-      label: "Hat 03",
-      source: "images/sprites/hat006.png",
-      placement: { x: 955.55, y: 116.15, scale: 0.18, regX: 479.8, regY: 345.3 }
     },
     {
       id: "shoes001",
