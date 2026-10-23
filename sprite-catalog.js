@@ -50,21 +50,21 @@ window.RanmaDressUpCatalog = {
       category: "pants",
       label: "Pants 01",
       source: "images/sprites/pants001.png",
-      placement: { x: 960, y: 684, scale: 0.18, regX: 500, regY: 800 }
+      placement: { x: 954, y: 466, scale: 0.19, regX: 366, regY: 0 }
     },
     {
       id: "pants003",
       category: "pants",
       label: "Pants 02",
       source: "images/sprites/pants003.png",
-      placement: { x: 960, y: 634, scale: 0.18, regX: 500, regY: 800 }
+      placement: { x: 954, y: 466, scale: 0.19, regX: 366, regY: 0 }
     },
     {
       id: "pant002",
       category: "pants",
       label: "Pants 03",
       source: "images/sprites/pant002.png",
-      placement: { x: 960, y: 510, scale: 0.18, regX: 500, regY: 0 }
+      placement: { x: 954, y: 478, scale: 0.165, regX: 512, regY: 0 }
     },
     {
       id: "hair001",
