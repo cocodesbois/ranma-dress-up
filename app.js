@@ -75,6 +75,15 @@ function createOutfitPresets() {
         look[item.category] = item.id;
       }
 
+      const hairstyle = items.find((item) => item.category === "hair")
+        ?? catalog.items.find((item) => item.category === "hair");
+      if (hairstyle) {
+        look.hair = hairstyle.id;
+        if (!items.includes(hairstyle)) {
+          items.push(hairstyle);
+        }
+      }
+
       return {
         id,
         label: `Outfit ${String(Number(id)).padStart(2, "0")}`,
@@ -179,10 +188,21 @@ function makeThumbnail(item) {
   }
 
   const image = getImage(item);
-  const scale = Math.min(88 / image.naturalWidth, 88 / image.naturalHeight);
-  const width = image.naturalWidth * scale;
-  const height = image.naturalHeight * scale;
-  context.drawImage(image, (112 - width) / 2, (112 - height) / 2, width, height);
+  const { x, y, width: sourceWidth, height: sourceHeight } = item.thumbnail;
+  const scale = Math.min(88 / sourceWidth, 88 / sourceHeight);
+  const width = sourceWidth * scale;
+  const height = sourceHeight * scale;
+  context.drawImage(
+    image,
+    x,
+    y,
+    sourceWidth,
+    sourceHeight,
+    (112 - width) / 2,
+    (112 - height) / 2,
+    width,
+    height
+  );
   return canvas;
 }
 
