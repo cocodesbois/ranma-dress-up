@@ -11,7 +11,7 @@ window.RanmaDressUpCatalog = {
   width: 1920,
   height: 1080,
   background: {
-    source: "images/sprites/background.png"
+    source: "images/sprites/background002.png"
   },
   base: {
     id: "body",
@@ -57,6 +57,22 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "top004",
+      category: "tops",
+      label: "Top 04",
+      source: "images/sprites/top004.png",
+      thumbnail: { x: 2909, y: 1980, width: 689, height: 921 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "top005",
+      category: "tops",
+      label: "Top 05",
+      source: "images/sprites/top005.png",
+      thumbnail: { x: 2908, y: 1909, width: 730, height: 886 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "pants001",
       category: "pants",
       label: "Pants 01",
@@ -78,6 +94,22 @@ window.RanmaDressUpCatalog = {
       label: "Pants 03",
       source: "images/sprites/pant002.png",
       thumbnail: { x: 2800, y: 2882, width: 1162, height: 1726 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "pants004",
+      category: "pants",
+      label: "Pants 04",
+      source: "images/sprites/pants004.png",
+      thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "pants005",
+      category: "pants",
+      label: "Pants 05",
+      source: "images/sprites/pants005.png",
+      thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
       placement: sharedSpritePlacement
     },
     {
