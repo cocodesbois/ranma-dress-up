@@ -1,6 +1,8 @@
 const catalog = window.RanmaDressUpCatalog;
 const preview = document.querySelector("#outfit-preview");
 const previewContext = preview.getContext("2d");
+const previewWidth = 960;
+const previewHeight = 1080;
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
 const outfitSelect = document.querySelector("#outfit-select");
@@ -24,6 +26,7 @@ let outfit = { ...defaultOutfit };
 let activeCategory = "tops";
 let wardrobeOpen = false;
 let outfitSelectionRequest = 0;
+let previewReady = false;
 
 if (!previewContext) {
   throw new Error("This browser does not support the canvas preview.");
@@ -117,9 +120,9 @@ function drawItem(context, item, offsetX = 0) {
 
 function drawBackground(context) {
   const image = getImage(catalog.background);
-  const scale = Math.max(preview.width / image.naturalWidth, preview.height / image.naturalHeight);
-  const sourceWidth = preview.width / scale;
-  const sourceHeight = preview.height / scale;
+  const scale = Math.max(previewWidth / image.naturalWidth, previewHeight / image.naturalHeight);
+  const sourceWidth = previewWidth / scale;
+  const sourceHeight = previewHeight / scale;
   const sourceX = (image.naturalWidth - sourceWidth) / 2;
   const sourceY = (image.naturalHeight - sourceHeight) / 2;
 
@@ -131,14 +134,14 @@ function drawBackground(context) {
     sourceHeight,
     0,
     0,
-    preview.width,
-    preview.height
+    previewWidth,
+    previewHeight
   );
 }
 
 function drawOutfit() {
   const context = previewContext;
-  context.clearRect(0, 0, preview.width, preview.height);
+  context.clearRect(0, 0, previewWidth, previewHeight);
   drawBackground(context);
 
   context.fillStyle = "rgba(65, 47, 39, 0.14)";
@@ -174,6 +177,34 @@ function drawOutfit() {
 
     drawItem(context, item, -480);
   }
+}
+
+function resizePreview() {
+  const bounds = preview.getBoundingClientRect();
+  if (!bounds.width || !bounds.height) {
+    return;
+  }
+
+  const pixelRatio = window.devicePixelRatio || 1;
+  const width = Math.max(1, Math.round(bounds.width * pixelRatio));
+  const height = Math.max(1, Math.round(bounds.height * pixelRatio));
+  if (preview.width !== width || preview.height !== height) {
+    preview.width = width;
+    preview.height = height;
+  }
+
+  previewContext.setTransform(width / previewWidth, 0, 0, height / previewHeight, 0, 0);
+  if (previewReady) {
+    drawOutfit();
+  }
+}
+
+function watchDevicePixelRatio() {
+  const mediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  mediaQuery.addEventListener("change", () => {
+    resizePreview();
+    watchDevicePixelRatio();
+  }, { once: true });
 }
 
 function makeThumbnail(item) {
@@ -457,6 +488,7 @@ async function startApp() {
   updateOutfitSelection();
   renderCategories();
   renderItems();
+  previewReady = true;
   drawOutfit();
   statusMessage.textContent = "Choose an item to style the character.";
 }
@@ -499,6 +531,13 @@ document.addEventListener("keydown", (event) => {
 });
 
 syncWardrobeMode();
+if ("ResizeObserver" in window) {
+  new ResizeObserver(resizePreview).observe(preview);
+} else {
+  window.addEventListener("resize", resizePreview);
+}
+watchDevicePixelRatio();
+resizePreview();
 startApp().catch((error) => {
   showError(error);
 });
