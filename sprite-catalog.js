@@ -22,6 +22,7 @@ window.RanmaDressUpCatalog = {
   categories: [
     { id: "bodysuits", label: "Bodysuits" },
     { id: "underwear", label: "Underwear" },
+    { id: "slips", label: "Slips" },
     { id: "tops", label: "Tops" },
     { id: "dresses", label: "Dresses" },
     { id: "pants", label: "Pants" },
@@ -73,6 +74,30 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "top006",
+      category: "tops",
+      label: "Top 06",
+      source: "images/sprites/top006.png",
+      thumbnail: { x: 2805, y: 1969, width: 800, height: 1064 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "dress006",
+      category: "dresses",
+      label: "Dress 06",
+      source: "images/sprites/dress006.png",
+      thumbnail: { x: 2793, y: 1951, width: 1320, height: 2979 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "slip006",
+      category: "slips",
+      label: "Slip 06",
+      source: "images/sprites/slip006.png",
+      thumbnail: { x: 2861, y: 2980, width: 664, height: 338 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "pants001",
       category: "pants",
       label: "Pants 01",
@@ -110,6 +135,14 @@ window.RanmaDressUpCatalog = {
       label: "Shoes 01",
       source: "images/sprites/shoes001.png",
       thumbnail: { x: 3130, y: 5078, width: 1210, height: 674 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "shoes006",
+      category: "shoes",
+      label: "Shoes 06",
+      source: "images/sprites/shoes006.png",
+      thumbnail: { x: 3132, y: 5198, width: 1193, height: 559 },
       placement: sharedSpritePlacement
     },
     {
@@ -177,6 +210,17 @@ window.RanmaDressUpCatalog = {
         tops: "top005",
         pants: "pants004",
         hair: "hair001"
+      }
+    },
+    {
+      id: "006",
+      label: "Outfit 06",
+      items: {
+        tops: "top006",
+        dresses: "dress006",
+        slips: "slip006",
+        hair: "hair001",
+        shoes: "shoes006"
       }
     }
   ]

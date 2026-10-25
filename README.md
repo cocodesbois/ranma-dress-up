@@ -28,6 +28,6 @@ Use lowercase, descriptive, stable names based on the item's category and identi
 
 Keep existing item entries, IDs, and image filenames unchanged unless there is a specific migration need. When an existing duplicate pair is explicitly identified for cleanup, keep the lower-numbered image as the canonical asset and remove the redundant higher-numbered file. Use one canonical catalog item and reference its ID from every outfit that uses it. For example, the catalog uses `pants001` in Outfits 01 and 03, and `pants004` in Outfits 04 and 05.
 
-Pants have their own category, while empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
+Pants and slips have their own categories; the Slips category contains individual slip options. Outfits 01-06 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
 The app is served from the repository root and remains compatible with the existing GitHub Pages deployment workflow.
