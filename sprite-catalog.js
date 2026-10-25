@@ -7,12 +7,6 @@ const sharedSpritePlacement = {
   regY: 3405
 };
 
-const placementWithCanvasOffset = (offsetX, offsetY) => ({
-  ...sharedSpritePlacement,
-  x: sharedSpritePlacement.x + offsetX * sharedSpritePlacement.scale,
-  y: sharedSpritePlacement.y + offsetY * sharedSpritePlacement.scale
-});
-
 window.RanmaDressUpCatalog = {
   width: 1920,
   height: 1080,
@@ -87,14 +81,6 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
-      id: "pants003",
-      category: "pants",
-      label: "Pants 02",
-      source: "images/sprites/pants001.png",
-      thumbnail: { x: 2788, y: 2810, width: 1493, height: 2687 },
-      placement: placementWithCanvasOffset(-4, -1)
-    },
-    {
       id: "pant002",
       category: "pants",
       label: "Pants 03",
@@ -106,14 +92,6 @@ window.RanmaDressUpCatalog = {
       id: "pants004",
       category: "pants",
       label: "Pants 04",
-      source: "images/sprites/pants004.png",
-      thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
-      placement: sharedSpritePlacement
-    },
-    {
-      id: "pants005",
-      category: "pants",
-      label: "Pants 05",
       source: "images/sprites/pants004.png",
       thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
       placement: sharedSpritePlacement
@@ -133,14 +111,6 @@ window.RanmaDressUpCatalog = {
       source: "images/sprites/shoes001.png",
       thumbnail: { x: 3130, y: 5078, width: 1210, height: 674 },
       placement: sharedSpritePlacement
-    },
-    {
-      id: "shoes003",
-      category: "shoes",
-      label: "Shoes 02",
-      source: "images/sprites/shoes001.png",
-      thumbnail: { x: 3130, y: 5078, width: 1210, height: 674 },
-      placement: placementWithCanvasOffset(1, 5)
     },
     {
       id: "bracelets001",
@@ -173,7 +143,7 @@ window.RanmaDressUpCatalog = {
     {
       id: "003",
       label: "Outfit 03",
-      items: ["top003", "pants003", "hair001", "shoes003", "bracelets003"]
+      items: ["top003", "pants001", "hair001", "shoes001", "bracelets003"]
     },
     {
       id: "004",
@@ -183,7 +153,7 @@ window.RanmaDressUpCatalog = {
     {
       id: "005",
       label: "Outfit 05",
-      items: ["top005", "pants005", "hair001"]
+      items: ["top005", "pants004", "hair001"]
     }
   ]
 };
