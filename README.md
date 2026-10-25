@@ -19,8 +19,8 @@ The app loads the individual PNGs in `images/sprites/` directly, loading each wa
 The catalog lives in `sprite-catalog.js`:
 
 - Add every wearable as one entry in `items`, with a unique stable `id`, a category ID declared in `categories`, a display `label`, its image `source`, thumbnail crop, and canvas `placement`.
-- Add complete looks separately in `outfits`. Each outfit has its own `id`, `label`, and an `items` array containing catalog item IDs. Outfit IDs do not identify or determine image names.
-- To share one item between outfits, include its item ID in each outfit's `items` array. Keep only one catalog entry for that item; it will appear once in its category, regardless of how many outfits use it.
+- Add looks separately in `outfits`. Each outfit has its own `id`, `label`, and an `items` object mapping category IDs to catalog item IDs, for example `{ tops: "top001", pants: "pants001", hair: "hair001" }`. Outfit IDs do not identify or determine image names.
+- Each category can have at most one item in an outfit because it is a key in the mapping. Omit a category key when the outfit has no item in that category; outfits may share the same catalog item ID. Keep only one catalog entry for a shared item; it appears once in its category regardless of how many outfits use it.
 
 ### Naming new image files
 
