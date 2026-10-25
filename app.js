@@ -94,7 +94,7 @@ function createOutfitPresets() {
     }
 
     if (!look.hair || !items.some((item) =>
-      ["bodysuits", "underwear", "tops", "dresses", "pants"].includes(item.category)
+      ["bodysuits", "underwear", "slips", "tops", "dresses", "pants"].includes(item.category)
     )) {
       throw new Error(`Outfit "${outfit.id}" must include hair and a clothing item.`);
     }
@@ -157,6 +157,7 @@ function drawOutfit() {
 
   const layerOrder = [
     "underwear",
+    "slips",
     "bodysuits",
     "pants",
     "tops",
@@ -245,9 +246,9 @@ function selectItem(item) {
   outfitSelectionRequest++;
   const mutuallyExclusiveCategories = {
     bodysuits: ["tops", "pants", "dresses"],
-    tops: ["bodysuits", "dresses"],
+    tops: ["bodysuits"],
     pants: ["bodysuits", "dresses"],
-    dresses: ["bodysuits", "tops", "pants"]
+    dresses: ["bodysuits", "pants"]
   };
   for (const category of mutuallyExclusiveCategories[activeCategory] ?? []) {
     outfit[category] = null;
