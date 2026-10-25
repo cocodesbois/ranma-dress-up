@@ -133,27 +133,51 @@ window.RanmaDressUpCatalog = {
     {
       id: "001",
       label: "Outfit 01",
-      items: ["top001", "pants001", "hair001", "shoes001", "bracelets001"]
+      items: {
+        tops: "top001",
+        pants: "pants001",
+        hair: "hair001",
+        shoes: "shoes001",
+        bracelets: "bracelets001"
+      }
     },
     {
       id: "002",
       label: "Outfit 02",
-      items: ["top002", "pant002", "hair001"]
+      items: {
+        tops: "top002",
+        pants: "pant002",
+        hair: "hair001"
+      }
     },
     {
       id: "003",
       label: "Outfit 03",
-      items: ["top003", "pants001", "hair001", "shoes001", "bracelets003"]
+      items: {
+        tops: "top003",
+        pants: "pants001",
+        hair: "hair001",
+        shoes: "shoes001",
+        bracelets: "bracelets003"
+      }
     },
     {
       id: "004",
       label: "Outfit 04",
-      items: ["top004", "pants004", "hair001"]
+      items: {
+        tops: "top004",
+        pants: "pants004",
+        hair: "hair001"
+      }
     },
     {
       id: "005",
       label: "Outfit 05",
-      items: ["top005", "pants004", "hair001"]
+      items: {
+        tops: "top005",
+        pants: "pants004",
+        hair: "hair001"
+      }
     }
   ]
 };
