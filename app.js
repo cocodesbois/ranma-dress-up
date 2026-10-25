@@ -61,42 +61,39 @@ function getImage(item) {
   return imageCache.get(item.source);
 }
 
-function getItemNumber(item) {
-  return item.id.match(/(\d{3})$/)?.[1] ?? null;
-}
-
 function createOutfitPresets() {
-  const numbers = [...new Set(catalog.items.map(getItemNumber).filter(Boolean))].sort();
   const outfitCategories = catalog.categories.map((category) => category.id);
+  const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
 
-  return numbers
-    .map((id) => {
-      const items = catalog.items.filter((item) => getItemNumber(item) === id);
-      const look = Object.fromEntries(outfitCategories.map((category) => [category, null]));
-
-      for (const item of items) {
-        look[item.category] = item.id;
+  return catalog.outfits.map((outfit) => {
+    const items = outfit.items.map((itemId) => {
+      const item = itemsById.get(itemId);
+      if (!item) {
+        throw new Error(`Unknown item "${itemId}" in outfit "${outfit.id}".`);
       }
 
-      const hairstyle = items.find((item) => item.category === "hair")
-        ?? catalog.items.find((item) => item.category === "hair");
-      if (hairstyle) {
-        look.hair = hairstyle.id;
-        if (!items.includes(hairstyle)) {
-          items.push(hairstyle);
-        }
+      if (!outfitCategories.includes(item.category)) {
+        throw new Error(`Unknown category "${item.category}" for item "${item.id}".`);
       }
+      return item;
+    });
+    const look = Object.fromEntries(outfitCategories.map((category) => [category, null]));
 
-      return {
-        id,
-        label: `Outfit ${String(Number(id)).padStart(2, "0")}`,
-        items,
-        look
-      };
-    })
-    .filter((preset) => preset.look.hair && preset.items.some((item) =>
+    for (const item of items) {
+      if (look[item.category]) {
+        throw new Error(`Outfit "${outfit.id}" has more than one item in "${item.category}".`);
+      }
+      look[item.category] = item.id;
+    }
+
+    if (!look.hair || !items.some((item) =>
       ["bodysuits", "underwear", "tops", "dresses", "pants"].includes(item.category)
-    ));
+    )) {
+      throw new Error(`Outfit "${outfit.id}" must include hair and a clothing item.`);
+    }
+
+    return { ...outfit, items, look };
+  });
 }
 
 function getMatchingOutfit() {

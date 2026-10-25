@@ -158,5 +158,32 @@ window.RanmaDressUpCatalog = {
       thumbnail: { x: 2408, y: 2771, width: 1671, height: 390 },
       placement: sharedSpritePlacement
     }
+  ],
+  outfits: [
+    {
+      id: "001",
+      label: "Outfit 01",
+      items: ["top001", "pants001", "hair001", "shoes001", "bracelets001"]
+    },
+    {
+      id: "002",
+      label: "Outfit 02",
+      items: ["top002", "pant002", "hair001"]
+    },
+    {
+      id: "003",
+      label: "Outfit 03",
+      items: ["top003", "pants003", "hair001", "shoes003", "bracelets003"]
+    },
+    {
+      id: "004",
+      label: "Outfit 04",
+      items: ["top004", "pants004", "hair001"]
+    },
+    {
+      id: "005",
+      label: "Outfit 05",
+      items: ["top005", "pants005", "hair001"]
+    }
   ]
 };
