@@ -26,7 +26,7 @@ The catalog lives in `sprite-catalog.js`:
 
 Use lowercase, descriptive, stable names based on the item's category and identity or appearance, not the outfit number. Separate words with hyphens and use the same stem for the catalog item ID and image filename. For example, `images/sprites/pants-straight-black.png` can use the catalog ID `pants-straight-black`. Add the image asset and its item entry to `sprite-catalog.js`; then reference its ID in any outfit definitions that use it.
 
-Keep existing item entries, IDs, and image filenames unchanged unless there is a specific migration need. Deduplicate an existing pair only when that grouping is explicitly decided; use one canonical catalog item and reference its ID from every outfit that uses it. For example, the catalog uses `pants001` in Outfits 01 and 03, and `pants004` in Outfits 04 and 05. The redundant original PNG files remain in the repository but are not catalog entries or outfit references.
+Keep existing item entries, IDs, and image filenames unchanged unless there is a specific migration need. Deduplicate an existing pair only when that grouping is explicitly decided; use one canonical catalog item and reference its ID from every outfit that uses it. For approved duplicate groups, retain only the image with the lowest numeric suffix and remove the redundant PNG files. For example, `pants001` is shared by Outfits 01 and 03, and `pants004` by Outfits 04 and 05.
 
 Pants have their own category, while empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
