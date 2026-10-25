@@ -14,8 +14,8 @@ Open `http://localhost:8000` in a browser. The app has no build step or external
 
 ## Sprite assets
 
-The app loads the individual PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. The app does not load or crop composite atlases at runtime and has no build step or external runtime dependencies.
+The app loads the individual PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. The original `background.png` remains the default scene. Items with identical visible sprite artwork keep separate catalog entries but reuse a single PNG source to avoid duplicate image loads. The app does not load or crop composite atlases at runtime and has no build step or external runtime dependencies.
 
-Outfit presets group clothing, accessories, and hair by their shared three-digit suffix (for example, `top001` and `pants001` are in Outfit 01). Pants have their own category, while empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
+Outfit presets group clothing, accessories, and hair by their shared three-digit suffix (for example, `top001` and `pants001` are in Outfit 01). Tops 04-05 and Pants 04-05 are available in their existing categories and are grouped into their matching presets. Pants have their own category, while empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
 The app is served from the repository root and remains compatible with the existing GitHub Pages deployment workflow.

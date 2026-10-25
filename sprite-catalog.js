@@ -7,6 +7,12 @@ const sharedSpritePlacement = {
   regY: 3405
 };
 
+const placementWithCanvasOffset = (offsetX, offsetY) => ({
+  ...sharedSpritePlacement,
+  x: sharedSpritePlacement.x + offsetX * sharedSpritePlacement.scale,
+  y: sharedSpritePlacement.y + offsetY * sharedSpritePlacement.scale
+});
+
 window.RanmaDressUpCatalog = {
   width: 1920,
   height: 1080,
@@ -57,6 +63,22 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "top004",
+      category: "tops",
+      label: "Top 04",
+      source: "images/sprites/top004.png",
+      thumbnail: { x: 2909, y: 1980, width: 689, height: 921 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "top005",
+      category: "tops",
+      label: "Top 05",
+      source: "images/sprites/top005.png",
+      thumbnail: { x: 2908, y: 1909, width: 730, height: 886 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "pants001",
       category: "pants",
       label: "Pants 01",
@@ -68,9 +90,9 @@ window.RanmaDressUpCatalog = {
       id: "pants003",
       category: "pants",
       label: "Pants 02",
-      source: "images/sprites/pants003.png",
-      thumbnail: { x: 2784, y: 2809, width: 1493, height: 2687 },
-      placement: sharedSpritePlacement
+      source: "images/sprites/pants001.png",
+      thumbnail: { x: 2788, y: 2810, width: 1493, height: 2687 },
+      placement: placementWithCanvasOffset(-4, -1)
     },
     {
       id: "pant002",
@@ -78,6 +100,22 @@ window.RanmaDressUpCatalog = {
       label: "Pants 03",
       source: "images/sprites/pant002.png",
       thumbnail: { x: 2800, y: 2882, width: 1162, height: 1726 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "pants004",
+      category: "pants",
+      label: "Pants 04",
+      source: "images/sprites/pants004.png",
+      thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "pants005",
+      category: "pants",
+      label: "Pants 05",
+      source: "images/sprites/pants004.png",
+      thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
       placement: sharedSpritePlacement
     },
     {
@@ -100,9 +138,9 @@ window.RanmaDressUpCatalog = {
       id: "shoes003",
       category: "shoes",
       label: "Shoes 02",
-      source: "images/sprites/shoes003.png",
-      thumbnail: { x: 3131, y: 5083, width: 1210, height: 674 },
-      placement: sharedSpritePlacement
+      source: "images/sprites/shoes001.png",
+      thumbnail: { x: 3130, y: 5078, width: 1210, height: 674 },
+      placement: placementWithCanvasOffset(1, 5)
     },
     {
       id: "bracelets001",
