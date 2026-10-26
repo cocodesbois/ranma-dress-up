@@ -24,7 +24,7 @@ The catalog lives in `sprite-catalog.js`:
 
 ### Naming new image files
 
-Use lowercase, descriptive, stable names based on the item's category and identity or appearance, not the outfit number. Separate words with hyphens and use the same stem for the catalog item ID and image filename when choosing a new filename. For example, `images/sprites/pants-straight-black.png` can use the catalog ID `pants-straight-black`. For extraction-generated or otherwise provided filenames, preserve the filename and use a descriptive catalog item ID. Add the image asset and its item entry to `sprite-catalog.js`; then reference its ID in any outfit definitions that use it.
+Use lowercase, descriptive, stable names based on the item's category and identity or appearance, not the outfit number. Separate words with hyphens and use the same stem for the catalog item ID and image filename when choosing a new filename. For example, `images/sprites/pants-straight-black.png` can use the catalog ID `pants-straight-black`. If retaining extraction-generated or otherwise provided filenames, use a descriptive catalog item ID even when it differs from the filename. Add the image asset and its item entry to `sprite-catalog.js`; then reference its ID in any outfit definitions that use it.
 
 Keep existing item entries, IDs, and image filenames unchanged unless there is a specific migration need. When an existing duplicate pair is explicitly identified for cleanup, keep the lower-numbered image as the canonical asset and remove the redundant higher-numbered file. Use one canonical catalog item and reference its ID from every outfit that uses it. For example, the catalog uses `pants001` in Outfits 01 and 03, and `pants004` in Outfits 04 and 05.
 
