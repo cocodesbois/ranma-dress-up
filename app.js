@@ -94,7 +94,7 @@ function createOutfitPresets() {
     }
 
     if (!look.hair || !items.some((item) =>
-      ["bodysuits", "underwear", "slips", "tops", "dresses", "pants"].includes(item.category)
+      ["bodysuits", "underwear", "slips", "tights", "tops", "dresses", "pants"].includes(item.category)
     )) {
       throw new Error(`Outfit "${outfit.id}" must include hair and a clothing item.`);
     }
@@ -158,6 +158,7 @@ function drawOutfit() {
   const layerOrder = [
     "underwear",
     "slips",
+    "tights",
     "bodysuits",
     "pants",
     "tops",

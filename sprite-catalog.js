@@ -23,6 +23,7 @@ window.RanmaDressUpCatalog = {
     { id: "bodysuits", label: "Bodysuits" },
     { id: "underwear", label: "Underwear" },
     { id: "slips", label: "Slips" },
+    { id: "tights", label: "Tights" },
     { id: "tops", label: "Tops" },
     { id: "dresses", label: "Dresses" },
     { id: "pants", label: "Pants" },
@@ -82,6 +83,14 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "top008",
+      category: "tops",
+      label: "Top 08",
+      source: "images/sprites/top008.png",
+      thumbnail: { x: 2898, y: 2187, width: 686, height: 665 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "dress006",
       category: "dresses",
       label: "Dress 06",
@@ -103,6 +112,22 @@ window.RanmaDressUpCatalog = {
       label: "Slip 06",
       source: "images/sprites/slip006.png",
       thumbnail: { x: 2861, y: 2980, width: 664, height: 338 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "slip008",
+      category: "slips",
+      label: "Slip 08",
+      source: "images/sprites/slip008.png",
+      thumbnail: { x: 2902, y: 2946, width: 624, height: 373 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "tights008",
+      category: "tights",
+      label: "Tights 08",
+      source: "images/sprites/tights008.png",
+      thumbnail: { x: 2817, y: 2854, width: 1507, height: 2889 },
       placement: sharedSpritePlacement
     },
     {
@@ -176,6 +201,14 @@ window.RanmaDressUpCatalog = {
       source: "images/sprites/bracelets003.png",
       thumbnail: { x: 2408, y: 2771, width: 1671, height: 390 },
       placement: sharedSpritePlacement
+    },
+    {
+      id: "bracelets008",
+      category: "bracelets",
+      label: "Bracelets 08",
+      source: "images/sprites/bracelets008.png",
+      thumbnail: { x: 2407, y: 2724, width: 1626, height: 434 },
+      placement: sharedSpritePlacement
     }
   ],
   outfits: [
@@ -246,6 +279,16 @@ window.RanmaDressUpCatalog = {
         dresses: "dress007",
         hair: "hair001",
         shoes: "shoes007"
+      }
+    },
+    {
+      id: "008",
+      label: "Outfit 08",
+      items: {
+        tops: "top008",
+        slips: "slip008",
+        tights: "tights008",
+        bracelets: "bracelets008"
       }
     }
   ]
