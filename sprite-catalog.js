@@ -92,6 +92,14 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "top010",
+      category: "tops",
+      label: "Top 10",
+      source: "images/sprites/top010.png",
+      thumbnail: { x: 2730, y: 1867, width: 964, height: 989 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "dress006",
       category: "dresses",
       label: "Dress 06",
@@ -153,6 +161,14 @@ window.RanmaDressUpCatalog = {
       label: "Pants 04",
       source: "images/sprites/pants004.png",
       thumbnail: { x: 2760, y: 2842, width: 811, height: 554 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "pants010",
+      category: "pants",
+      label: "Pants 10",
+      source: "images/sprites/pants010.png",
+      thumbnail: { x: 2794, y: 2827, width: 1422, height: 2341 },
       placement: sharedSpritePlacement
     },
     {
@@ -233,6 +249,14 @@ window.RanmaDressUpCatalog = {
       label: "Shoes 09",
       source: "images/sprites/shoes009.png",
       thumbnail: { x: 3135, y: 5086, width: 1214, height: 707 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "shoes010",
+      category: "shoes",
+      label: "Shoes 10",
+      source: "images/sprites/shoes010.png",
+      thumbnail: { x: 3127, y: 5078, width: 1208, height: 684 },
       placement: sharedSpritePlacement
     },
     {
@@ -343,6 +367,16 @@ window.RanmaDressUpCatalog = {
         hats: "hat009",
         shoes: "shoes009",
         accessories: "accessories009"
+      }
+    },
+    {
+      id: "010",
+      label: "Outfit 10",
+      items: {
+        tops: "top010",
+        pants: "pants010",
+        hair: "hair001",
+        shoes: "shoes010"
       }
     }
   ]
