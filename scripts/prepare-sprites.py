@@ -35,6 +35,8 @@ CATEGORIES = {
     "shoes": ("shoes", "shoes", "Shoes"),
     "necklace": ("necklace", "necklace", "Necklace"),
     "bracelets": ("bracelets", "bracelets", "Bracelets"),
+    "accessoires": ("accessories", "accessories", "Accessories"),
+    "accessories": ("accessories", "accessories", "Accessories"),
 }
 # Longest alternatives first so "pants" wins over "pant".
 WORDS = "|".join(sorted(CATEGORIES, key=len, reverse=True))
