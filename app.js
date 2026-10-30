@@ -167,7 +167,8 @@ function drawOutfit() {
     "hair",
     "hats",
     "necklace",
-    "bracelets"
+    "bracelets",
+    "accessories"
   ];
 
   for (const category of layerOrder) {

@@ -7,7 +7,8 @@ description: Add new outfit sprites to Ranma Dress Up. Use when the user adds PN
 
 1. Ask for the folder containing the exported PNGs if it was not given.
 2. Dry run: `python scripts/prepare-sprites.py <folder> --dry-run`.
-   - Prefixes before the category word are dropped: `xxx_xxx-top001.png` becomes `top001.png`.
+   - Prefixes before the category word are dropped: `xxx_xxx-top001.png` becomes `top001.png`. `accessoires` maps to the `accessories` category and `pant` to `pants`.
+   - New files can be copied to a temporary folder first so the source folder is left untouched.
    - The script stops on unrecognized names, collisions with existing sprites, or duplicate targets. Never overwrite; ask the user how to resolve.
 3. Run it again without `--dry-run`. It moves the files to `images/sprites/` and prints a catalog item snippet per file, with the `thumbnail` crop computed from the bounding box of non-transparent pixels.
 4. Paste each snippet into `items` in `sprite-catalog.js`, next to items of the same category. Check the `label` (existing labels sometimes differ from the file number).

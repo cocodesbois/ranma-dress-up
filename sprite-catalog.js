@@ -31,7 +31,8 @@ window.RanmaDressUpCatalog = {
     { id: "hats", label: "Hats" },
     { id: "shoes", label: "Shoes" },
     { id: "necklace", label: "Necklace" },
-    { id: "bracelets", label: "Bracelets" }
+    { id: "bracelets", label: "Bracelets" },
+    { id: "accessories", label: "Accessories" }
   ],
   items: [
     {
@@ -209,6 +210,46 @@ window.RanmaDressUpCatalog = {
       source: "images/sprites/bracelets008.png",
       thumbnail: { x: 2407, y: 2724, width: 1626, height: 434 },
       placement: sharedSpritePlacement
+    },
+    {
+      id: "bodysuit009",
+      category: "bodysuits",
+      label: "Bodysuit 09",
+      source: "images/sprites/bodysuit009.png",
+      thumbnail: { x: 2918, y: 1964, width: 671, height: 1362 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "hat009",
+      category: "hats",
+      label: "Hat 09",
+      source: "images/sprites/hat009.png",
+      thumbnail: { x: 2928, y: 379, width: 832, height: 1181 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "shoes009",
+      category: "shoes",
+      label: "Shoes 09",
+      source: "images/sprites/shoes009.png",
+      thumbnail: { x: 3135, y: 5086, width: 1214, height: 707 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "tights009",
+      category: "tights",
+      label: "Tights 09",
+      source: "images/sprites/tights009.png",
+      thumbnail: { x: 2809, y: 2838, width: 1518, height: 2910 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "accessories009",
+      category: "accessories",
+      label: "Accessories 09",
+      source: "images/sprites/accessories009.png",
+      thumbnail: { x: 1789, y: 1347, width: 2729, height: 1530 },
+      placement: sharedSpritePlacement
     }
   ],
   outfits: [
@@ -290,6 +331,18 @@ window.RanmaDressUpCatalog = {
         tights: "tights008",
         hair: "hair001",
         bracelets: "bracelets008"
+      }
+    },
+    {
+      id: "009",
+      label: "Outfit 09",
+      items: {
+        bodysuits: "bodysuit009",
+        tights: "tights009",
+        hair: "hair001",
+        hats: "hat009",
+        shoes: "shoes009",
+        accessories: "accessories009"
       }
     }
   ]
