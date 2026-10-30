@@ -31,3 +31,7 @@ Keep existing item entries, IDs, and image filenames unchanged unless there is a
 Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-08 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes, Outfit 07 with its dress and shoes, and Outfit 08 with its top, slip, tights, and bracelets. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
 The app is served from the repository root and remains compatible with the existing GitHub Pages deployment workflow.
+
+## Developer constraints
+
+Technical data and runtime constraints for future Copilot/dev sessions are documented in `.github/technical-constraints.md`.

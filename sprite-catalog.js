@@ -288,6 +288,7 @@ window.RanmaDressUpCatalog = {
         tops: "top008",
         slips: "slip008",
         tights: "tights008",
+        hair: "hair001",
         bracelets: "bracelets008"
       }
     }
