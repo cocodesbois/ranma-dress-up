@@ -111,8 +111,14 @@ function getMatchingOutfit() {
   );
 }
 
+function findPresetById(id) {
+  const normalizedId = String(id);
+  return outfitPresets.find((preset) => String(preset.id) === normalizedId);
+}
+
 function updateOutfitSelection() {
-  outfitSelect.value = getMatchingOutfit()?.id ?? "";
+  const matchingOutfit = getMatchingOutfit();
+  outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
 }
 
 function drawItem(context, item, offsetX = 0) {
@@ -375,7 +381,9 @@ async function selectOutfit(preset) {
 
 function getPresetIndexByCurrentSelection() {
   if (outfitSelect.value) {
-    const selectedIndex = outfitPresets.findIndex((preset) => preset.id === outfitSelect.value);
+    const selectedIndex = outfitPresets.findIndex((preset) =>
+      String(preset.id) === outfitSelect.value
+    );
     if (selectedIndex >= 0) {
       return selectedIndex;
     }
@@ -383,7 +391,7 @@ function getPresetIndexByCurrentSelection() {
 
   const matchingPreset = getMatchingOutfit();
   if (matchingPreset) {
-    return outfitPresets.findIndex((preset) => preset.id === matchingPreset.id);
+    return outfitPresets.findIndex((preset) => String(preset.id) === String(matchingPreset.id));
   }
 
   return -1;
@@ -521,7 +529,7 @@ async function startApp() {
   await Promise.all([...initialSources].map(loadImage));
   for (const preset of outfitPresets) {
     const option = document.createElement("option");
-    option.value = preset.id;
+    option.value = String(preset.id);
     option.textContent = preset.label;
     outfitSelect.append(option);
   }
@@ -536,7 +544,7 @@ async function startApp() {
 document.querySelector("#reset-look").addEventListener("click", resetOutfit);
 document.querySelector("#download-look").addEventListener("click", downloadPreview);
 outfitSelect.addEventListener("change", () => {
-  const preset = outfitPresets.find((entry) => entry.id === outfitSelect.value);
+  const preset = findPresetById(outfitSelect.value);
   if (preset) {
     selectOutfit(preset);
   }

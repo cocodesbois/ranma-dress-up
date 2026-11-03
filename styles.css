@@ -236,22 +236,25 @@ button {
 }
 
 .outfit-select-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
 }
 
 .outfit-select-row .outfit-select {
+  flex: 1 1 auto;
+  min-width: 0;
   margin-bottom: 0;
 }
 
 .outfit-nav-button {
+  flex: 0 0 auto;
   min-height: 36px;
   padding: 0 10px;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .wardrobe-close,
