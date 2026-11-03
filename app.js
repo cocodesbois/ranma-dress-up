@@ -1,4 +1,6 @@
 const catalog = window.RanmaDressUpCatalog;
+const catalogModel = window.RanmaDressUpCatalogModel;
+const stateStore = window.RanmaDressUpStateStore;
 const preview = document.querySelector("#outfit-preview");
 const previewContext = preview.getContext("2d");
 const previewWidth = 960;
@@ -16,19 +18,17 @@ const wardrobeBackdrop = document.querySelector("#wardrobe-backdrop");
 const mobileWardrobe = window.matchMedia("(max-width: 720px)");
 const imageCache = new Map();
 
-const outfitPresets = createOutfitPresets();
-const defaultOutfit = outfitPresets.find((preset) => preset.id === "005")?.look
-  ?? outfitPresets[0]?.look;
+const outfitPresets = catalogModel.createOutfitPresets(catalog);
+const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "005");
 
 if (!defaultOutfit) {
   throw new Error("No complete outfits with a hairstyle are available.");
 }
 
-let outfit = { ...defaultOutfit };
-let activeCategory = "tops";
-let wardrobeOpen = false;
-let outfitSelectionRequest = 0;
-let previewReady = false;
+const appState = stateStore.createStore({
+  defaultOutfit,
+  initialActiveCategory: "tops"
+});
 
 if (!previewContext) {
   throw new Error("This browser does not support the canvas preview.");
@@ -73,59 +73,6 @@ function setOutfitControlsDisabled(disabled) {
   outfitSelect.disabled = disabled;
   outfitPreviousButton.disabled = disabled;
   outfitNextButton.disabled = disabled;
-}
-
-function createOutfitPresets() {
-  const outfitCategories = new Set(catalog.categories.map((category) => category.id));
-  const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
-
-  return catalog.outfits.map((outfit) => {
-    if (!outfit.items || typeof outfit.items !== "object" || Array.isArray(outfit.items)) {
-      throw new Error(`Outfit "${outfit.id}" must define items by category.`);
-    }
-
-    const look = Object.fromEntries([...outfitCategories].map((category) => [category, null]));
-    const items = [];
-
-    for (const [category, itemId] of Object.entries(outfit.items)) {
-      if (!outfitCategories.has(category)) {
-        throw new Error(`Unknown category "${category}" in outfit "${outfit.id}".`);
-      }
-
-      const item = itemsById.get(itemId);
-      if (!item) {
-        throw new Error(`Unknown item "${itemId}" in outfit "${outfit.id}".`);
-      }
-
-      if (item.category !== category) {
-        throw new Error(
-          `Item "${item.id}" belongs to "${item.category}", not "${category}" in outfit "${outfit.id}".`
-        );
-      }
-
-      look[category] = item.id;
-      items.push(item);
-    }
-
-    if (!look.hair || !items.some((item) =>
-      ["bodysuits", "underwear", "slips", "tights", "tops", "dresses", "pants"].includes(item.category)
-    )) {
-      throw new Error(`Outfit "${outfit.id}" must include hair and a clothing item.`);
-    }
-
-    return { id: outfit.id, label: outfit.label, items, look };
-  });
-}
-
-function getMatchingOutfit() {
-  return outfitPresets.find((preset) =>
-    catalog.categories.every((category) => outfit[category.id] === preset.look[category.id])
-  );
-}
-
-function findPresetById(id) {
-  const normalizedId = String(id);
-  return outfitPresets.find((preset) => String(preset.id) === normalizedId);
 }
 
 function getMissingSourcesForPreset(preset) {
@@ -185,7 +132,7 @@ function preloadAllOutfitsInBackground() {
 }
 
 function updateOutfitSelection() {
-  const matchingOutfit = getMatchingOutfit();
+  const matchingOutfit = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
 }
 
@@ -248,7 +195,7 @@ function drawOutfit() {
   ];
 
   for (const category of layerOrder) {
-    const selectedId = outfit[category];
+    const selectedId = appState.getOutfit()[category];
     if (!selectedId) {
       continue;
     }
@@ -277,7 +224,7 @@ function resizePreview() {
   }
 
   previewContext.setTransform(width / previewWidth, 0, 0, height / previewHeight, 0, 0);
-  if (previewReady) {
+  if (appState.isPreviewReady()) {
     drawOutfit();
   }
 }
@@ -321,18 +268,15 @@ function makeThumbnail(item) {
 }
 
 function selectItem(item) {
-  outfitSelectionRequest++;
+  appState.nextOutfitSelectionRequest();
   const mutuallyExclusiveCategories = {
     bodysuits: ["tops", "pants", "dresses"],
     tops: ["bodysuits"],
     pants: ["bodysuits", "dresses"],
     dresses: ["bodysuits", "pants"]
   };
-  for (const category of mutuallyExclusiveCategories[activeCategory] ?? []) {
-    outfit[category] = null;
-  }
-
-  outfit[activeCategory] = item.id;
+  appState.clearOutfitItems(mutuallyExclusiveCategories[appState.getActiveCategory()] ?? []);
+  appState.setOutfitItem(appState.getActiveCategory(), item.id);
   updateOutfitSelection();
   updateItemSelection();
   drawOutfit();
@@ -373,8 +317,8 @@ function makeNoneButton() {
   label.textContent = "None";
   button.append(label);
   button.addEventListener("click", () => {
-    outfitSelectionRequest++;
-    outfit[activeCategory] = null;
+    appState.nextOutfitSelectionRequest();
+    appState.setOutfitItem(appState.getActiveCategory(), null);
     updateOutfitSelection();
     updateItemSelection();
     drawOutfit();
@@ -400,14 +344,14 @@ function renderCategories() {
   }
 
   for (const button of categoryTabs.querySelectorAll(".category-tab")) {
-    const selected = button.dataset.category === activeCategory;
+    const selected = button.dataset.category === appState.getActiveCategory();
     button.classList.toggle("is-active", selected);
     button.setAttribute("aria-pressed", String(selected));
   }
 }
 
 async function selectCategory(category) {
-  activeCategory = category.id;
+  appState.setActiveCategory(category.id);
   renderCategories();
   itemList.replaceChildren();
   setStatusMessage(`Loading ${category.label.toLowerCase()}...`, { loading: true });
@@ -415,7 +359,7 @@ async function selectCategory(category) {
   try {
     const items = catalog.items.filter((entry) => entry.category === category.id);
     await Promise.all(items.map((item) => loadImage(item.source)));
-    if (activeCategory !== category.id) {
+    if (appState.getActiveCategory() !== category.id) {
       return;
     }
 
@@ -427,7 +371,7 @@ async function selectCategory(category) {
 }
 
 async function selectOutfit(preset) {
-  const request = ++outfitSelectionRequest;
+  const request = appState.nextOutfitSelectionRequest();
   const missingSources = getMissingSourcesForPreset(preset);
 
   try {
@@ -437,11 +381,11 @@ async function selectOutfit(preset) {
       await Promise.all(missingSources.map((source) => loadImage(source)));
     }
 
-    if (request !== outfitSelectionRequest) {
+    if (!appState.isCurrentOutfitSelectionRequest(request)) {
       return;
     }
 
-    outfit = { ...preset.look };
+    appState.setOutfit(preset.look);
     updateOutfitSelection();
     renderCategories();
     renderItems();
@@ -451,7 +395,7 @@ async function selectOutfit(preset) {
   } catch (error) {
     showError(error);
   } finally {
-    if (request === outfitSelectionRequest) {
+    if (appState.isCurrentOutfitSelectionRequest(request)) {
       setOutfitControlsDisabled(false);
     }
   }
@@ -467,7 +411,7 @@ function getPresetIndexByCurrentSelection() {
     }
   }
 
-  const matchingPreset = getMatchingOutfit();
+  const matchingPreset = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   if (matchingPreset) {
     return outfitPresets.findIndex((preset) => String(preset.id) === String(matchingPreset.id));
   }
@@ -492,11 +436,11 @@ function selectAdjacentOutfit(step) {
 
 function renderItems() {
   itemList.replaceChildren();
-  if (activeCategory !== "hair") {
+  if (appState.getActiveCategory() !== "hair") {
     itemList.append(makeNoneButton());
   }
 
-  for (const item of catalog.items.filter((entry) => entry.category === activeCategory)) {
+  for (const item of catalog.items.filter((entry) => entry.category === appState.getActiveCategory())) {
     itemList.append(makeItemButton(item));
   }
   updateItemSelection();
@@ -505,8 +449,8 @@ function renderItems() {
 function updateItemSelection() {
   for (const button of itemList.querySelectorAll(".item-card")) {
     const selected = button.dataset.none === "true"
-      ? outfit[activeCategory] === null
-      : outfit[activeCategory] === button.dataset.itemId;
+      ? appState.getOutfit()[appState.getActiveCategory()] === null
+      : appState.getOutfit()[appState.getActiveCategory()] === button.dataset.itemId;
     button.classList.toggle("is-selected", selected);
     button.setAttribute("aria-pressed", String(selected));
 
@@ -527,19 +471,19 @@ function showError(error) {
 
 function syncWardrobeMode() {
   if (!mobileWardrobe.matches) {
-    wardrobeOpen = false;
+    appState.setWardrobeOpen(false);
   }
 
-  const hidden = mobileWardrobe.matches && !wardrobeOpen;
+  const hidden = mobileWardrobe.matches && !appState.isWardrobeOpen();
   wardrobePanel.inert = hidden;
   wardrobePanel.setAttribute("aria-hidden", String(hidden));
-  wardrobeToggle.setAttribute("aria-expanded", String(wardrobeOpen));
-  wardrobeBackdrop.inert = !wardrobeOpen;
-  document.body.classList.toggle("wardrobe-open", wardrobeOpen);
+  wardrobeToggle.setAttribute("aria-expanded", String(appState.isWardrobeOpen()));
+  wardrobeBackdrop.inert = !appState.isWardrobeOpen();
+  document.body.classList.toggle("wardrobe-open", appState.isWardrobeOpen());
 
   if (mobileWardrobe.matches) {
     wardrobePanel.setAttribute("role", "dialog");
-    wardrobePanel.setAttribute("aria-modal", String(wardrobeOpen));
+    wardrobePanel.setAttribute("aria-modal", String(appState.isWardrobeOpen()));
   } else {
     wardrobePanel.removeAttribute("role");
     wardrobePanel.removeAttribute("aria-modal");
@@ -552,7 +496,7 @@ function setWardrobeOpen(open, returnFocus = true) {
     return;
   }
 
-  wardrobeOpen = open;
+  appState.setWardrobeOpen(open);
   syncWardrobeMode();
 
   if (open) {
@@ -563,9 +507,9 @@ function setWardrobeOpen(open, returnFocus = true) {
 }
 
 function resetOutfit() {
-  outfitSelectionRequest++;
-  outfit = { ...defaultOutfit };
-  activeCategory = "tops";
+  appState.nextOutfitSelectionRequest();
+  appState.setOutfit(defaultOutfit);
+  appState.setActiveCategory("tops");
   updateOutfitSelection();
   renderCategories();
   renderItems();
@@ -596,10 +540,10 @@ async function startApp() {
     catalog.background.source,
     catalog.base.source,
     ...catalog.items
-      .filter((item) => defaultOutfit[item.category] === item.id)
+      .filter((item) => appState.getOutfit()[item.category] === item.id)
       .map((item) => item.source),
     ...catalog.items
-      .filter((item) => item.category === activeCategory)
+      .filter((item) => item.category === appState.getActiveCategory())
       .map((item) => item.source)
   ]);
 
@@ -613,10 +557,10 @@ async function startApp() {
   updateOutfitSelection();
   renderCategories();
   renderItems();
-  previewReady = true;
+  appState.setPreviewReady(true);
   drawOutfit();
   setStatusMessage("Choose an item to style the character.");
-  const selectedPreset = getMatchingOutfit();
+  const selectedPreset = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   if (selectedPreset) {
     preloadAdjacentOutfits(selectedPreset);
   }
@@ -626,7 +570,7 @@ async function startApp() {
 document.querySelector("#reset-look").addEventListener("click", resetOutfit);
 document.querySelector("#download-look").addEventListener("click", downloadPreview);
 outfitSelect.addEventListener("change", () => {
-  const preset = findPresetById(outfitSelect.value);
+  const preset = catalogModel.findPresetById(outfitPresets, outfitSelect.value);
   if (preset) {
     selectOutfit(preset);
   }
@@ -638,7 +582,7 @@ wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
 wardrobeBackdrop.addEventListener("click", () => setWardrobeOpen(false));
 mobileWardrobe.addEventListener("change", () => syncWardrobeMode());
 document.addEventListener("keydown", (event) => {
-  if (!wardrobeOpen) {
+  if (!appState.isWardrobeOpen()) {
     return;
   }
 
