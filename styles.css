@@ -235,6 +235,25 @@ button {
   font-size: 12px;
 }
 
+.outfit-select-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.outfit-select-row .outfit-select {
+  margin-bottom: 0;
+}
+
+.outfit-nav-button {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .wardrobe-close,
 .wardrobe-trigger,
 .wardrobe-backdrop {

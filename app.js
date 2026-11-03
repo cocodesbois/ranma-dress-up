@@ -6,6 +6,8 @@ const previewHeight = 1080;
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
 const outfitSelect = document.querySelector("#outfit-select");
+const outfitPreviousButton = document.querySelector("#outfit-previous");
+const outfitNextButton = document.querySelector("#outfit-next");
 const statusMessage = document.querySelector("#status-message");
 const wardrobePanel = document.querySelector("#wardrobe-panel");
 const wardrobeToggle = document.querySelector("#wardrobe-toggle");
@@ -371,6 +373,37 @@ async function selectOutfit(preset) {
   }
 }
 
+function getPresetIndexByCurrentSelection() {
+  if (outfitSelect.value) {
+    const selectedIndex = outfitPresets.findIndex((preset) => preset.id === outfitSelect.value);
+    if (selectedIndex >= 0) {
+      return selectedIndex;
+    }
+  }
+
+  const matchingPreset = getMatchingOutfit();
+  if (matchingPreset) {
+    return outfitPresets.findIndex((preset) => preset.id === matchingPreset.id);
+  }
+
+  return -1;
+}
+
+function selectAdjacentOutfit(step) {
+  if (!outfitPresets.length) {
+    return;
+  }
+
+  const currentIndex = getPresetIndexByCurrentSelection();
+  const nextIndex = currentIndex < 0
+    ? (step > 0 ? 0 : outfitPresets.length - 1)
+    : (currentIndex + step + outfitPresets.length) % outfitPresets.length;
+  const preset = outfitPresets[nextIndex];
+  if (preset) {
+    selectOutfit(preset);
+  }
+}
+
 function renderItems() {
   itemList.replaceChildren();
   if (activeCategory !== "hair") {
@@ -508,6 +541,8 @@ outfitSelect.addEventListener("change", () => {
     selectOutfit(preset);
   }
 });
+outfitPreviousButton.addEventListener("click", () => selectAdjacentOutfit(-1));
+outfitNextButton.addEventListener("click", () => selectAdjacentOutfit(1));
 wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
 wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
 wardrobeBackdrop.addEventListener("click", () => setWardrobeOpen(false));
