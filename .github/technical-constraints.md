@@ -25,7 +25,8 @@ Use this file as the source of truth for data and behavior constraints when chan
    - `pants` clears `bodysuits`, `dresses`
    - `dresses` clears `bodysuits`, `pants`
 3. Layer draw order is fixed and must stay coherent with visual composition:
-   `underwear → slips → tights → bodysuits → pants → tops → dresses → shoes → hair → hats → necklace → bracelets → accessories`.
+   `underwear → slips → tights → bodysuits → pants → tops → shoes → dresses → hair → hats → necklace → bracelets → accessories`.
+   Dresses render over shoes so their hems can hide them where appropriate.
 
 ## Change checklist
 

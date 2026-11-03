@@ -116,6 +116,14 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "dress013",
+      category: "dresses",
+      label: "Dress 13",
+      source: "images/sprites/dress013.png",
+      thumbnail: { x: 1938, y: 2031, width: 2747, height: 3577 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "slip006",
       category: "slips",
       label: "Slip 06",
@@ -284,6 +292,14 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "shoes013",
+      category: "shoes",
+      label: "Shoes 13",
+      source: "images/sprites/shoes013.png",
+      thumbnail: { x: 3133, y: 5077, width: 1215, height: 694 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "tights009",
       category: "tights",
       label: "Tights 09",
@@ -437,6 +453,15 @@ window.RanmaDressUpCatalog = {
         hair: "hair001",
         shoes: "shoes011",
         accessories: "accessories012"
+      }
+    },
+    {
+      id: "013",
+      label: "Outfit 13",
+      items: {
+        dresses: "dress013",
+        hair: "hair001",
+        shoes: "shoes013"
       }
     }
   ]
