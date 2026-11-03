@@ -6,6 +6,8 @@ const previewHeight = 1080;
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
 const outfitSelect = document.querySelector("#outfit-select");
+const outfitPreviousButton = document.querySelector("#outfit-previous");
+const outfitNextButton = document.querySelector("#outfit-next");
 const statusMessage = document.querySelector("#status-message");
 const wardrobePanel = document.querySelector("#wardrobe-panel");
 const wardrobeToggle = document.querySelector("#wardrobe-toggle");
@@ -61,6 +63,18 @@ function getImage(item) {
   return imageCache.get(item.source);
 }
 
+function setStatusMessage(text, { loading = false, isError = false } = {}) {
+  statusMessage.textContent = text;
+  statusMessage.classList.toggle("is-loading", loading);
+  statusMessage.classList.toggle("is-error", isError);
+}
+
+function setOutfitControlsDisabled(disabled) {
+  outfitSelect.disabled = disabled;
+  outfitPreviousButton.disabled = disabled;
+  outfitNextButton.disabled = disabled;
+}
+
 function createOutfitPresets() {
   const outfitCategories = new Set(catalog.categories.map((category) => category.id));
   const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
@@ -109,8 +123,70 @@ function getMatchingOutfit() {
   );
 }
 
+function findPresetById(id) {
+  const normalizedId = String(id);
+  return outfitPresets.find((preset) => String(preset.id) === normalizedId);
+}
+
+function getMissingSourcesForPreset(preset) {
+  const missing = [];
+  for (const item of preset.items) {
+    if (!imageCache.has(item.source)) {
+      missing.push(item.source);
+    }
+  }
+  return missing;
+}
+
+function preloadPresetAssets(preset) {
+  for (const item of preset.items) {
+    Promise.resolve(loadImage(item.source)).catch((error) => {
+      console.error(error);
+    });
+  }
+}
+
+function preloadAdjacentOutfits(preset, distance = 2) {
+  const currentIndex = outfitPresets.findIndex((entry) => String(entry.id) === String(preset.id));
+  if (currentIndex < 0) {
+    return;
+  }
+
+  for (let step = 1; step <= distance; step++) {
+    const nextIndex = (currentIndex + step) % outfitPresets.length;
+    const previousIndex = (currentIndex - step + outfitPresets.length) % outfitPresets.length;
+    preloadPresetAssets(outfitPresets[nextIndex]);
+    preloadPresetAssets(outfitPresets[previousIndex]);
+  }
+}
+
+function preloadAllOutfitsInBackground() {
+  const allSources = [...new Set(outfitPresets.flatMap((preset) => preset.items.map((item) => item.source)))];
+  let cursor = 0;
+  const chunkSize = 6;
+  const schedule = "requestIdleCallback" in window
+    ? (callback) => window.requestIdleCallback(callback, { timeout: 280 })
+    : (callback) => window.setTimeout(callback, 0);
+
+  const loadChunk = () => {
+    const end = Math.min(cursor + chunkSize, allSources.length);
+    for (; cursor < end; cursor++) {
+      Promise.resolve(loadImage(allSources[cursor])).catch((error) => {
+        console.error(error);
+      });
+    }
+
+    if (cursor < allSources.length) {
+      schedule(loadChunk);
+    }
+  };
+
+  schedule(loadChunk);
+}
+
 function updateOutfitSelection() {
-  outfitSelect.value = getMatchingOutfit()?.id ?? "";
+  const matchingOutfit = getMatchingOutfit();
+  outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
 }
 
 function drawItem(context, item, offsetX = 0) {
@@ -260,7 +336,7 @@ function selectItem(item) {
   updateOutfitSelection();
   updateItemSelection();
   drawOutfit();
-  statusMessage.textContent = `${item.label} selected.`;
+  setStatusMessage(`${item.label} selected.`);
 }
 
 function makeItemButton(item) {
@@ -302,7 +378,7 @@ function makeNoneButton() {
     updateOutfitSelection();
     updateItemSelection();
     drawOutfit();
-    statusMessage.textContent = "Item removed.";
+    setStatusMessage("Item removed.");
   });
   return button;
 }
@@ -334,7 +410,7 @@ async function selectCategory(category) {
   activeCategory = category.id;
   renderCategories();
   itemList.replaceChildren();
-  statusMessage.textContent = `Loading ${category.label.toLowerCase()}...`;
+  setStatusMessage(`Loading ${category.label.toLowerCase()}...`, { loading: true });
 
   try {
     const items = catalog.items.filter((entry) => entry.category === category.id);
@@ -344,7 +420,7 @@ async function selectCategory(category) {
     }
 
     renderItems();
-    statusMessage.textContent = `${category.label} selected.`;
+    setStatusMessage(`${category.label} selected.`);
   } catch (error) {
     showError(error);
   }
@@ -352,10 +428,15 @@ async function selectCategory(category) {
 
 async function selectOutfit(preset) {
   const request = ++outfitSelectionRequest;
-  statusMessage.textContent = `Loading ${preset.label.toLowerCase()}...`;
+  const missingSources = getMissingSourcesForPreset(preset);
 
   try {
-    await Promise.all(preset.items.map((item) => loadImage(item.source)));
+    if (missingSources.length) {
+      setStatusMessage(`Loading ${preset.label.toLowerCase()}...`, { loading: true });
+      setOutfitControlsDisabled(true);
+      await Promise.all(missingSources.map((source) => loadImage(source)));
+    }
+
     if (request !== outfitSelectionRequest) {
       return;
     }
@@ -365,9 +446,47 @@ async function selectOutfit(preset) {
     renderCategories();
     renderItems();
     drawOutfit();
-    statusMessage.textContent = `${preset.label} selected.`;
+    setStatusMessage(`${preset.label} selected.`);
+    preloadAdjacentOutfits(preset);
   } catch (error) {
     showError(error);
+  } finally {
+    if (request === outfitSelectionRequest) {
+      setOutfitControlsDisabled(false);
+    }
+  }
+}
+
+function getPresetIndexByCurrentSelection() {
+  if (outfitSelect.value) {
+    const selectedIndex = outfitPresets.findIndex((preset) =>
+      String(preset.id) === outfitSelect.value
+    );
+    if (selectedIndex >= 0) {
+      return selectedIndex;
+    }
+  }
+
+  const matchingPreset = getMatchingOutfit();
+  if (matchingPreset) {
+    return outfitPresets.findIndex((preset) => String(preset.id) === String(matchingPreset.id));
+  }
+
+  return -1;
+}
+
+function selectAdjacentOutfit(step) {
+  if (!outfitPresets.length) {
+    return;
+  }
+
+  const currentIndex = getPresetIndexByCurrentSelection();
+  const nextIndex = currentIndex < 0
+    ? (step > 0 ? 0 : outfitPresets.length - 1)
+    : (currentIndex + step + outfitPresets.length) % outfitPresets.length;
+  const preset = outfitPresets[nextIndex];
+  if (preset) {
+    selectOutfit(preset);
   }
 }
 
@@ -403,8 +522,7 @@ function updateItemSelection() {
 
 function showError(error) {
   console.error(error);
-  statusMessage.textContent = error.message;
-  statusMessage.classList.add("is-error");
+  setStatusMessage(error.message, { isError: true });
 }
 
 function syncWardrobeMode() {
@@ -452,13 +570,13 @@ function resetOutfit() {
   renderCategories();
   renderItems();
   drawOutfit();
-  statusMessage.textContent = "The original look has been restored.";
+  setStatusMessage("The original look has been restored.");
 }
 
 function downloadPreview() {
   preview.toBlob((blob) => {
     if (!blob) {
-      statusMessage.textContent = "The preview could not be saved.";
+      setStatusMessage("The preview could not be saved.");
       return;
     }
 
@@ -468,12 +586,12 @@ function downloadPreview() {
     link.download = "ranma-dress-up.png";
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    statusMessage.textContent = "Your look has been downloaded.";
+    setStatusMessage("Your look has been downloaded.");
   }, "image/png");
 }
 
 async function startApp() {
-  statusMessage.textContent = "Loading the wardrobe...";
+  setStatusMessage("Loading the wardrobe...", { loading: true });
   const initialSources = new Set([
     catalog.background.source,
     catalog.base.source,
@@ -488,7 +606,7 @@ async function startApp() {
   await Promise.all([...initialSources].map(loadImage));
   for (const preset of outfitPresets) {
     const option = document.createElement("option");
-    option.value = preset.id;
+    option.value = String(preset.id);
     option.textContent = preset.label;
     outfitSelect.append(option);
   }
@@ -497,17 +615,24 @@ async function startApp() {
   renderItems();
   previewReady = true;
   drawOutfit();
-  statusMessage.textContent = "Choose an item to style the character.";
+  setStatusMessage("Choose an item to style the character.");
+  const selectedPreset = getMatchingOutfit();
+  if (selectedPreset) {
+    preloadAdjacentOutfits(selectedPreset);
+  }
+  preloadAllOutfitsInBackground();
 }
 
 document.querySelector("#reset-look").addEventListener("click", resetOutfit);
 document.querySelector("#download-look").addEventListener("click", downloadPreview);
 outfitSelect.addEventListener("change", () => {
-  const preset = outfitPresets.find((entry) => entry.id === outfitSelect.value);
+  const preset = findPresetById(outfitSelect.value);
   if (preset) {
     selectOutfit(preset);
   }
 });
+outfitPreviousButton.addEventListener("click", () => selectAdjacentOutfit(-1));
+outfitNextButton.addEventListener("click", () => selectAdjacentOutfit(1));
 wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
 wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
 wardrobeBackdrop.addEventListener("click", () => setWardrobeOpen(false));

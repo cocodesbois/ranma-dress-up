@@ -135,14 +135,33 @@ button {
 }
 
 .status-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   min-height: 18px;
   margin: 0;
   color: var(--muted);
   font-size: 12px;
 }
 
+.status-message.is-loading::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  border: 2px solid rgba(130, 123, 119, 0.25);
+  border-top-color: var(--rose);
+  border-radius: 50%;
+  animation: status-spinner 700ms linear infinite;
+}
+
 .status-message.is-error {
   color: #a33443;
+}
+
+@keyframes status-spinner {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .action-buttons {
@@ -233,6 +252,28 @@ button {
   color: var(--ink);
   font: inherit;
   font-size: 12px;
+}
+
+.outfit-select-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.outfit-select-row .outfit-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.outfit-nav-button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .wardrobe-close,

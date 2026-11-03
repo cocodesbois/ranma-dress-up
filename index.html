@@ -80,9 +80,27 @@
             </div>
           </div>
 
-          <select id="outfit-select" class="outfit-select" aria-label="Choose a complete outfit">
-            <option value="">Custom look</option>
-          </select>
+          <div class="outfit-select-row">
+            <button
+              id="outfit-previous"
+              class="button button-secondary outfit-nav-button"
+              type="button"
+              aria-label="Select previous outfit"
+            >
+              Prev
+            </button>
+            <select id="outfit-select" class="outfit-select" aria-label="Choose a complete outfit">
+              <option value="">Custom look</option>
+            </select>
+            <button
+              id="outfit-next"
+              class="button button-secondary outfit-nav-button"
+              type="button"
+              aria-label="Select next outfit"
+            >
+              Next
+            </button>
+          </div>
           <nav id="category-tabs" class="category-tabs" aria-label="Wardrobe categories"></nav>
           <div id="item-list" class="item-grid" aria-label="Items in the selected category"></div>
         </aside>
