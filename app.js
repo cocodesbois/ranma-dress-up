@@ -3,6 +3,7 @@ const catalogModel = window.RanmaDressUpCatalogModel;
 const stateStore = window.RanmaDressUpStateStore;
 const imageLoaderModel = window.RanmaDressUpImageLoader;
 const canvasRendererModel = window.RanmaDressUpCanvasRenderer;
+const wardrobeUiModel = window.RanmaDressUpWardrobeUi;
 const preview = document.querySelector("#outfit-preview");
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
@@ -40,6 +41,23 @@ const canvasRenderer = canvasRendererModel.createCanvasRenderer({
   getOutfit: () => appState.getOutfit(),
   isPreviewReady: () => appState.isPreviewReady()
 });
+const wardrobeUi = wardrobeUiModel.createWardrobeUi({
+  categoryTabs,
+  itemList,
+  catalog,
+  getActiveCategory: () => appState.getActiveCategory(),
+  getOutfit: () => appState.getOutfit(),
+  getImage,
+  onCategorySelect: (category) => {
+    selectCategory(category);
+  },
+  onItemSelect: (item) => {
+    selectItem(item);
+  },
+  onNoneSelect: () => {
+    removeActiveCategoryItem();
+  }
+});
 
 function getImage(item) {
   return imageLoader.getImage(item.source);
@@ -62,36 +80,6 @@ function updateOutfitSelection() {
   outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
 }
 
-function makeThumbnail(item) {
-  const canvas = document.createElement("canvas");
-  canvas.className = "item-thumbnail";
-  canvas.width = 112;
-  canvas.height = 112;
-
-  const context = canvas.getContext("2d");
-  if (!context) {
-    throw new Error("This browser cannot create item thumbnails.");
-  }
-
-  const image = getImage(item);
-  const { x, y, width: sourceWidth, height: sourceHeight } = item.thumbnail;
-  const scale = Math.min(88 / sourceWidth, 88 / sourceHeight);
-  const width = sourceWidth * scale;
-  const height = sourceHeight * scale;
-  context.drawImage(
-    image,
-    x,
-    y,
-    sourceWidth,
-    sourceHeight,
-    (112 - width) / 2,
-    (112 - height) / 2,
-    width,
-    height
-  );
-  return canvas;
-}
-
 function selectItem(item) {
   appState.nextOutfitSelectionRequest();
   const mutuallyExclusiveCategories = {
@@ -103,81 +91,23 @@ function selectItem(item) {
   appState.clearOutfitItems(mutuallyExclusiveCategories[appState.getActiveCategory()] ?? []);
   appState.setOutfitItem(appState.getActiveCategory(), item.id);
   updateOutfitSelection();
-  updateItemSelection();
+  wardrobeUi.updateItemSelection();
   canvasRenderer.drawOutfit();
   setStatusMessage(`${item.label} selected.`);
 }
 
-function makeItemButton(item) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "item-card";
-  button.dataset.itemId = item.id;
-  button.setAttribute("aria-label", item.label);
-
-  button.append(makeThumbnail(item));
-  const label = document.createElement("span");
-  label.className = "item-label";
-  label.textContent = item.label;
-  button.append(label);
-  button.addEventListener("click", () => selectItem(item));
-  return button;
-}
-
-function makeNoneButton() {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "item-card none-card";
-  button.dataset.none = "true";
-  button.setAttribute("aria-label", "No item selected");
-
-  const symbol = document.createElement("span");
-  symbol.className = "none-symbol";
-  symbol.setAttribute("aria-hidden", "true");
-  symbol.textContent = "x";
-  button.append(symbol);
-
-  const label = document.createElement("span");
-  label.className = "item-label";
-  label.textContent = "None";
-  button.append(label);
-  button.addEventListener("click", () => {
-    appState.nextOutfitSelectionRequest();
-    appState.setOutfitItem(appState.getActiveCategory(), null);
-    updateOutfitSelection();
-    updateItemSelection();
-    canvasRenderer.drawOutfit();
-    setStatusMessage("Item removed.");
-  });
-  return button;
-}
-
-function renderCategories() {
-  if (categoryTabs.childElementCount === 0) {
-    for (const category of catalog.categories) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "category-tab";
-      button.dataset.category = category.id;
-      button.textContent = category.label;
-
-      button.addEventListener("click", () => {
-        selectCategory(category);
-      });
-      categoryTabs.append(button);
-    }
-  }
-
-  for (const button of categoryTabs.querySelectorAll(".category-tab")) {
-    const selected = button.dataset.category === appState.getActiveCategory();
-    button.classList.toggle("is-active", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  }
+function removeActiveCategoryItem() {
+  appState.nextOutfitSelectionRequest();
+  appState.setOutfitItem(appState.getActiveCategory(), null);
+  updateOutfitSelection();
+  wardrobeUi.updateItemSelection();
+  canvasRenderer.drawOutfit();
+  setStatusMessage("Item removed.");
 }
 
 async function selectCategory(category) {
   appState.setActiveCategory(category.id);
-  renderCategories();
+  wardrobeUi.renderCategories();
   itemList.replaceChildren();
   setStatusMessage(`Loading ${category.label.toLowerCase()}...`, { loading: true });
 
@@ -188,7 +118,7 @@ async function selectCategory(category) {
       return;
     }
 
-    renderItems();
+    wardrobeUi.renderItems();
     setStatusMessage(`${category.label} selected.`);
   } catch (error) {
     showError(error);
@@ -212,8 +142,8 @@ async function selectOutfit(preset) {
 
     appState.setOutfit(preset.look);
     updateOutfitSelection();
-    renderCategories();
-    renderItems();
+    wardrobeUi.renderCategories();
+    wardrobeUi.renderItems();
     canvasRenderer.drawOutfit();
     setStatusMessage(`${preset.label} selected.`);
     imageLoader.preloadAdjacentOutfits(preset);
@@ -256,36 +186,6 @@ function selectAdjacentOutfit(step) {
   const preset = outfitPresets[nextIndex];
   if (preset) {
     selectOutfit(preset);
-  }
-}
-
-function renderItems() {
-  itemList.replaceChildren();
-  if (appState.getActiveCategory() !== "hair") {
-    itemList.append(makeNoneButton());
-  }
-
-  for (const item of catalog.items.filter((entry) => entry.category === appState.getActiveCategory())) {
-    itemList.append(makeItemButton(item));
-  }
-  updateItemSelection();
-}
-
-function updateItemSelection() {
-  for (const button of itemList.querySelectorAll(".item-card")) {
-    const selected = button.dataset.none === "true"
-      ? appState.getOutfit()[appState.getActiveCategory()] === null
-      : appState.getOutfit()[appState.getActiveCategory()] === button.dataset.itemId;
-    button.classList.toggle("is-selected", selected);
-    button.setAttribute("aria-pressed", String(selected));
-
-    if (button.dataset.none === "true") {
-      button.setAttribute("aria-label", selected ? "No item selected" : "Remove selected item");
-    } else if (selected) {
-      button.setAttribute("aria-label", `${button.dataset.itemId}, selected`);
-    } else {
-      button.setAttribute("aria-label", button.querySelector(".item-label").textContent);
-    }
   }
 }
 
@@ -336,8 +236,8 @@ function resetOutfit() {
   appState.setOutfit(defaultOutfit);
   appState.setActiveCategory("tops");
   updateOutfitSelection();
-  renderCategories();
-  renderItems();
+  wardrobeUi.renderCategories();
+  wardrobeUi.renderItems();
   canvasRenderer.drawOutfit();
   setStatusMessage("The original look has been restored.");
 }
@@ -380,8 +280,8 @@ async function startApp() {
     outfitSelect.append(option);
   }
   updateOutfitSelection();
-  renderCategories();
-  renderItems();
+  wardrobeUi.renderCategories();
+  wardrobeUi.renderItems();
   appState.setPreviewReady(true);
   canvasRenderer.drawOutfit();
   setStatusMessage("Choose an item to style the character.");
