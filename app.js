@@ -2,10 +2,8 @@ const catalog = window.RanmaDressUpCatalog;
 const catalogModel = window.RanmaDressUpCatalogModel;
 const stateStore = window.RanmaDressUpStateStore;
 const imageLoaderModel = window.RanmaDressUpImageLoader;
+const canvasRendererModel = window.RanmaDressUpCanvasRenderer;
 const preview = document.querySelector("#outfit-preview");
-const previewContext = preview.getContext("2d");
-const previewWidth = 960;
-const previewHeight = 1080;
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
 const outfitSelect = document.querySelector("#outfit-select");
@@ -35,10 +33,13 @@ const imageLoader = imageLoaderModel.createImageLoader({
     console.error(error);
   }
 });
-
-if (!previewContext) {
-  throw new Error("This browser does not support the canvas preview.");
-}
+const canvasRenderer = canvasRendererModel.createCanvasRenderer({
+  preview,
+  catalog,
+  getImage,
+  getOutfit: () => appState.getOutfit(),
+  isPreviewReady: () => appState.isPreviewReady()
+});
 
 function getImage(item) {
   return imageLoader.getImage(item.source);
@@ -59,107 +60,6 @@ function setOutfitControlsDisabled(disabled) {
 function updateOutfitSelection() {
   const matchingOutfit = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
-}
-
-function drawItem(context, item, offsetX = 0) {
-  const image = getImage(item);
-  const { x, y, scale, regX, regY } = item.placement;
-  const left = x - regX * scale + offsetX;
-  const top = y - regY * scale;
-
-  context.drawImage(image, left, top, image.naturalWidth * scale, image.naturalHeight * scale);
-}
-
-function drawBackground(context) {
-  const image = getImage(catalog.background);
-  const scale = Math.max(previewWidth / image.naturalWidth, previewHeight / image.naturalHeight);
-  const sourceWidth = previewWidth / scale;
-  const sourceHeight = previewHeight / scale;
-  const sourceX = (image.naturalWidth - sourceWidth) / 2;
-  const sourceY = (image.naturalHeight - sourceHeight) / 2;
-
-  context.drawImage(
-    image,
-    sourceX,
-    sourceY,
-    sourceWidth,
-    sourceHeight,
-    0,
-    0,
-    previewWidth,
-    previewHeight
-  );
-}
-
-function drawOutfit() {
-  const context = previewContext;
-  context.clearRect(0, 0, previewWidth, previewHeight);
-  drawBackground(context);
-
-  context.fillStyle = "rgba(65, 47, 39, 0.14)";
-  context.beginPath();
-  context.ellipse(480, 969, 145, 17, 0, 0, Math.PI * 2);
-  context.fill();
-
-  drawItem(context, catalog.base, -480);
-
-  const layerOrder = [
-    "underwear",
-    "slips",
-    "tights",
-    "bodysuits",
-    "pants",
-    "tops",
-    "shoes",
-    "dresses",
-    "hair",
-    "hats",
-    "necklace",
-    "bracelets",
-    "accessories"
-  ];
-
-  for (const category of layerOrder) {
-    const selectedId = appState.getOutfit()[category];
-    if (!selectedId) {
-      continue;
-    }
-
-    const item = catalog.items.find((entry) => entry.id === selectedId);
-    if (!item) {
-      throw new Error(`Unknown outfit item: ${selectedId}.`);
-    }
-
-    drawItem(context, item, -480);
-  }
-}
-
-function resizePreview() {
-  const bounds = preview.getBoundingClientRect();
-  if (!bounds.width || !bounds.height) {
-    return;
-  }
-
-  const pixelRatio = window.devicePixelRatio || 1;
-  const width = Math.max(1, Math.round(bounds.width * pixelRatio));
-  const height = Math.max(1, Math.round(bounds.height * pixelRatio));
-  if (preview.width !== width || preview.height !== height) {
-    preview.width = width;
-    preview.height = height;
-  }
-
-  previewContext.setTransform(width / previewWidth, 0, 0, height / previewHeight, 0, 0);
-  if (appState.isPreviewReady()) {
-    drawOutfit();
-  }
-}
-
-function watchDevicePixelRatio() {
-  const mediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
-  mediaQuery.addEventListener("change", () => {
-    resizePreview();
-    watchDevicePixelRatio();
-  }, { once: true });
 }
 
 function makeThumbnail(item) {
@@ -204,7 +104,7 @@ function selectItem(item) {
   appState.setOutfitItem(appState.getActiveCategory(), item.id);
   updateOutfitSelection();
   updateItemSelection();
-  drawOutfit();
+  canvasRenderer.drawOutfit();
   setStatusMessage(`${item.label} selected.`);
 }
 
@@ -246,7 +146,7 @@ function makeNoneButton() {
     appState.setOutfitItem(appState.getActiveCategory(), null);
     updateOutfitSelection();
     updateItemSelection();
-    drawOutfit();
+    canvasRenderer.drawOutfit();
     setStatusMessage("Item removed.");
   });
   return button;
@@ -314,7 +214,7 @@ async function selectOutfit(preset) {
     updateOutfitSelection();
     renderCategories();
     renderItems();
-    drawOutfit();
+    canvasRenderer.drawOutfit();
     setStatusMessage(`${preset.label} selected.`);
     imageLoader.preloadAdjacentOutfits(preset);
   } catch (error) {
@@ -438,7 +338,7 @@ function resetOutfit() {
   updateOutfitSelection();
   renderCategories();
   renderItems();
-  drawOutfit();
+  canvasRenderer.drawOutfit();
   setStatusMessage("The original look has been restored.");
 }
 
@@ -483,7 +383,7 @@ async function startApp() {
   renderCategories();
   renderItems();
   appState.setPreviewReady(true);
-  drawOutfit();
+  canvasRenderer.drawOutfit();
   setStatusMessage("Choose an item to style the character.");
   const selectedPreset = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   if (selectedPreset) {
@@ -533,12 +433,12 @@ document.addEventListener("keydown", (event) => {
 
 syncWardrobeMode();
 if ("ResizeObserver" in window) {
-  new ResizeObserver(resizePreview).observe(preview);
+  new ResizeObserver(canvasRenderer.resizePreview).observe(preview);
 } else {
-  window.addEventListener("resize", resizePreview);
+  window.addEventListener("resize", canvasRenderer.resizePreview);
 }
-watchDevicePixelRatio();
-resizePreview();
+canvasRenderer.watchDevicePixelRatio();
+canvasRenderer.resizePreview();
 startApp().catch((error) => {
   showError(error);
 });
