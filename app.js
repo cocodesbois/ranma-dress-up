@@ -7,6 +7,7 @@ const wardrobeUiModel = window.RanmaDressUpWardrobeUi;
 const statusControllerModel = window.RanmaDressUpStatusController;
 const wardrobePanelControllerModel = window.RanmaDressUpWardrobePanelController;
 const outfitControllerModel = window.RanmaDressUpOutfitController;
+const appBootstrapModel = window.RanmaDressUpAppBootstrap;
 
 const preview = document.querySelector("#outfit-preview");
 const categoryTabs = document.querySelector("#category-tabs");
@@ -20,6 +21,8 @@ const wardrobeToggle = document.querySelector("#wardrobe-toggle");
 const wardrobeClose = document.querySelector("#wardrobe-close");
 const wardrobeBackdrop = document.querySelector("#wardrobe-backdrop");
 const mobileWardrobe = window.matchMedia("(max-width: 720px)");
+const resetButton = document.querySelector("#reset-look");
+const downloadButton = document.querySelector("#download-look");
 
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
 const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "005");
@@ -92,23 +95,6 @@ function showError(error) {
   statusController.setStatusMessage(error.message, { isError: true });
 }
 
-function downloadPreview() {
-  preview.toBlob((blob) => {
-    if (!blob) {
-      statusController.setStatusMessage("The preview could not be saved.");
-      return;
-    }
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "ranma-dress-up.png";
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    statusController.setStatusMessage("Your look has been downloaded.");
-  }, "image/png");
-}
-
 outfitController = outfitControllerModel.createOutfitController({
   catalog,
   catalogModel,
@@ -122,23 +108,19 @@ outfitController = outfitControllerModel.createOutfitController({
   wardrobeUi,
   onError: showError
 });
-
-document.querySelector("#reset-look").addEventListener("click", () => outfitController.resetOutfit());
-document.querySelector("#download-look").addEventListener("click", downloadPreview);
-outfitSelect.addEventListener("change", () => outfitController.selectOutfitById(outfitSelect.value));
-outfitPreviousButton.addEventListener("click", () => outfitController.selectAdjacentOutfit(-1));
-outfitNextButton.addEventListener("click", () => outfitController.selectAdjacentOutfit(1));
-
-wardrobePanelController.bindEvents();
-wardrobePanelController.syncWardrobeMode();
-
-if ("ResizeObserver" in window) {
-  new ResizeObserver(canvasRenderer.resizePreview).observe(preview);
-} else {
-  window.addEventListener("resize", canvasRenderer.resizePreview);
-}
-canvasRenderer.watchDevicePixelRatio();
-canvasRenderer.resizePreview();
-outfitController.startApp().catch((error) => {
-  showError(error);
+const appBootstrap = appBootstrapModel.createAppBootstrap({
+  preview,
+  resetButton,
+  downloadButton,
+  outfitSelect,
+  outfitPreviousButton,
+  outfitNextButton,
+  outfitController,
+  statusController,
+  wardrobePanelController,
+  canvasRenderer,
+  onError: showError
 });
+
+appBootstrap.bindEvents();
+appBootstrap.start();
