@@ -14,11 +14,11 @@ Open `http://localhost:8080` in a browser. The app has no build step or external
 
 ## Sprite assets and catalog
 
-The app loads the individual PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. The original `background.png` remains the default scene. The app does not load or crop composite atlases at runtime and has no build step or external runtime dependencies.
+The app loads the individual PNGs in `images/sprites/` directly, loading each wardrobe category only when it is opened. The original `background.png` remains the default scene. Item cards use pre-generated thumbnail images from `images/thumbnails/` and fall back to runtime crop rendering only when a thumbnail file is missing.
 
 The catalog lives in `sprite-catalog.js`:
 
-- Add every wearable as one entry in `items`, with a unique stable `id`, a category ID declared in `categories`, a display `label`, its image `source`, thumbnail crop, and canvas `placement`.
+- Add every wearable as one entry in `items`, with a unique stable `id`, a category ID declared in `categories`, a display `label`, its image `source`, thumbnail image `thumbnailSource`, thumbnail crop, and canvas `placement`.
 - Add looks separately in `outfits`. Each outfit has its own `id`, `label`, and an `items` object mapping category IDs to catalog item IDs, for example `{ tops: "top001", pants: "pants001", hair: "hair001" }`. Outfit IDs do not identify or determine image names.
 - Each category can have at most one item in an outfit because it is a key in the mapping. Omit a category key when the outfit has no item in that category; outfits may share the same catalog item ID. Keep only one catalog entry for a shared item; it appears once in its category regardless of how many outfits use it.
 
@@ -31,6 +31,20 @@ Keep existing item entries, IDs, and image filenames unchanged unless there is a
 Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-13 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, and Outfit 13 with its dress and shoes. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
 The app is served from the repository root and remains compatible with the existing GitHub Pages deployment workflow.
+
+### Regenerate thumbnails
+
+When thumbnail crops or source sprites change, regenerate static thumbnails from the catalog:
+
+```powershell
+python scripts/generate-thumbnails.py
+```
+
+For specific items only:
+
+```powershell
+python scripts/generate-thumbnails.py --only top001 dress007
+```
 
 ## Developer constraints
 

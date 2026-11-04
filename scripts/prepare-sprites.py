@@ -1,11 +1,12 @@
-"""Normalize exported outfit sprite names and print catalog thumbnail data.
+"""Normalize exported outfit sprite names, generate thumbnails, and print catalog snippets.
 
 Usage: python scripts/prepare-sprites.py <source-folder> [--dry-run]
 
 Files like "xxx_xxx-top001.png" are renamed to "top001.png" and moved to
 images/sprites/. Existing files are never overwritten. For each file, the
 catalog item snippet is printed with the thumbnail crop computed from the
-bounding box of the non-transparent pixels (requires Pillow).
+bounding box of the non-transparent pixels, and a static thumbnail file is
+written to images/thumbnails/ (requires Pillow).
 """
 import argparse
 import re
@@ -13,7 +14,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from PIL import Image
+from thumbnail_utils import THUMBNAILS_DIR, compute_alpha_bbox, write_thumbnail
 
 # Filename word (any accepted spelling) -> (canonical file prefix, category ID, label word)
 CATEGORIES = {
@@ -75,19 +76,23 @@ def main():
         print(f"{file.name} -> {target.name}")
         if not args.dry_run and file.resolve() != target.resolve():
             shutil.move(str(file), str(target))
-        with Image.open(file if args.dry_run else target) as image:
-            box = image.convert("RGBA").getchannel("A").getbbox()
-        if box is None:
+        source_path = file if args.dry_run else target
+        crop = compute_alpha_bbox(source_path)
+        if crop is None:
             print(f"  WARNING: {target.name} is fully transparent", file=sys.stderr)
             continue
-        x, y, right, bottom = box
+        x, y, width, height = crop
+        if not args.dry_run:
+            thumbnail_path = write_thumbnail(source_path, target.stem, crop, THUMBNAILS_DIR)
+            print(f"  thumbnail -> {thumbnail_path.name}")
         print(
             "    {\n"
             f'      id: "{target.stem}",\n'
             f'      category: "{category}",\n'
             f'      label: "{label}",\n'
             f'      source: "images/sprites/{target.name}",\n'
-            f"      thumbnail: {{ x: {x}, y: {y}, width: {right - x}, height: {bottom - y} }},\n"
+            f'      thumbnailSource: "images/thumbnails/{target.stem}.png",\n'
+            f"      thumbnail: {{ x: {x}, y: {y}, width: {width}, height: {height} }},\n"
             "      placement: sharedSpritePlacement\n"
             "    },"
         )
