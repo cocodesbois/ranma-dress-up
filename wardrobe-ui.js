@@ -10,7 +10,7 @@
     onItemSelect,
     onNoneSelect
   }) {
-    function makeThumbnail(item) {
+    function makeThumbnailCanvas(item) {
       const canvas = document.createElement("canvas");
       canvas.className = "item-thumbnail";
       canvas.width = 112;
@@ -38,6 +38,20 @@
         height
       );
       return canvas;
+    }
+
+    function makeThumbnail(item) {
+      const image = document.createElement("img");
+      image.className = "item-thumbnail";
+      image.alt = "";
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.src = item.thumbnailSource ?? `images/thumbnails/${item.id}.png`;
+      image.addEventListener("error", () => {
+        const fallback = makeThumbnailCanvas(item);
+        image.replaceWith(fallback);
+      }, { once: true });
+      return image;
     }
 
     function makeItemButton(item) {
