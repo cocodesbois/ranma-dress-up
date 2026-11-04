@@ -131,9 +131,14 @@
       updateItemSelection();
     }
 
+    function clearItems() {
+      itemList.replaceChildren();
+    }
+
     return {
       renderCategories,
       renderItems,
+      clearItems,
       updateItemSelection
     };
   }
