@@ -4,6 +4,8 @@ const stateStore = window.RanmaDressUpStateStore;
 const imageLoaderModel = window.RanmaDressUpImageLoader;
 const canvasRendererModel = window.RanmaDressUpCanvasRenderer;
 const wardrobeUiModel = window.RanmaDressUpWardrobeUi;
+const statusControllerModel = window.RanmaDressUpStatusController;
+const wardrobePanelControllerModel = window.RanmaDressUpWardrobePanelController;
 const preview = document.querySelector("#outfit-preview");
 const categoryTabs = document.querySelector("#category-tabs");
 const itemList = document.querySelector("#item-list");
@@ -28,6 +30,12 @@ const appState = stateStore.createStore({
   defaultOutfit,
   initialActiveCategory: "tops"
 });
+const statusController = statusControllerModel.createStatusController({
+  statusMessage,
+  outfitSelect,
+  outfitPreviousButton,
+  outfitNextButton
+});
 const imageLoader = imageLoaderModel.createImageLoader({
   outfitPresets,
   onError: (error) => {
@@ -40,6 +48,14 @@ const canvasRenderer = canvasRendererModel.createCanvasRenderer({
   getImage,
   getOutfit: () => appState.getOutfit(),
   isPreviewReady: () => appState.isPreviewReady()
+});
+const wardrobePanelController = wardrobePanelControllerModel.createWardrobePanelController({
+  appState,
+  wardrobePanel,
+  wardrobeToggle,
+  wardrobeClose,
+  wardrobeBackdrop,
+  mobileWardrobe
 });
 const wardrobeUi = wardrobeUiModel.createWardrobeUi({
   categoryTabs,
@@ -63,18 +79,6 @@ function getImage(item) {
   return imageLoader.getImage(item.source);
 }
 
-function setStatusMessage(text, { loading = false, isError = false } = {}) {
-  statusMessage.textContent = text;
-  statusMessage.classList.toggle("is-loading", loading);
-  statusMessage.classList.toggle("is-error", isError);
-}
-
-function setOutfitControlsDisabled(disabled) {
-  outfitSelect.disabled = disabled;
-  outfitPreviousButton.disabled = disabled;
-  outfitNextButton.disabled = disabled;
-}
-
 function updateOutfitSelection() {
   const matchingOutfit = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
@@ -93,7 +97,7 @@ function selectItem(item) {
   updateOutfitSelection();
   wardrobeUi.updateItemSelection();
   canvasRenderer.drawOutfit();
-  setStatusMessage(`${item.label} selected.`);
+  statusController.setStatusMessage(`${item.label} selected.`);
 }
 
 function removeActiveCategoryItem() {
@@ -102,14 +106,14 @@ function removeActiveCategoryItem() {
   updateOutfitSelection();
   wardrobeUi.updateItemSelection();
   canvasRenderer.drawOutfit();
-  setStatusMessage("Item removed.");
+  statusController.setStatusMessage("Item removed.");
 }
 
 async function selectCategory(category) {
   appState.setActiveCategory(category.id);
   wardrobeUi.renderCategories();
   itemList.replaceChildren();
-  setStatusMessage(`Loading ${category.label.toLowerCase()}...`, { loading: true });
+  statusController.setStatusMessage(`Loading ${category.label.toLowerCase()}...`, { loading: true });
 
   try {
     const items = catalog.items.filter((entry) => entry.category === category.id);
@@ -119,7 +123,7 @@ async function selectCategory(category) {
     }
 
     wardrobeUi.renderItems();
-    setStatusMessage(`${category.label} selected.`);
+    statusController.setStatusMessage(`${category.label} selected.`);
   } catch (error) {
     showError(error);
   }
@@ -131,8 +135,8 @@ async function selectOutfit(preset) {
 
   try {
     if (missingSources.length) {
-      setStatusMessage(`Loading ${preset.label.toLowerCase()}...`, { loading: true });
-      setOutfitControlsDisabled(true);
+      statusController.setStatusMessage(`Loading ${preset.label.toLowerCase()}...`, { loading: true });
+      statusController.setOutfitControlsDisabled(true);
       await Promise.all(missingSources.map((source) => imageLoader.loadImage(source)));
     }
 
@@ -145,13 +149,13 @@ async function selectOutfit(preset) {
     wardrobeUi.renderCategories();
     wardrobeUi.renderItems();
     canvasRenderer.drawOutfit();
-    setStatusMessage(`${preset.label} selected.`);
+    statusController.setStatusMessage(`${preset.label} selected.`);
     imageLoader.preloadAdjacentOutfits(preset);
   } catch (error) {
     showError(error);
   } finally {
     if (appState.isCurrentOutfitSelectionRequest(request)) {
-      setOutfitControlsDisabled(false);
+      statusController.setOutfitControlsDisabled(false);
     }
   }
 }
@@ -191,44 +195,7 @@ function selectAdjacentOutfit(step) {
 
 function showError(error) {
   console.error(error);
-  setStatusMessage(error.message, { isError: true });
-}
-
-function syncWardrobeMode() {
-  if (!mobileWardrobe.matches) {
-    appState.setWardrobeOpen(false);
-  }
-
-  const hidden = mobileWardrobe.matches && !appState.isWardrobeOpen();
-  wardrobePanel.inert = hidden;
-  wardrobePanel.setAttribute("aria-hidden", String(hidden));
-  wardrobeToggle.setAttribute("aria-expanded", String(appState.isWardrobeOpen()));
-  wardrobeBackdrop.inert = !appState.isWardrobeOpen();
-  document.body.classList.toggle("wardrobe-open", appState.isWardrobeOpen());
-
-  if (mobileWardrobe.matches) {
-    wardrobePanel.setAttribute("role", "dialog");
-    wardrobePanel.setAttribute("aria-modal", String(appState.isWardrobeOpen()));
-  } else {
-    wardrobePanel.removeAttribute("role");
-    wardrobePanel.removeAttribute("aria-modal");
-    wardrobePanel.removeAttribute("aria-hidden");
-  }
-}
-
-function setWardrobeOpen(open, returnFocus = true) {
-  if (!mobileWardrobe.matches) {
-    return;
-  }
-
-  appState.setWardrobeOpen(open);
-  syncWardrobeMode();
-
-  if (open) {
-    wardrobeClose.focus();
-  } else if (returnFocus) {
-    wardrobeToggle.focus();
-  }
+  statusController.setStatusMessage(error.message, { isError: true });
 }
 
 function resetOutfit() {
@@ -239,13 +206,13 @@ function resetOutfit() {
   wardrobeUi.renderCategories();
   wardrobeUi.renderItems();
   canvasRenderer.drawOutfit();
-  setStatusMessage("The original look has been restored.");
+  statusController.setStatusMessage("The original look has been restored.");
 }
 
 function downloadPreview() {
   preview.toBlob((blob) => {
     if (!blob) {
-      setStatusMessage("The preview could not be saved.");
+      statusController.setStatusMessage("The preview could not be saved.");
       return;
     }
 
@@ -255,12 +222,12 @@ function downloadPreview() {
     link.download = "ranma-dress-up.png";
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setStatusMessage("Your look has been downloaded.");
+    statusController.setStatusMessage("Your look has been downloaded.");
   }, "image/png");
 }
 
 async function startApp() {
-  setStatusMessage("Loading the wardrobe...", { loading: true });
+  statusController.setStatusMessage("Loading the wardrobe...", { loading: true });
   const initialSources = new Set([
     catalog.background.source,
     catalog.base.source,
@@ -284,7 +251,7 @@ async function startApp() {
   wardrobeUi.renderItems();
   appState.setPreviewReady(true);
   canvasRenderer.drawOutfit();
-  setStatusMessage("Choose an item to style the character.");
+  statusController.setStatusMessage("Choose an item to style the character.");
   const selectedPreset = catalogModel.getMatchingOutfit(catalog, outfitPresets, appState.getOutfit());
   if (selectedPreset) {
     imageLoader.preloadAdjacentOutfits(selectedPreset);
@@ -302,36 +269,9 @@ outfitSelect.addEventListener("change", () => {
 });
 outfitPreviousButton.addEventListener("click", () => selectAdjacentOutfit(-1));
 outfitNextButton.addEventListener("click", () => selectAdjacentOutfit(1));
-wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
-wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
-wardrobeBackdrop.addEventListener("click", () => setWardrobeOpen(false));
-mobileWardrobe.addEventListener("change", () => syncWardrobeMode());
-document.addEventListener("keydown", (event) => {
-  if (!appState.isWardrobeOpen()) {
-    return;
-  }
+wardrobePanelController.bindEvents();
 
-  if (event.key === "Escape") {
-    setWardrobeOpen(false);
-    return;
-  }
-
-  if (event.key === "Tab") {
-    const focusable = wardrobePanel.querySelectorAll("button:not(:disabled)");
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-});
-
-syncWardrobeMode();
+wardrobePanelController.syncWardrobeMode();
 if ("ResizeObserver" in window) {
   new ResizeObserver(canvasRenderer.resizePreview).observe(preview);
 } else {
