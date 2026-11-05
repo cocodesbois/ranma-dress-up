@@ -100,6 +100,15 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
+      id: "top014",
+      category: "tops",
+      label: "Top 14",
+      source: "images/sprites/top014.png",
+      thumbnailSource: "images/thumbnails/top014.png",
+      thumbnail: { x: 2900, y: 1971, width: 687, height: 914 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "dress006",
       category: "dresses",
       label: "Dress 06",
@@ -462,6 +471,15 @@ window.RanmaDressUpCatalog = {
         dresses: "dress013",
         hair: "hair001",
         shoes: "shoes013"
+      }
+    },
+    {
+      id: "014",
+      label: "Outfit 14",
+      items: {
+        tops: "top014",
+        pants: "pants004",
+        hair: "hair001"
       }
     }
   ]
