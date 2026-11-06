@@ -296,11 +296,11 @@ window.RanmaDressUpCatalog = {
       placement: sharedSpritePlacement
     },
     {
-      id: "bodysuit016",
-      category: "bodysuits",
-      label: "Bodysuit 16",
-      source: "images/sprites/bodysuit016.png",
-      thumbnailSource: "images/thumbnails/bodysuit016.png",
+      id: "dress016",
+      category: "dresses",
+      label: "Dress 16",
+      source: "images/sprites/dress016.png",
+      thumbnailSource: "images/thumbnails/dress016.png",
       thumbnail: { x: 2780, y: 1854, width: 1399, height: 3309 },
       placement: sharedSpritePlacement
     },
@@ -541,7 +541,7 @@ window.RanmaDressUpCatalog = {
       id: "016",
       label: "Outfit 16",
       items: {
-        bodysuits: "bodysuit016",
+        dresses: "dress016",
         hair: "hair001",
         shoes: "shoes016",
         bracelets: "bracelets016"
