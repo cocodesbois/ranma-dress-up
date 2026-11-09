@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/assemble-dist.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write README.md docs/migration-vite.md package.json vite.config.js eslint.config.js .prettierrc.json",
-    "format:check": "prettier --check README.md docs/migration-vite.md package.json vite.config.js eslint.config.js .prettierrc.json",
+    "format": "prettier --write README.md docs/migration-vite.md package.json vite.config.js eslint.config.js .prettierrc.json scripts/assemble-dist.mjs",
+    "format:check": "prettier --check README.md docs/migration-vite.md package.json vite.config.js eslint.config.js .prettierrc.json scripts/assemble-dist.mjs",
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
