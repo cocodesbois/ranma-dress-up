@@ -3,6 +3,7 @@
 > Statut : plan uniquement, rien n'est encore migré.
 > Principe : une PR par étape, l'application reste fonctionnelle à chaque étape.
 > Toujours affecter les PR à l'utilisateur courant, donner le label "migration"
+> Règle de progression : la CI GitHub Pages doit rester verte à la fin de chaque étape.
 > Validation : l'assistant ne lance que lint / format / tests unitaires automatiques. Les tests dans le navigateur (rendu, téléchargement PNG, déploiement Pages) sont faits par le mainteneur à la fin de chaque étape.
 
 ## 1. Constat
