@@ -39,7 +39,7 @@
     const originX = catalog.base.placement.x - catalog.base.placement.regX * stageScale;
     const originY = catalog.base.placement.y - catalog.base.placement.regY * stageScale;
     // Soft floor shadow under the character, in document pixels.
-    const shadow = { x: 3225, y: 5787, radiusX: 806, radiusY: 94 };
+    const shadow = { x: 3700, y: 5587, radiusX: 806, radiusY: 104 };
 
     preview.style.aspectRatio = `${documentWidth} / ${documentHeight}`;
 
