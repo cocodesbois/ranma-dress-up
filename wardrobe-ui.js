@@ -5,7 +5,7 @@
     catalog,
     getActiveCategory,
     getOutfit,
-    getImage,
+    getSprite,
     onCategorySelect,
     onItemSelect,
     onNoneSelect
@@ -21,17 +21,18 @@
         throw new Error("This browser cannot create item thumbnails.");
       }
 
-      const image = getImage(item);
+      // The thumbnail crop is in document pixels; the loaded sprite is cropped and downscaled.
+      const sprite = getSprite(item);
       const { x, y, width: sourceWidth, height: sourceHeight } = item.thumbnail;
       const scale = Math.min(88 / sourceWidth, 88 / sourceHeight);
       const width = sourceWidth * scale;
       const height = sourceHeight * scale;
       context.drawImage(
-        image,
-        x,
-        y,
-        sourceWidth,
-        sourceHeight,
+        sprite.image,
+        (x - sprite.x) * sprite.scale,
+        (y - sprite.y) * sprite.scale,
+        sourceWidth * sprite.scale,
+        sourceHeight * sprite.scale,
         (112 - width) / 2,
         (112 - height) / 2,
         width,

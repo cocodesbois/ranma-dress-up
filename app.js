@@ -1,4 +1,5 @@
 const catalog = window.RanmaDressUpCatalog;
+const spriteManifest = window.RanmaDressUpSpriteManifest;
 const catalogModel = window.RanmaDressUpCatalogModel;
 const stateStore = window.RanmaDressUpStateStore;
 const imageLoaderModel = window.RanmaDressUpImageLoader;
@@ -24,6 +25,10 @@ const mobileWardrobe = window.matchMedia("(max-width: 720px)");
 const resetButton = document.querySelector("#reset-look");
 const downloadButton = document.querySelector("#download-look");
 
+if (!spriteManifest) {
+  throw new Error("Sprite manifest is missing. Run: python scripts/optimize-sprites.py");
+}
+
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
 const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "005");
 
@@ -45,19 +50,21 @@ const statusController = statusControllerModel.createStatusController({
 
 const imageLoader = imageLoaderModel.createImageLoader({
   outfitPresets,
+  manifest: spriteManifest,
   onError: (error) => {
     console.error(error);
   }
 });
 
-function getImage(item) {
-  return imageLoader.getImage(item.source);
+function getSprite(item) {
+  return imageLoader.getSprite(item.source);
 }
 
 const canvasRenderer = canvasRendererModel.createCanvasRenderer({
   preview,
   catalog,
-  getImage,
+  manifest: spriteManifest,
+  getSprite,
   getOutfit: () => appState.getOutfit(),
   isPreviewReady: () => appState.isPreviewReady()
 });
@@ -78,7 +85,7 @@ const wardrobeUi = wardrobeUiModel.createWardrobeUi({
   catalog,
   getActiveCategory: () => appState.getActiveCategory(),
   getOutfit: () => appState.getOutfit(),
-  getImage,
+  getSprite,
   onCategorySelect: (category) => {
     outfitController.selectCategory(category);
   },

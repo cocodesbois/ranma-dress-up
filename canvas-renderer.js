@@ -2,13 +2,12 @@
   function createCanvasRenderer({
     preview,
     catalog,
-    getImage,
+    manifest,
+    getSprite,
     getOutfit,
     isPreviewReady
   }) {
     const previewContext = preview.getContext("2d");
-    const previewWidth = 960;
-    const previewHeight = 1080;
     const layerOrder = [
       "underwear",
       "slips",
@@ -29,47 +28,63 @@
       throw new Error("This browser does not support the canvas preview.");
     }
 
-    function drawItem(context, item, offsetX = 0) {
-      const image = getImage(item);
-      const { x, y, scale, regX, regY } = item.placement;
-      const left = x - regX * scale + offsetX;
-      const top = y - regY * scale;
+    // The preview shows the whole Photoshop document: the background is drawn in full and
+    // every sprite keeps its position on it. Drawing units are `placement.scale` times the
+    // document pixels, with the document's top-left corner at (0, 0).
+    const documentWidth = manifest.document.width;
+    const documentHeight = manifest.document.height;
+    const stageScale = catalog.base.placement.scale;
+    const previewWidth = documentWidth * stageScale;
+    const previewHeight = documentHeight * stageScale;
+    const originX = catalog.base.placement.x - catalog.base.placement.regX * stageScale;
+    const originY = catalog.base.placement.y - catalog.base.placement.regY * stageScale;
+    // Soft floor shadow under the character, in document pixels.
+    const shadow = { x: 3225, y: 5787, radiusX: 806, radiusY: 94 };
 
-      context.drawImage(image, left, top, image.naturalWidth * scale, image.naturalHeight * scale);
+    preview.style.aspectRatio = `${documentWidth} / ${documentHeight}`;
+
+    function requireSprite(item) {
+      const sprite = getSprite(item);
+      if (!sprite) {
+        throw new Error(`Image is not loaded: ${item.source}`);
+      }
+      return sprite;
+    }
+
+    function drawItem(context, item) {
+      const sprite = requireSprite(item);
+      const { x, y, scale, regX, regY } = item.placement;
+      const left = x - regX * scale + sprite.x * scale - originX;
+      const top = y - regY * scale + sprite.y * scale - originY;
+
+      context.drawImage(sprite.image, left, top, sprite.width * scale, sprite.height * scale);
     }
 
     function drawBackground(context) {
-      const image = getImage(catalog.background);
-      const scale = Math.max(previewWidth / image.naturalWidth, previewHeight / image.naturalHeight);
-      const sourceWidth = previewWidth / scale;
-      const sourceHeight = previewHeight / scale;
-      const sourceX = (image.naturalWidth - sourceWidth) / 2;
-      const sourceY = (image.naturalHeight - sourceHeight) / 2;
-
-      context.drawImage(
-        image,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        previewWidth,
-        previewHeight
-      );
+      context.drawImage(requireSprite(catalog.background).image, 0, 0, previewWidth, previewHeight);
     }
 
     function drawOutfit() {
       const context = previewContext;
+      // High quality filtering avoids aliasing when the sprites are scaled down to the screen.
+      context.imageSmoothingQuality = "high";
       context.clearRect(0, 0, previewWidth, previewHeight);
       drawBackground(context);
 
       context.fillStyle = "rgba(65, 47, 39, 0.14)";
       context.beginPath();
-      context.ellipse(480, 969, 145, 17, 0, 0, Math.PI * 2);
+      context.ellipse(
+        shadow.x * stageScale,
+        shadow.y * stageScale,
+        shadow.radiusX * stageScale,
+        shadow.radiusY * stageScale,
+        0,
+        0,
+        Math.PI * 2
+      );
       context.fill();
 
-      drawItem(context, catalog.base, -480);
+      drawItem(context, catalog.base);
 
       const outfit = getOutfit();
       for (const category of layerOrder) {
@@ -83,7 +98,7 @@
           throw new Error(`Unknown outfit item: ${selectedId}.`);
         }
 
-        drawItem(context, item, -480);
+        drawItem(context, item);
       }
     }
 

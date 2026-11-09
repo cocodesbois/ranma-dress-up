@@ -1,4 +1,5 @@
-// Each PNG retains its position on this shared source canvas, so all layers use one transform.
+// Each sprite retains its position on the shared Photoshop document, so all layers use one
+// transform. The preview shows the whole document (the background is never cropped).
 const sharedSpritePlacement = {
   x: 960.9,
   y: 540.2,
@@ -8,8 +9,6 @@ const sharedSpritePlacement = {
 };
 
 window.RanmaDressUpCatalog = {
-  width: 1920,
-  height: 1080,
   background: {
     source: "images/sprites/background.png"
   },
