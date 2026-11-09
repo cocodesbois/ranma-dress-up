@@ -1,4 +1,4 @@
-"""Normalize exported outfit sprite names, generate thumbnails, and print catalog snippets.
+"""Normalize exported outfit sprite names, generate thumbnails and optimized WebP sprites, and print catalog snippets.
 
 Usage: python scripts/prepare-sprites.py <source-folder> [--dry-run]
 
@@ -6,7 +6,9 @@ Files like "xxx_xxx-top001.png" are renamed to "top001.png" and moved to
 images/sprites/. Existing files are never overwritten. For each file, the
 catalog item snippet is printed with the thumbnail crop computed from the
 bounding box of the non-transparent pixels, and a static thumbnail file is
-written to images/thumbnails/ (requires Pillow).
+written to images/thumbnails/ (requires Pillow). Finally the optimized WebP sprites
+and images/optimized/manifest.js are updated for the new files (same as
+scripts/optimize-sprites.py).
 """
 import argparse
 import re
@@ -14,6 +16,7 @@ import shutil
 import sys
 from pathlib import Path
 
+from sprite_optimize import optimize_all
 from thumbnail_utils import THUMBNAILS_DIR, compute_alpha_bbox, write_thumbnail
 
 # Filename word (any accepted spelling) -> (canonical file prefix, category ID, label word)
@@ -96,6 +99,11 @@ def main():
             "      placement: sharedSpritePlacement\n"
             "    },"
         )
+
+    if plan and not args.dry_run:
+        print("\nOptimizing sprites for the app...")
+        if not optimize_all():
+            sys.exit(1)
 
 
 if __name__ == "__main__":
