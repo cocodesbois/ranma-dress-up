@@ -1,2 +1,22 @@
-node_modules
-dist
+# Node / Vite artifacts
+node_modules/
+dist/
+.vite/
+
+# Test output
+coverage/
+
+# Python virtual environment and caches (sprite tooling)
+.venv/
+__pycache__/
+*.py[cod]
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

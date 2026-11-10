@@ -70,6 +70,7 @@ For every PNG in `images/sprites/` it writes `images/optimized/<name>.webp`, cro
 - Other options: `--force` rebuilds everything, `--lossless` writes lossless WebP (much larger), `--scale` and `--quality` are for experiments (the next run without them rebuilds with the defaults).
 
 Python with Pillow is required to build (`pip install pillow`).
+The local virtual environment folder (`.venv/`) is intentionally ignored by Git.
 
 ### Regenerate thumbnails
 
