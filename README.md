@@ -4,13 +4,34 @@ A responsive, static dress-up app built from the existing Ranma artwork. Select 
 
 ## Run locally
 
-Run the preview server from the repository root:
+Install Node.js dependencies once from the repository root:
 
 ```powershell
-npx http-server .
+npm install
 ```
 
-Open `http://localhost:8080` in a browser. The app has no build step or external runtime dependencies. The optimized sprites it loads are committed in `images/optimized/` (see below), so nothing needs to be generated before running it.
+Start the local dev server:
+
+```powershell
+npm run dev
+```
+
+Open the URL displayed by Vite (usually `http://localhost:5173`). The optimized sprites the app loads are committed in `images/optimized/` (see below), so nothing needs to be generated before running it.
+
+### Build and preview
+
+```powershell
+npm run build
+npm run preview
+```
+
+### Technical checks
+
+```powershell
+npm run lint
+npm run format:check
+npm test
+```
 
 ## Sprite assets and catalog
 
