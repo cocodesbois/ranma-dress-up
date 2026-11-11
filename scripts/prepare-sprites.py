@@ -3,11 +3,11 @@
 Usage: python scripts/prepare-sprites.py <source-folder> [--dry-run]
 
 Files like "xxx_xxx-top001.png" are renamed to "top001.png" and moved to
-images/sprites/. Existing files are never overwritten. For each file, the
+assets/sprites/. Existing files are never overwritten. For each file, the
 catalog item snippet is printed with the thumbnail crop computed from the
 bounding box of the non-transparent pixels, and a static thumbnail file is
-written to images/thumbnails/ (requires Pillow). Finally the optimized WebP sprites
-and images/optimized/manifest.js are updated for the new files (same as
+written to public/images/thumbnails/ (requires Pillow). Finally the optimized WebP sprites
+and src/data/sprite-manifest.js are updated for the new files (same as
 scripts/optimize-sprites.py).
 """
 import argparse
@@ -45,7 +45,7 @@ CATEGORIES = {
 # Longest alternatives first so "pants" wins over "pant".
 WORDS = "|".join(sorted(CATEGORIES, key=len, reverse=True))
 NAME_PATTERN = re.compile(rf"^(?:.*[^a-z])?({WORDS})(\d+)\.png$", re.IGNORECASE)
-SPRITES_DIR = Path(__file__).resolve().parent.parent / "images" / "sprites"
+SPRITES_DIR = Path(__file__).resolve().parent.parent / "assets" / "sprites"
 
 
 def main():
@@ -93,7 +93,7 @@ def main():
             f'      id: "{target.stem}",\n'
             f'      category: "{category}",\n'
             f'      label: "{label}",\n'
-            f'      source: "images/sprites/{target.name}",\n'
+            f'      source: "assets/sprites/{target.name}",\n'
             f'      thumbnailSource: "images/thumbnails/{target.stem}.png",\n'
             f"      thumbnail: {{ x: {x}, y: {y}, width: {width}, height: {height} }},\n"
             "      placement: sharedSpritePlacement\n"

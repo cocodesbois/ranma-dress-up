@@ -6,7 +6,7 @@ from PIL import Image
 
 THUMBNAIL_CANVAS_SIZE = 112
 THUMBNAIL_CONTENT_SIZE = 88
-THUMBNAILS_DIR = Path(__file__).resolve().parent.parent / "images" / "thumbnails"
+THUMBNAILS_DIR = Path(__file__).resolve().parent.parent / "public" / "images" / "thumbnails"
 
 
 def compute_alpha_bbox(image_path):
