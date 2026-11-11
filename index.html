@@ -1,24 +1,16 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f1e8">
-    <meta name="description" content="Mix and match Ranma's original outfits, hairstyles, and accessories.">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f1e8" />
+    <meta
+      name="description"
+      content="Mix and match Ranma's original outfits, hairstyles, and accessories."
+    />
     <title>Ranma 1/2 Dress-up</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="sprite-catalog.js" defer></script>
-    <script src="images/optimized/manifest.js" defer></script>
-    <script src="catalog-model.js" defer></script>
-    <script src="state-store.js" defer></script>
-    <script src="image-loader.js" defer></script>
-    <script src="canvas-renderer.js" defer></script>
-    <script src="wardrobe-ui.js" defer></script>
-    <script src="status-controller.js" defer></script>
-    <script src="wardrobe-panel-controller.js" defer></script>
-    <script src="outfit-controller.js" defer></script>
-    <script src="app-bootstrap.js" defer></script>
-    <script src="app.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -47,7 +39,9 @@
           </div>
 
           <div class="preview-footer">
-            <p id="status-message" class="status-message" role="status" aria-live="polite">Loading the wardrobe...</p>
+            <p id="status-message" class="status-message" role="status" aria-live="polite">
+              Loading the wardrobe...
+            </p>
             <div class="action-buttons">
               <button
                 id="wardrobe-toggle"
@@ -59,9 +53,7 @@
               >
                 Wardrobe
               </button>
-              <button id="reset-look" class="button button-secondary" type="button">
-                Reset
-              </button>
+              <button id="reset-look" class="button button-secondary" type="button">Reset</button>
               <button id="download-look" class="button button-primary" type="button">
                 Save look
               </button>
@@ -86,7 +78,9 @@
                 class="wardrobe-close"
                 type="button"
                 aria-label="Close wardrobe"
-              >×</button>
+              >
+                ×
+              </button>
             </div>
           </div>
 

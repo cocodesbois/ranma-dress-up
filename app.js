@@ -1,14 +1,14 @@
-const catalog = window.RanmaDressUpCatalog;
-const spriteManifest = window.RanmaDressUpSpriteManifest;
-const catalogModel = window.RanmaDressUpCatalogModel;
-const stateStore = window.RanmaDressUpStateStore;
-const imageLoaderModel = window.RanmaDressUpImageLoader;
-const canvasRendererModel = window.RanmaDressUpCanvasRenderer;
-const wardrobeUiModel = window.RanmaDressUpWardrobeUi;
-const statusControllerModel = window.RanmaDressUpStatusController;
-const wardrobePanelControllerModel = window.RanmaDressUpWardrobePanelController;
-const outfitControllerModel = window.RanmaDressUpOutfitController;
-const appBootstrapModel = window.RanmaDressUpAppBootstrap;
+import catalog from "./sprite-catalog.js";
+import spriteManifest from "./images/optimized/manifest.js";
+import * as catalogModel from "./catalog-model.js";
+import { createStore } from "./state-store.js";
+import { createImageLoader } from "./image-loader.js";
+import { createCanvasRenderer } from "./canvas-renderer.js";
+import { createWardrobeUi } from "./wardrobe-ui.js";
+import { createStatusController } from "./status-controller.js";
+import { createWardrobePanelController } from "./wardrobe-panel-controller.js";
+import { createOutfitController } from "./outfit-controller.js";
+import { createAppBootstrap } from "./app-bootstrap.js";
 
 const preview = document.querySelector("#outfit-preview");
 const categoryTabs = document.querySelector("#category-tabs");
@@ -36,50 +36,50 @@ if (!defaultOutfit) {
   throw new Error("No complete outfits with a hairstyle are available.");
 }
 
-const appState = stateStore.createStore({
+const appState = createStore({
   defaultOutfit,
-  initialActiveCategory: "tops"
+  initialActiveCategory: "tops",
 });
 
-const statusController = statusControllerModel.createStatusController({
+const statusController = createStatusController({
   statusMessage,
   outfitSelect,
   outfitPreviousButton,
-  outfitNextButton
+  outfitNextButton,
 });
 
-const imageLoader = imageLoaderModel.createImageLoader({
+const imageLoader = createImageLoader({
   outfitPresets,
   manifest: spriteManifest,
   onError: (error) => {
     console.error(error);
-  }
+  },
 });
 
 function getSprite(item) {
   return imageLoader.getSprite(item.source);
 }
 
-const canvasRenderer = canvasRendererModel.createCanvasRenderer({
+const canvasRenderer = createCanvasRenderer({
   preview,
   catalog,
   manifest: spriteManifest,
   getSprite,
   getOutfit: () => appState.getOutfit(),
-  isPreviewReady: () => appState.isPreviewReady()
+  isPreviewReady: () => appState.isPreviewReady(),
 });
 
-const wardrobePanelController = wardrobePanelControllerModel.createWardrobePanelController({
+const wardrobePanelController = createWardrobePanelController({
   appState,
   wardrobePanel,
   wardrobeToggle,
   wardrobeClose,
   wardrobeBackdrop,
-  mobileWardrobe
+  mobileWardrobe,
 });
 
 let outfitController;
-const wardrobeUi = wardrobeUiModel.createWardrobeUi({
+const wardrobeUi = createWardrobeUi({
   categoryTabs,
   itemList,
   catalog,
@@ -94,7 +94,7 @@ const wardrobeUi = wardrobeUiModel.createWardrobeUi({
   },
   onNoneSelect: () => {
     outfitController.removeActiveCategoryItem();
-  }
+  },
 });
 
 function showError(error) {
@@ -102,7 +102,7 @@ function showError(error) {
   statusController.setStatusMessage(error.message, { isError: true });
 }
 
-outfitController = outfitControllerModel.createOutfitController({
+outfitController = createOutfitController({
   catalog,
   catalogModel,
   outfitPresets,
@@ -113,9 +113,9 @@ outfitController = outfitControllerModel.createOutfitController({
   imageLoader,
   canvasRenderer,
   wardrobeUi,
-  onError: showError
+  onError: showError,
 });
-const appBootstrap = appBootstrapModel.createAppBootstrap({
+const appBootstrap = createAppBootstrap({
   preview,
   resetButton,
   downloadButton,
@@ -126,7 +126,7 @@ const appBootstrap = appBootstrapModel.createAppBootstrap({
   statusController,
   wardrobePanelController,
   canvasRenderer,
-  onError: showError
+  onError: showError,
 });
 
 appBootstrap.bindEvents();
