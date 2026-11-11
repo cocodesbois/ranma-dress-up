@@ -21,7 +21,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 3. Every PNG must have an up-to-date manifest entry. `python scripts/optimize-sprites.py --check` verifies this and runs in the Pages workflow. Run `python scripts/optimize-sprites.py` after adding or changing a PNG (`prepare-sprites.py` already does).
 4. Files whose name starts with `background` are never cropped; the preview shows the full image.
 5. `items[*].source` keeps pointing at the PNG path. `items[*].thumbnail` and `placement` are expressed in document pixels, not in optimized-image pixels. Static thumbnails are generated from the PNG exports.
-6. The Pages workflow publishes only the runtime files and `images/optimized/` and `images/thumbnails/`, not `images/sprites/`. A new root-level runtime file other than `*.js`, `index.html` or `styles.css` needs a matching change to the "Assemble site" step.
+6. The Pages workflow publishes only the runtime files (`index.html`, `src/`, `images/optimized/`, `images/thumbnails/`), not `images/sprites/`. Any runtime file moved outside these paths needs a matching change to the "Assemble site" step.
 
 ## Preview geometry (`canvas-renderer.js`)
 
