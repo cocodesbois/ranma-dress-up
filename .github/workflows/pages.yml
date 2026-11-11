@@ -51,7 +51,8 @@ jobs:
         # Publish only what the app loads. The Photoshop exports in images/sprites/ stay in the repository.
         run: |
           mkdir -p _site/images
-          cp index.html styles.css ./*.js _site/
+          cp index.html _site/
+          cp -r src _site/
           cp -r images/optimized images/thumbnails _site/images/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

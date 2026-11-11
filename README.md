@@ -51,7 +51,7 @@ Keep existing item entries, IDs, and image filenames unchanged unless there is a
 
 Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-17 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, Outfit 13 with its dress and shoes, Outfit 14 with its top and pants, Outfit 15 with its top, pants, and shoes, Outfit 16 with its dress, shoes, and bracelets, and Outfit 17 with its top, pants, hat, and shoes. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
-The app is served from the repository root. The GitHub Pages workflow checks that `images/optimized/` is up to date, then publishes only the files the app loads (`index.html`, `styles.css`, the root `*.js` files, `images/optimized/` and `images/thumbnails/`), not the full-size exports.
+The app is served from the repository root. The GitHub Pages workflow checks that `images/optimized/` is up to date, then publishes only the files the app loads (`index.html`, `src/`, `images/optimized/` and `images/thumbnails/`), not the full-size exports.
 
 ### Optimized sprites (WebP)
 

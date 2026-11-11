@@ -1,13 +1,13 @@
-import catalog from "./sprite-catalog.js";
-import spriteManifest from "./images/optimized/manifest.js";
-import * as catalogModel from "./catalog-model.js";
-import { createStore } from "./state-store.js";
-import { createImageLoader } from "./image-loader.js";
-import { createCanvasRenderer } from "./canvas-renderer.js";
-import { createWardrobeUi } from "./wardrobe-ui.js";
-import { createStatusController } from "./status-controller.js";
-import { createWardrobePanelController } from "./wardrobe-panel-controller.js";
-import { createOutfitController } from "./outfit-controller.js";
+import catalog from "./data/sprite-catalog.js";
+import spriteManifest from "../images/optimized/manifest.js";
+import * as catalogModel from "./core/catalog-model.js";
+import { createStore } from "./core/state-store.js";
+import { createImageLoader } from "./render/image-loader.js";
+import { createCanvasRenderer } from "./render/canvas-renderer.js";
+import { createWardrobeUi } from "./ui/wardrobe-ui.js";
+import { createStatusController } from "./ui/status-controller.js";
+import { createWardrobePanelController } from "./ui/wardrobe-panel-controller.js";
+import { createOutfitController } from "./ui/outfit-controller.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
 
 const preview = document.querySelector("#outfit-preview");
