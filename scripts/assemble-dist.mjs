@@ -4,27 +4,6 @@ import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const distDir = path.join(rootDir, "dist");
-const runtimeJsFiles = [
-  "sprite-catalog.js",
-  "catalog-model.js",
-  "state-store.js",
-  "image-loader.js",
-  "canvas-renderer.js",
-  "wardrobe-ui.js",
-  "status-controller.js",
-  "wardrobe-panel-controller.js",
-  "outfit-controller.js",
-  "app-bootstrap.js",
-  "app.js",
-];
-
-async function copyRuntimeFiles() {
-  await Promise.all(
-    runtimeJsFiles.map((fileName) =>
-      cp(path.join(rootDir, fileName), path.join(distDir, fileName), { force: true }),
-    ),
-  );
-}
 
 async function copyImages() {
   const distImagesDir = path.join(distDir, "images");
@@ -42,5 +21,4 @@ async function copyImages() {
   ]);
 }
 
-await copyRuntimeFiles();
 await copyImages();
