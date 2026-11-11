@@ -21,7 +21,7 @@ export default [
     ignores: ["eslint.config.js", "vite.config.js"],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: "script",
+      sourceType: "module",
       globals: {
         ...globals.browser,
         ...globals.node,
