@@ -1,5 +1,5 @@
 import catalog from "./data/sprite-catalog.js";
-import spriteManifest from "../images/optimized/manifest.js";
+import spriteManifest from "./data/sprite-manifest.js";
 import * as catalogModel from "./core/catalog-model.js";
 import { createStore } from "./core/state-store.js";
 import { createImageLoader } from "./render/image-loader.js";

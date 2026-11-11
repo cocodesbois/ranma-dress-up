@@ -13,15 +13,17 @@ from pathlib import Path
 from thumbnail_utils import THUMBNAILS_DIR, write_thumbnail
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-CATALOG_PATH = ROOT_DIR / "sprite-catalog.js"
+CATALOG_PATH = ROOT_DIR / "src" / "data" / "sprite-catalog.js"
 
 ITEMS_SECTION_PATTERN = re.compile(
     r"items:\s*\[(?P<body>[\s\S]*?)\],\s*outfits:",
     re.MULTILINE,
 )
-ITEM_BLOCK_PATTERN = re.compile(r"\{[\s\S]*?placement:\s*sharedSpritePlacement\s*\},?", re.MULTILINE)
+ITEM_BLOCK_PATTERN = re.compile(
+    r"\{[\s\S]*?placement:\s*sharedSpritePlacement\s*,?\s*\},?", re.MULTILINE
+)
 ID_PATTERN = re.compile(r'id:\s*"([^"]+)"')
-SOURCE_PATTERN = re.compile(r'source:\s*"(images/sprites/[^"]+)"')
+SOURCE_PATTERN = re.compile(r'source:\s*"(assets/sprites/[^"]+)"')
 THUMBNAIL_PATTERN = re.compile(
     r"thumbnail:\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+),\s*width:\s*(\d+),\s*height:\s*(\d+)\s*\}"
 )

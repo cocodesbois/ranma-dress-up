@@ -1,4 +1,4 @@
-"""Generate the optimized WebP sprites in images/optimized/ from images/sprites/.
+"""Generate the optimized WebP sprites in public/images/optimized/ from assets/sprites/.
 
 Usage:
   python scripts/optimize-sprites.py            # convert new or changed sprites only
@@ -6,7 +6,7 @@ Usage:
   python scripts/optimize-sprites.py --check    # verify outputs are up to date (no Pillow needed)
   python scripts/optimize-sprites.py --scale 0.4 --quality 90 --lossless
 
-The Photoshop exports in images/sprites/ are never modified. See sprite_optimize.py
+The Photoshop exports in assets/sprites/ are never modified. See sprite_optimize.py
 for details. Options other than the defaults are meant for experiments: the next run
 without them rebuilds everything with the default settings.
 """
@@ -34,7 +34,7 @@ def main():
             print("\n".join(problems), file=sys.stderr)
             print("\nRun: python scripts/optimize-sprites.py", file=sys.stderr)
             sys.exit(1)
-        print("images/optimized/ is up to date.")
+        print("public/images/optimized/ is up to date.")
         return
 
     if not 0 < args.scale <= 1:
