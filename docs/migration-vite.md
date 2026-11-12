@@ -1,11 +1,11 @@
 # Plan de migration vers Vite
 
-> Statut : étapes 1 à 6 fusionnées dans `main` ; prochaine étape : 7 (documentation).
+> Statut : étapes 1 à 6 fusionnées dans `main` ; étape 7 implémentée dans sa PR dédiée (documentation et typage progressif). Étape 8 optionnelle, non engagée.
 > Principe : une PR par étape, l'application reste fonctionnelle à chaque étape.
 > Toujours affecter les PR à l'utilisateur courant et choisir un label existant : `enhancement` pour les étapes techniques, `documentation` pour les changements documentaires. Le label `migration` n'existe pas dans le dépôt ; ne pas le créer.
 > Descriptions de PR : utiliser un fichier UTF-8 avec `gh pr create/edit --body-file` pour préserver les accents, puis vérifier le texte enregistré sur GitHub.
 > Règle de progression : la CI GitHub Pages doit rester verte à la fin de chaque étape.
-> Validation : l'assistant ne lance que lint / format / tests unitaires automatiques. Les tests dans le navigateur (rendu, téléchargement PNG, déploiement Pages) sont faits par le mainteneur à la fin de chaque étape.
+> Validation : l'assistant ne lance que lint / format / vérification des types JavaScript / tests unitaires automatiques. Les tests dans le navigateur (rendu, téléchargement PNG, déploiement Pages) sont faits par le mainteneur à la fin de chaque étape. Le build et la vérification des sprites sont également exécutés par la CI.
 
 ## 1. Constat initial (avant migration)
 
@@ -24,6 +24,7 @@ package.json, vite.config.js, jsconfig.json
 public/images/{optimized,thumbnails}    # servis tels quels
 assets/sprites/                         # PNG Photoshop, jamais publiés
 src/
+  types.js                              # contrats JSDoc partagés, sans valeurs métier
   main.js                               # point d'entrée (ex app.js)
   app-bootstrap.js
   styles/main.css
@@ -89,6 +90,8 @@ Ordre : `state-store` → `catalog-model` → `image-loader` → `canvas-rendere
 - `// @ts-check` + `jsconfig.json` pour typer progressivement sans TypeScript.
 - `docs/architecture.md` (flux catalogue → store → controllers → renderer).
 - Mise à jour de `README.md`, `.github/technical-constraints.md`, `.github/copilot-instructions.md` et du skill `add-outfit` (nouveaux chemins, nouvelles commandes).
+- Réalisation : contrats partagés dans `src/types.js`, contrôle strict sans émission via `npm run typecheck`. Activation initiale sur le catalogue, le modèle, le store et le contrôleur de statut ; les autres modules runtime sont documentés et restent hors contrôle strict pour cette étape.
+- La CI vérifie aussi les types ; le template Python conserve le JSDoc du manifest généré. Voir [architecture](architecture.md) pour le flux et la procédure d'extension du typage.
 
 ### Étape 8 (optionnelle) — Passage à Vite+
 

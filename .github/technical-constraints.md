@@ -21,7 +21,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 3. Every PNG must have an up-to-date manifest entry. `python scripts/optimize-sprites.py --check` verifies this and runs in the Pages workflow. Run `python scripts/optimize-sprites.py` after adding or changing a PNG (`prepare-sprites.py` already does).
 4. Files whose name starts with `background` are never cropped; the preview shows the full image.
 5. `items[*].source` keeps pointing at the PNG path. `items[*].thumbnail` and `placement` are expressed in document pixels, not in optimized-image pixels. Static thumbnails are generated from the PNG exports.
-6. The Pages workflow publishes only the runtime files (`index.html`, `src/`, `public/images/optimized/`, `public/images/thumbnails/`), not `assets/sprites/`. Any runtime file moved outside these paths needs a matching change to the "Assemble site" step.
+6. The Pages workflow builds with Vite and publishes only `dist/`, not source directories or `assets/sprites/`. Vite bundles `index.html` and `src/`, and copies `public/` into `dist/`. Keep runtime assets under `public/images/`; URLs start with `images/`, never `public/`. There is no "Assemble site" step.
 
 ## Preview geometry (`src/render/canvas-renderer.js`)
 
@@ -30,7 +30,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 3. The floor shadow is defined in document pixels in `canvas-renderer.js`. Adjust it there if the base character moves on the document.
 4. `imageSmoothingQuality` is set to `"high"` in `drawOutfit` because the context state is reset whenever the canvas is resized.
 
-## Runtime/UI constraints (`src/main.js`)
+## Runtime/UI constraints (`src/ui/outfit-controller.js`, `src/ui/wardrobe-ui.js`)
 
 1. Hair is mandatory in presets and user flows:
    - Presets without hair throw during startup (`createOutfitPresets` validation).
@@ -40,9 +40,18 @@ Use this file as the source of truth for data and behavior constraints when chan
    - `tops` clears `bodysuits`
    - `pants` clears `bodysuits`, `dresses`
    - `dresses` clears `bodysuits`, `pants`
-3. Layer draw order is fixed and must stay coherent with visual composition:
+3. Layer draw order in `src/render/canvas-renderer.js` is fixed and must stay coherent with visual composition:
    `underwear → slips → tights → bodysuits → pants → tops → shoes → dresses → hair → hats → necklace → bracelets → accessories`.
    Dresses render over shoes so their hems can hide them where appropriate.
+
+## Modules, documentation and type checking
+
+- `src/main.js` wires dependencies; `src/app-bootstrap.js` binds events and starts the app. Core modules stay independent of the DOM. See [architecture](../docs/architecture.md) for the full flow.
+- Document each runtime module's role, dependencies and exports in its JSDoc header, and keep public function contracts current.
+- Shared typedefs live in `src/types.js`: `Catalog`, `Item`, `Outfit`, `Look` and supporting geometry/preset/manifest types. Import them through JSDoc, not runtime imports.
+- `jsconfig.json` enables strict, no-emit checking only for modules opting into `// @ts-check`. Initially this covers shared types, the catalog, catalog model, state store and status controller; other runtime modules remain documented but unchecked.
+- Run `npm run typecheck` when changing data or contracts. Structural types do not replace runtime validation of IDs, required hair/clothing or catalog tests.
+- Preserve generated documentation by editing the template in `scripts/sprite_optimize.py`, not just the manifest output. Do not put brace-delimited JSDoc types before the manifest object: Python readers locate the first JSON brace.
 
 ## Change checklist
 
@@ -50,3 +59,4 @@ Use this file as the source of truth for data and behavior constraints when chan
 - When adding categories/items, update both data and any logic that depends on category IDs.
 - When adding or changing a sprite PNG, run `python scripts/optimize-sprites.py` and commit `public/images/optimized/` and `src/data/sprite-manifest.js`; regenerate thumbnails if the item changed.
 - When changing exclusivity or draw order, update this document and verify behavior in the browser.
+- Run `npm run lint`, `npm run format:check`, `npm run typecheck` and `npm test` before submitting changes. CI also checks optimized sprites and builds with Vite; visual/browser validation remains the maintainer's responsibility during this migration.

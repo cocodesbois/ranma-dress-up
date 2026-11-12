@@ -1,3 +1,23 @@
+/**
+ * Renders wardrobe categories, item cards and accessible selection states.
+ * Depends on injected catalog/state getters, sprite access and selection callbacks,
+ * plus the DOM; exports createWardrobeUi without owning outfit mutations.
+ * @module ui/wardrobe-ui
+ */
+
+/**
+ * Bind wardrobe containers and delegate user actions to the outfit controller.
+ * @param {object} options
+ * @param {HTMLElement} options.categoryTabs
+ * @param {HTMLElement} options.itemList
+ * @param {import("../types.js").Catalog} options.catalog
+ * @param {() => string} options.getActiveCategory
+ * @param {() => import("../types.js").Look} options.getOutfit
+ * @param {(item: import("../types.js").Item) => import("../types.js").Sprite | undefined} options.getSprite
+ * @param {(category: import("../types.js").Category) => void} options.onCategorySelect
+ * @param {(item: import("../types.js").Item) => void} options.onItemSelect
+ * @param {() => void} options.onNoneSelect
+ */
 export function createWardrobeUi({
   categoryTabs,
   itemList,
@@ -95,6 +115,10 @@ export function createWardrobeUi({
     return button;
   }
 
+  /**
+   * Create category tabs once, then synchronize their active/pressed states.
+   * @returns {void}
+   */
   function renderCategories() {
     if (categoryTabs.childElementCount === 0) {
       for (const category of catalog.categories) {
@@ -116,6 +140,10 @@ export function createWardrobeUi({
     }
   }
 
+  /**
+   * Synchronize existing cards with the active category's live selection.
+   * @returns {void}
+   */
   function updateItemSelection() {
     const activeCategory = getActiveCategory();
     const outfit = getOutfit();
@@ -137,6 +165,10 @@ export function createWardrobeUi({
     }
   }
 
+  /**
+   * Rebuild active-category cards; hair deliberately has no None option.
+   * @returns {void}
+   */
   function renderItems() {
     itemList.replaceChildren();
     const activeCategory = getActiveCategory();
@@ -150,6 +182,10 @@ export function createWardrobeUi({
     updateItemSelection();
   }
 
+  /**
+   * Remove stale cards while the next category's assets are loading.
+   * @returns {void}
+   */
   function clearItems() {
     itemList.replaceChildren();
   }

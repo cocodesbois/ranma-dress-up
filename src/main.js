@@ -1,3 +1,10 @@
+/**
+ * Browser composition root: queries controls and wires catalog, store, renderer
+ * and controllers, then binds and starts the app bootstrap.
+ * Depends on all runtime modules and the page DOM; exports no public values.
+ * @module main
+ */
+
 import catalog from "./data/sprite-catalog.js";
 import spriteManifest from "./data/sprite-manifest.js";
 import * as catalogModel from "./core/catalog-model.js";
@@ -56,6 +63,11 @@ const imageLoader = createImageLoader({
   },
 });
 
+/**
+ * Adapt a catalog layer to the loader's stable PNG source key.
+ * @param {{source: string}} item
+ * @returns {import("./types.js").Sprite | undefined}
+ */
 function getSprite(item) {
   return imageLoader.getSprite(item.source);
 }
@@ -97,6 +109,11 @@ const wardrobeUi = createWardrobeUi({
   },
 });
 
+/**
+ * Report controller/startup failures both to developers and in the status area.
+ * @param {Error} error
+ * @returns {void}
+ */
 function showError(error) {
   console.error(error);
   statusController.setStatusMessage(error.message, { isError: true });

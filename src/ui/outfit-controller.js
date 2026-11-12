@@ -1,3 +1,25 @@
+/**
+ * Coordinates look changes, exclusivity, async asset loads and UI redraws.
+ * Depends on the catalog model, store, image loader, renderer, wardrobe/status UI
+ * and preset select; exports createOutfitController.
+ * @module ui/outfit-controller
+ */
+
+/**
+ * Connect state and presentation without binding browser events.
+ * @param {object} options
+ * @param {import("../types.js").Catalog} options.catalog
+ * @param {typeof import("../core/catalog-model.js")} options.catalogModel
+ * @param {import("../types.js").OutfitPreset[]} options.outfitPresets
+ * @param {import("../types.js").Look} options.defaultOutfit
+ * @param {import("../core/state-store.js").Store} options.appState
+ * @param {HTMLSelectElement} options.outfitSelect
+ * @param {ReturnType<import("./status-controller.js").createStatusController>} options.statusController
+ * @param {ReturnType<import("../render/image-loader.js").createImageLoader>} options.imageLoader
+ * @param {ReturnType<import("../render/canvas-renderer.js").createCanvasRenderer>} options.canvasRenderer
+ * @param {ReturnType<import("./wardrobe-ui.js").createWardrobeUi>} options.wardrobeUi
+ * @param {(error: Error) => void} options.onError
+ */
 export function createOutfitController({
   catalog,
   catalogModel,
@@ -20,6 +42,11 @@ export function createOutfitController({
     outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
   }
 
+  /**
+   * Select a loaded item in the active category and clear exclusive selections.
+   * @param {import("../types.js").Item} item
+   * @returns {void}
+   */
   function selectItem(item) {
     appState.nextOutfitSelectionRequest();
     const mutuallyExclusiveCategories = {
@@ -36,6 +63,10 @@ export function createOutfitController({
     statusController.setStatusMessage(`${item.label} selected.`);
   }
 
+  /**
+   * Clear the active category; the wardrobe UI does not offer this for hair.
+   * @returns {void}
+   */
   function removeActiveCategoryItem() {
     appState.nextOutfitSelectionRequest();
     appState.setOutfitItem(appState.getActiveCategory(), null);
@@ -45,6 +76,11 @@ export function createOutfitController({
     statusController.setStatusMessage("Item removed.");
   }
 
+  /**
+   * Load category images, then render only if that category is still active.
+   * @param {import("../types.js").Category} category
+   * @returns {Promise<void>} Load errors are forwarded to onError.
+   */
   async function selectCategory(category) {
     appState.setActiveCategory(category.id);
     wardrobeUi.renderCategories();
@@ -122,6 +158,11 @@ export function createOutfitController({
     return -1;
   }
 
+  /**
+   * Start a neighboring preset load, wrapping at either end of the list.
+   * @param {number} step Navigation offset, normally -1 or 1.
+   * @returns {void}
+   */
   function selectAdjacentOutfit(step) {
     if (!outfitPresets.length) {
       return;
@@ -140,6 +181,10 @@ export function createOutfitController({
     }
   }
 
+  /**
+   * Restore the default look and tops category, invalidating pending selections.
+   * @returns {void}
+   */
   function resetOutfit() {
     appState.nextOutfitSelectionRequest();
     appState.setOutfit(defaultOutfit);
@@ -151,6 +196,11 @@ export function createOutfitController({
     statusController.setStatusMessage("The original look has been restored.");
   }
 
+  /**
+   * Load initial scene/category assets, build UI and warm remaining presets.
+   * @returns {Promise<void>}
+   * @throws {Error} Initial load failures reject for bootstrap to report.
+   */
   async function startApp() {
     statusController.setStatusMessage("Loading the wardrobe...", { loading: true });
     const initialSources = new Set([
@@ -188,6 +238,11 @@ export function createOutfitController({
     imageLoader.preloadAllOutfitsInBackground();
   }
 
+  /**
+   * Start selecting a known preset; ignore an ID not found in the preset list.
+   * @param {string | number} outfitId
+   * @returns {void}
+   */
   function selectOutfitById(outfitId) {
     const preset = catalogModel.findPresetById(outfitPresets, outfitId);
     if (preset) {

@@ -1,3 +1,20 @@
+/**
+ * Controls responsive wardrobe visibility, dialog semantics and focus handling.
+ * Depends on the store, injected DOM nodes/media query and document keyboard events;
+ * exports createWardrobePanelController.
+ * @module ui/wardrobe-panel-controller
+ */
+
+/**
+ * Bind the mobile dialog and desktop wardrobe to their shared state.
+ * @param {object} options
+ * @param {import("../core/state-store.js").Store} options.appState
+ * @param {HTMLElement} options.wardrobePanel
+ * @param {HTMLButtonElement} options.wardrobeToggle
+ * @param {HTMLButtonElement} options.wardrobeClose
+ * @param {HTMLElement} options.wardrobeBackdrop
+ * @param {MediaQueryList} options.mobileWardrobe
+ */
 export function createWardrobePanelController({
   appState,
   wardrobePanel,
@@ -6,6 +23,10 @@ export function createWardrobePanelController({
   wardrobeBackdrop,
   mobileWardrobe,
 }) {
+  /**
+   * Apply panel state and reset mobile-open state when switching to desktop.
+   * @returns {void}
+   */
   function syncWardrobeMode() {
     if (!mobileWardrobe.matches) {
       appState.setWardrobeOpen(false);
@@ -29,6 +50,12 @@ export function createWardrobePanelController({
     }
   }
 
+  /**
+   * Open or close on mobile, moving focus to the close button or toggle.
+   * @param {boolean} open
+   * @param {boolean} [returnFocus=true]
+   * @returns {void} No change in desktop mode.
+   */
   function setWardrobeOpen(open, returnFocus = true) {
     if (!mobileWardrobe.matches) {
       return;
@@ -44,6 +71,10 @@ export function createWardrobePanelController({
     }
   }
 
+  /**
+   * Register panel, breakpoint and keyboard handlers once during bootstrap.
+   * @returns {void}
+   */
   function bindEvents() {
     wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
     wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));
