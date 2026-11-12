@@ -1,12 +1,13 @@
 # Plan de migration vers Vite
 
-> Statut : plan uniquement, rien n'est encore migré.
+> Statut : étapes 1 à 6 fusionnées dans `main` ; prochaine étape : 7 (documentation).
 > Principe : une PR par étape, l'application reste fonctionnelle à chaque étape.
-> Toujours affecter les PR à l'utilisateur courant, donner le label "migration"
+> Toujours affecter les PR à l'utilisateur courant et choisir un label existant : `enhancement` pour les étapes techniques, `documentation` pour les changements documentaires. Le label `migration` n'existe pas dans le dépôt ; ne pas le créer.
+> Descriptions de PR : utiliser un fichier UTF-8 avec `gh pr create/edit --body-file` pour préserver les accents, puis vérifier le texte enregistré sur GitHub.
 > Règle de progression : la CI GitHub Pages doit rester verte à la fin de chaque étape.
 > Validation : l'assistant ne lance que lint / format / tests unitaires automatiques. Les tests dans le navigateur (rendu, téléchargement PNG, déploiement Pages) sont faits par le mainteneur à la fin de chaque étape.
 
-## 1. Constat
+## 1. Constat initial (avant migration)
 
 - 12 fichiers JS à la racine, chargés par `<script defer>` dans un ordre fragile.
 - Communication par globales `window.RanmaDressUp*` (IIFE `registerXxx(windowObject)`).
@@ -27,7 +28,7 @@ src/
   app-bootstrap.js
   styles/main.css
   data/sprite-catalog.js                # export default
-  data/manifest.js                      # généré, export default
+  data/sprite-manifest.js               # généré, export default
   core/    catalog-model.js, state-store.js
   render/  canvas-renderer.js, image-loader.js
   ui/      wardrobe-ui.js, wardrobe-panel-controller.js,
