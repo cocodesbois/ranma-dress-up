@@ -79,6 +79,7 @@ Ordre : `state-store` → `catalog-model` → `image-loader` → `canvas-rendere
 
 - Catalogue : règles de `technical-constraints.md` (hair obligatoire, catégories et ids valides, unicité, cohérence `item.category`).
 - `state-store`, exclusivités, ordre des calques.
+- Suites dans `tests/` : catalogue réel et validations des presets, isolation et transitions du store, exclusivités du contrôleur et ordre des appels de dessin du canvas (sans navigateur).
 - Checks assistant : `npm test`.
 
 ### Étape 7 — Documentation
