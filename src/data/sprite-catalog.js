@@ -1,4 +1,12 @@
-﻿// Each sprite retains its position on the shared Photoshop document, so all layers use one
+﻿// @ts-check
+/**
+ * Author-maintained catalog of layers, categories and outfit mappings.
+ * Depends on shared data contracts; exports the catalog as the default value.
+ * Source paths are stable manifest keys, not browser image URLs.
+ * @module data/sprite-catalog
+ */
+
+// Each sprite retains its position on the shared Photoshop document, so all layers use one
 // transform. The preview shows the whole document (the background is never cropped).
 const sharedSpritePlacement = {
   x: 960.9,
@@ -8,6 +16,7 @@ const sharedSpritePlacement = {
   regY: 3405,
 };
 
+/** @type {import("../types.js").Catalog} */
 const catalog = {
   background: {
     source: "assets/sprites/background.png",

@@ -30,8 +30,16 @@ npm run preview
 ```powershell
 npm run lint
 npm run format:check
+npm run typecheck
 npm test
 ```
+
+`npm run typecheck` checks the JavaScript modules that opt into `// @ts-check`
+using the shared JSDoc contracts in `src/types.js` and `jsconfig.json`; it emits
+no files and does not migrate the application to TypeScript. The first checked
+modules are the catalog, catalog model, state store and status controller.
+See [Architecture](docs/architecture.md) for module responsibilities, data flow
+and how to extend the checked scope.
 
 ## Sprite assets and catalog
 
@@ -51,7 +59,7 @@ Keep existing item entries, IDs, and image filenames unchanged unless there is a
 
 Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-17 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, Outfit 13 with its dress and shoes, Outfit 14 with its top and pants, Outfit 15 with its top, pants, and shoes, Outfit 16 with its dress, shoes, and bracelets, and Outfit 17 with its top, pants, hat, and shoes. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
-The GitHub Pages workflow checks lint, formatting, tests, and optimized sprites, then builds with Vite and publishes `dist/`. Pull requests run the same checks and build without deploying. Full-size exports in `assets/sprites/` are not published.
+The GitHub Pages workflow checks lint, formatting, JavaScript types, tests, and optimized sprites, then builds with Vite and publishes `dist/`. Pull requests run the same checks and build without deploying. Full-size exports in `assets/sprites/` are not published.
 
 ### Optimized sprites (WebP)
 
@@ -89,3 +97,7 @@ python scripts/generate-thumbnails.py --only top001 dress007
 ## Developer constraints
 
 Technical data and runtime constraints for future Copilot/dev sessions are documented in `.github/technical-constraints.md`.
+Module responsibilities and the catalog → store → controllers → renderer flow
+are documented in [Architecture](docs/architecture.md). The
+[add-outfit skill](.github/skills/add-outfit/SKILL.md) describes the asset/catalog
+workflow; [the migration plan](docs/migration-vite.md) records the Vite steps.

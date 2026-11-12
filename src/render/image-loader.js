@@ -1,3 +1,17 @@
+/**
+ * Resolves PNG keys through the manifest and caches WebP images or pending loads.
+ * Depends on browser Image/idle APIs; exports createImageLoader and its preload API.
+ * @module render/image-loader
+ */
+
+/**
+ * Create an independent image cache shared by the preview and thumbnail fallback.
+ * Failed loads are evicted so later requests can retry.
+ * @param {object} [options]
+ * @param {import("../types.js").OutfitPreset[]} options.outfitPresets
+ * @param {import("../types.js").SpriteManifest} options.manifest
+ * @param {(error: Error) => void} [options.onError=console.error]
+ */
 export function createImageLoader({ outfitPresets, manifest, onError = console.error } = {}) {
   const imageCache = new Map();
 
@@ -11,6 +25,11 @@ export function createImageLoader({ outfitPresets, manifest, onError = console.e
     return entry;
   }
 
+  /**
+   * Reuse a decoded image or an in-flight load for the stable PNG source key.
+   * @param {string} source
+   * @returns {HTMLImageElement | Promise<HTMLImageElement>}
+   */
   function loadImage(source) {
     if (imageCache.has(source)) {
       return imageCache.get(source);
@@ -37,9 +56,11 @@ export function createImageLoader({ outfitPresets, manifest, onError = console.e
     return promise;
   }
 
-  // Returns the loaded image with its position on the document canvas, or undefined
-  // while it is not loaded. x/y/width/height are in document pixels (the Photoshop
-  // export size); `scale` is the size of the loaded image relative to the document.
+  /**
+   * Read a decoded sprite without starting a load; geometry uses document pixels.
+   * @param {string} source
+   * @returns {import("../types.js").Sprite | undefined} Undefined until decoded.
+   */
   function getSprite(source) {
     const image = imageCache.get(source);
     if (!(image instanceof window.HTMLImageElement)) {
@@ -50,6 +71,11 @@ export function createImageLoader({ outfitPresets, manifest, onError = console.e
     return { image, x, y, width, height, scale: manifest.settings.scale };
   }
 
+  /**
+   * List uncached preset sources; pending loads already count as cached.
+   * @param {import("../types.js").OutfitPreset} preset
+   * @returns {string[]}
+   */
   function getMissingSourcesForPreset(preset) {
     const missing = [];
     for (const item of preset.items) {
@@ -68,6 +94,12 @@ export function createImageLoader({ outfitPresets, manifest, onError = console.e
     }
   }
 
+  /**
+   * Warm nearby presets in both directions, wrapping around the preset list.
+   * @param {import("../types.js").OutfitPreset} preset
+   * @param {number} [distance=2]
+   * @returns {void} Background errors are forwarded to onError.
+   */
   function preloadAdjacentOutfits(preset, distance = 2) {
     const currentIndex = outfitPresets.findIndex((entry) => String(entry.id) === String(preset.id));
     if (currentIndex < 0) {
@@ -82,6 +114,10 @@ export function createImageLoader({ outfitPresets, manifest, onError = console.e
     }
   }
 
+  /**
+   * Schedule all wearable sources in idle chunks, with a timer fallback.
+   * @returns {void} Background errors are forwarded to onError.
+   */
   function preloadAllOutfitsInBackground() {
     const allSources = [
       ...new Set(outfitPresets.flatMap((preset) => preset.items.map((item) => item.source))),

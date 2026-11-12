@@ -35,6 +35,8 @@ jobs:
         run: npm run lint
       - name: Check formatting
         run: npm run format:check
+      - name: Check JavaScript types
+        run: npm run typecheck
       - name: Run tests
         run: npm test
       - name: Check optimized sprites are up to date

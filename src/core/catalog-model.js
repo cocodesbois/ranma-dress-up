@@ -1,3 +1,14 @@
+// @ts-check
+/**
+ * Validates raw catalog outfits and resolves them into selectable presets.
+ * Depends only on shared data contracts; exports preset creation and lookup helpers.
+ * @module core/catalog-model
+ */
+
+/** @typedef {import("../types.js").Catalog} Catalog */
+/** @typedef {import("../types.js").Look} Look */
+/** @typedef {import("../types.js").OutfitPreset} OutfitPreset */
+
 const REQUIRED_CLOTHING_CATEGORIES = [
   "bodysuits",
   "underwear",
@@ -8,6 +19,12 @@ const REQUIRED_CLOTHING_CATEGORIES = [
   "pants",
 ];
 
+/**
+ * Resolve item references, fill empty categories and require hair plus clothing.
+ * @param {Catalog} catalog
+ * @returns {OutfitPreset[]}
+ * @throws {Error} If an outfit has invalid references or is incomplete.
+ */
 export function createOutfitPresets(catalog) {
   const outfitCategories = new Set(catalog.categories.map((category) => category.id));
   const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
@@ -17,6 +34,7 @@ export function createOutfitPresets(catalog) {
       throw new Error(`Outfit "${outfit.id}" must define items by category.`);
     }
 
+    /** @type {Look} */
     const look = Object.fromEntries([...outfitCategories].map((category) => [category, null]));
     const items = [];
 
@@ -48,6 +66,12 @@ export function createOutfitPresets(catalog) {
   });
 }
 
+/**
+ * Return the preferred look, or the first preset's look if it is unavailable.
+ * @param {OutfitPreset[]} outfitPresets
+ * @param {string} [preferredId="005"]
+ * @returns {Look | undefined} No look when the preset list is empty.
+ */
 export function getDefaultOutfitLook(outfitPresets, preferredId = "005") {
   return (
     outfitPresets.find((preset) => String(preset.id) === String(preferredId))?.look ??
@@ -55,11 +79,24 @@ export function getDefaultOutfitLook(outfitPresets, preferredId = "005") {
   );
 }
 
+/**
+ * Find a preset after normalizing its ID to a string.
+ * @param {OutfitPreset[]} outfitPresets
+ * @param {string | number} id
+ * @returns {OutfitPreset | undefined}
+ */
 export function findPresetById(outfitPresets, id) {
   const normalizedId = String(id);
   return outfitPresets.find((preset) => String(preset.id) === normalizedId);
 }
 
+/**
+ * Match every catalog category, including empty selections, against a live look.
+ * @param {Catalog} catalog
+ * @param {OutfitPreset[]} outfitPresets
+ * @param {Look} outfit
+ * @returns {OutfitPreset | undefined}
+ */
 export function getMatchingOutfit(catalog, outfitPresets, outfit) {
   return outfitPresets.find((preset) =>
     catalog.categories.every((category) => outfit[category.id] === preset.look[category.id]),

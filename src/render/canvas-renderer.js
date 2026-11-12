@@ -1,3 +1,21 @@
+/**
+ * Composes document-aligned layers and resizes the preview for device density.
+ * Depends on injected catalog, manifest, decoded sprites and state getters,
+ * plus browser canvas/media APIs; exports createCanvasRenderer.
+ * @module render/canvas-renderer
+ */
+
+/**
+ * Configure the canvas geometry and fixed layer order without loading images.
+ * @param {object} options
+ * @param {HTMLCanvasElement} options.preview
+ * @param {import("../types.js").Catalog} options.catalog
+ * @param {import("../types.js").SpriteManifest} options.manifest
+ * @param {(item: import("../types.js").Layer | {source: string}) => import("../types.js").Sprite | undefined} options.getSprite
+ * @param {() => import("../types.js").Look} options.getOutfit
+ * @param {() => boolean} options.isPreviewReady
+ * @throws {Error} If a 2D context is unavailable.
+ */
 export function createCanvasRenderer({
   preview,
   catalog,
@@ -63,6 +81,11 @@ export function createCanvasRenderer({
     context.drawImage(requireSprite(catalog.background).image, 0, 0, previewWidth, previewHeight);
   }
 
+  /**
+   * Draw background, floor shadow, base and selected wearables in fixed order.
+   * @returns {void}
+   * @throws {Error} If a selected item is unknown or its image is not loaded.
+   */
   function drawOutfit() {
     const context = previewContext;
     // High quality filtering avoids aliasing when the sprites are scaled down to the screen.
@@ -101,6 +124,10 @@ export function createCanvasRenderer({
     }
   }
 
+  /**
+   * Fit the backing canvas to its CSS bounds and redraw only after startup.
+   * @returns {void}
+   */
   function resizePreview() {
     const bounds = preview.getBoundingClientRect();
     if (!bounds.width || !bounds.height) {
@@ -121,6 +148,10 @@ export function createCanvasRenderer({
     }
   }
 
+  /**
+   * Re-arm a one-shot resolution listener after each device-density change.
+   * @returns {void}
+   */
   function watchDevicePixelRatio() {
     const mediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
     mediaQuery.addEventListener(
