@@ -2,6 +2,10 @@
 
 A responsive, static dress-up app built from the existing Ranma artwork. Select a numbered outfit preset or choose individual pieces by category, reset to the original look, or download the look as a PNG of fixed size (2400 px wide), whatever the screen. Hairstyles are always selected.
 
+On mobile, open the wardrobe to keep the entire preview visible above it. Swipe the
+category and item rows horizontally, or use **Expand** to browse a larger grid and
+**Compact** to return to the smaller wardrobe. Closing and reopening starts in compact mode.
+
 ## Run locally
 
 Install Node.js dependencies once from the repository root (Node.js 22.18+ in
