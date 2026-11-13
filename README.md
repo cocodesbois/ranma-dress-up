@@ -6,6 +6,7 @@ On mobile, open the wardrobe to keep the entire preview visible above it. Swipe 
 category and item rows horizontally, or use **Expand** to browse a larger grid and
 **Compact** to return to the smaller, icon-only wardrobe. The status, reset and save
 controls remain available above it. Closing and reopening starts in compact mode.
+Above 720 px, including tablet widths, the wardrobe remains beside the preview.
 
 ## Run locally
 

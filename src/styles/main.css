@@ -429,18 +429,12 @@ button {
   }
 
   .workspace {
-    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
     padding: 6px 0;
   }
 
   .wardrobe-panel {
     padding: 8px;
-  }
-
-  .item-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    max-height: min(38vh, 300px);
   }
 }
 
@@ -499,6 +493,10 @@ button {
 }
 
 @media (max-width: 720px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   body {
     --wardrobe-height: min(250px, 44dvh);
   }
