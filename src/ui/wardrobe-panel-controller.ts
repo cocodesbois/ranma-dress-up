@@ -4,11 +4,12 @@
  * exports createWardrobePanelController.
  * @module ui/wardrobe-panel-controller
  */
+import type { Store } from "../core/state-store";
 
 /**
  * Bind the mobile dialog and desktop wardrobe to their shared state.
  * @param {object} options
- * @param {import("../core/state-store.js").Store} options.appState
+ * @param {import("../core/state-store").Store} options.appState
  * @param {HTMLElement} options.wardrobePanel
  * @param {HTMLButtonElement} options.wardrobeToggle
  * @param {HTMLButtonElement} options.wardrobeClose
@@ -22,6 +23,13 @@ export function createWardrobePanelController({
   wardrobeClose,
   wardrobeBackdrop,
   mobileWardrobe,
+}: {
+  appState: Store;
+  wardrobePanel: HTMLElement;
+  wardrobeToggle: HTMLButtonElement;
+  wardrobeClose: HTMLButtonElement;
+  wardrobeBackdrop: HTMLElement;
+  mobileWardrobe: MediaQueryList;
 }) {
   /**
    * Apply panel state and reset mobile-open state when switching to desktop.
@@ -56,7 +64,7 @@ export function createWardrobePanelController({
    * @param {boolean} [returnFocus=true]
    * @returns {void} No change in desktop mode.
    */
-  function setWardrobeOpen(open, returnFocus = true) {
+  function setWardrobeOpen(open: boolean, returnFocus = true) {
     if (!mobileWardrobe.matches) {
       return;
     }
@@ -92,14 +100,15 @@ export function createWardrobePanelController({
       }
 
       if (event.key === "Tab") {
-        const focusable = wardrobePanel.querySelectorAll("button:not(:disabled)");
+        const focusable =
+          wardrobePanel.querySelectorAll<HTMLButtonElement>("button:not(:disabled)");
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
 
-        if (event.shiftKey && document.activeElement === first) {
+        if (first && last && event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
+        } else if (first && last && !event.shiftKey && document.activeElement === last) {
           event.preventDefault();
           first.focus();
         }

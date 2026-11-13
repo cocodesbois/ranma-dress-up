@@ -4,7 +4,8 @@ A responsive, static dress-up app built from the existing Ranma artwork. Select 
 
 ## Run locally
 
-Install Node.js dependencies once from the repository root:
+Install Node.js dependencies once from the repository root (Node.js 22.18+ in
+the 22.x line, or 24.11+):
 
 ```powershell
 npm install
@@ -34,18 +35,17 @@ npm run typecheck
 npm test
 ```
 
-`npm run typecheck` checks the JavaScript modules that opt into `// @ts-check`
-using the shared JSDoc contracts in `src/types.js` and `jsconfig.json`; it emits
-no files and does not migrate the application to TypeScript. The first checked
-modules are the catalog, catalog model, state store and status controller.
+`npm run typecheck` checks the TypeScript application and catalog validator in
+strict mode, using the shared contracts in `src/types.ts`; it emits no files.
+The existing Vitest tests remain JavaScript and are executed by `npm test`.
 See [Architecture](docs/architecture.md) for module responsibilities, data flow
-and how to extend the checked scope.
+and the checked scope.
 
 ## Sprite assets and catalog
 
 The Photoshop exports live in `assets/sprites/` as PNGs, all with the same canvas size (the Photoshop document, currently 6643 x 6507 px). They are the source of truth and are never modified by the tooling. The app does not load them directly: it loads the optimized WebP equivalents from `images/optimized/` at runtime (generated under `public/images/optimized/`, see [Optimized sprites](#optimized-sprites-webp)), loading each wardrobe category only when it is opened. The preview shows the whole `background.png` scene, uncropped, with every sprite at its original position on it. Item cards use pre-generated thumbnail images from `images/thumbnails/` at runtime (generated under `public/images/thumbnails/`) and fall back to runtime crop rendering only when a thumbnail file is missing.
 
-The catalog lives in `src/data/sprite-catalog.js`:
+The catalog lives in `src/data/sprite-catalog.ts`:
 
 - Add every wearable as one entry in `items`, with a unique stable `id`, a category ID declared in `categories`, a display `label`, its image `source` (the PNG export in `assets/sprites/`; the app maps it to the optimized WebP through the manifest), thumbnail image `thumbnailSource`, thumbnail crop (in pixels of the Photoshop document), and canvas `placement`.
 - Add looks separately in `outfits`. Each outfit has its own `id`, `label`, and an `items` object mapping category IDs to catalog item IDs, for example `{ tops: "top001", pants: "pants001", hair: "hair001" }`. Outfit IDs do not identify or determine image names.
@@ -53,13 +53,13 @@ The catalog lives in `src/data/sprite-catalog.js`:
 
 ### Naming new image files
 
-Use lowercase, descriptive, stable names based on the item's category and identity or appearance, not the outfit number. Separate words with hyphens and use the same stem for the catalog item ID and image filename when choosing a new filename. For example, `assets/sprites/pants-straight-black.png` can use the catalog ID `pants-straight-black`. If retaining extraction-generated or otherwise provided filenames, use a descriptive catalog item ID even when it differs from the filename. Add the image asset and its item entry to `src/data/sprite-catalog.js`; then reference its ID in any outfit definitions that use it. Run the optimization script after adding or changing any sprite (`scripts/prepare-sprites.py` does it for new files).
+Use lowercase, descriptive, stable names based on the item's category and identity or appearance, not the outfit number. Separate words with hyphens and use the same stem for the catalog item ID and image filename when choosing a new filename. For example, `assets/sprites/pants-straight-black.png` can use the catalog ID `pants-straight-black`. If retaining extraction-generated or otherwise provided filenames, use a descriptive catalog item ID even when it differs from the filename. Add the image asset and its item entry to `src/data/sprite-catalog.ts`; then reference its ID in any outfit definitions that use it. Run the optimization script after adding or changing any sprite (`scripts/prepare-sprites.py` does it for new files).
 
 Keep existing item entries, IDs, and image filenames unchanged unless there is a specific migration need. When an existing duplicate pair is explicitly identified for cleanup, keep the lower-numbered image as the canonical asset and remove the redundant higher-numbered file. Use one canonical catalog item and reference its ID from every outfit that uses it. For example, the catalog uses `pants001` in Outfits 01 and 03, and `pants004` in Outfits 04 and 05.
 
 Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-17 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, Outfit 13 with its dress and shoes, Outfit 14 with its top and pants, Outfit 15 with its top, pants, and shoes, Outfit 16 with its dress, shoes, and bracelets, and Outfit 17 with its top, pants, hat, and shoes. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
 
-The GitHub Pages workflow checks lint, formatting, JavaScript types, catalog IDs/outfit rules and asset files, tests, and optimized sprites, then builds with Vite and publishes `dist/`. Pull requests run the same checks and build without deploying. Full-size exports in `assets/sprites/` are not published. Run `npm run validate:catalog` locally to check catalog data, source images, optimized images, and thumbnails.
+The GitHub Pages workflow checks lint, formatting, TypeScript types, catalog IDs/outfit rules and asset files, tests, and optimized sprites, then builds with Vite and publishes `dist/`. Pull requests run the same checks and build without deploying. Full-size exports in `assets/sprites/` are not published. Run `npm run validate:catalog` locally to check catalog data, source images, optimized images, and thumbnails.
 
 ### Optimized sprites (WebP)
 
@@ -69,11 +69,11 @@ The full-size PNGs are far heavier for the browser than for the network: a 6643 
 python scripts/optimize-sprites.py
 ```
 
-For every PNG in `assets/sprites/` it writes `public/images/optimized/<name>.webp`, cropped to the bounding box of its non-transparent pixels and downscaled to 50% (WebP quality 85), and records the crop offsets in `src/data/sprite-manifest.js`. The renderer uses these offsets to draw each sprite at exactly the same place as the full-size export. Files whose name starts with `background` are not cropped. The whole sprite set drops from about 78 MB to about 2.5 MB.
+For every PNG in `assets/sprites/` it writes `public/images/optimized/<name>.webp`, cropped to the bounding box of its non-transparent pixels and downscaled to 50% (WebP quality 85), and records the crop offsets in `src/data/sprite-manifest.ts`. The renderer uses these offsets to draw each sprite at exactly the same place as the full-size export. Files whose name starts with `background` are not cropped. The whole sprite set drops from about 78 MB to about 2.5 MB.
 
 - **Resolution:** the preview shows the whole document, so a 50% sprite is pixel-perfect up to a canvas 3321 px wide (about 1100 CSS px at 3x density). Change `DEFAULT_SCALE` or `DEFAULT_QUALITY` in `scripts/sprite_optimize.py` to change this; the full-size exports are never touched, so you can rebuild at any time with `--force`.
 - **Photoshop workflow:** unchanged. Export at the same canvas size as before, add the PNGs to `assets/sprites/` (or use `scripts/prepare-sprites.py`), then run the script. Only new or changed files are converted (it compares file hashes), so re-runs are fast.
-- **Generated files:** commit `public/images/optimized/` and `src/data/sprite-manifest.js` together with the PNGs. Do not edit them by hand. All PNGs must have the same canvas size; the script stops otherwise.
+- **Generated files:** commit `public/images/optimized/` and `src/data/sprite-manifest.ts` together with the PNGs. Do not edit them by hand. All PNGs must have the same canvas size; the script stops otherwise.
 - **Checking:** `python scripts/optimize-sprites.py --check` fails when a PNG is new, changed or removed without re-running the script. It needs no Pillow and runs in the Pages workflow before deployment.
 - Other options: `--force` rebuilds everything, `--lossless` writes lossless WebP (much larger), `--scale` and `--quality` are for experiments (the next run without them rebuilds with the defaults).
 

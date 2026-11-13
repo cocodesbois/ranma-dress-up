@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createAppBootstrap } from "../src/app-bootstrap.js";
+import { createAppBootstrap } from "../src/app-bootstrap.ts";
 
 function deferred() {
   let resolve;

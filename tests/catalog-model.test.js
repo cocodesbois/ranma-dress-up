@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import catalog from "../src/data/sprite-catalog.js";
+import catalog from "../src/data/sprite-catalog.ts";
 import {
   createOutfitPresets,
   findPresetById,
   getDefaultOutfitLook,
   getExcludedCategories,
   getMatchingOutfit,
-} from "../src/core/catalog-model.js";
+} from "../src/core/catalog-model.ts";
 
 const clothingCategories = [
   "bodysuits",

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import catalog from "../src/data/sprite-catalog.js";
-import { createWardrobeUi } from "../src/ui/wardrobe-ui.js";
+import catalog from "../src/data/sprite-catalog.ts";
+import { createWardrobeUi } from "../src/ui/wardrobe-ui.ts";
 
 const sprite = { image: {}, x: 0, y: 0, width: 1, height: 1, scale: 1 };
 const itemsOf = (category) => catalog.items.filter((item) => item.category === category);

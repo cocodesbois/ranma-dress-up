@@ -4,6 +4,10 @@
  * exports createAppBootstrap, leaving dependency construction to main.
  * @module app-bootstrap
  */
+import type { createOutfitController } from "./ui/outfit-controller";
+import type { createStatusController } from "./ui/status-controller";
+import type { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
+import type { createCanvasRenderer } from "./render/canvas-renderer";
 
 /**
  * Prepare page lifecycle actions without starting or binding them yet.
@@ -14,11 +18,11 @@
  * @param {HTMLSelectElement} options.outfitSelect
  * @param {HTMLButtonElement} options.outfitPreviousButton
  * @param {HTMLButtonElement} options.outfitNextButton
- * @param {ReturnType<import("./ui/outfit-controller.js").createOutfitController>} options.outfitController
- * @param {ReturnType<import("./ui/status-controller.js").createStatusController>} options.statusController
- * @param {ReturnType<import("./ui/wardrobe-panel-controller.js").createWardrobePanelController>} options.wardrobePanelController
- * @param {ReturnType<import("./render/canvas-renderer.js").createCanvasRenderer>} options.canvasRenderer
- * @param {(error: Error) => void} options.onError
+ * @param {ReturnType<import("./ui/outfit-controller").createOutfitController>} options.outfitController
+ * @param {ReturnType<import("./ui/status-controller").createStatusController>} options.statusController
+ * @param {ReturnType<import("./ui/wardrobe-panel-controller").createWardrobePanelController>} options.wardrobePanelController
+ * @param {ReturnType<import("./render/canvas-renderer").createCanvasRenderer>} options.canvasRenderer
+ * @param {(error: unknown) => void} options.onError
  */
 export function createAppBootstrap({
   preview,
@@ -32,6 +36,18 @@ export function createAppBootstrap({
   wardrobePanelController,
   canvasRenderer,
   onError,
+}: {
+  preview: HTMLCanvasElement;
+  resetButton: HTMLButtonElement;
+  downloadButton: HTMLButtonElement;
+  outfitSelect: HTMLSelectElement;
+  outfitPreviousButton: HTMLButtonElement;
+  outfitNextButton: HTMLButtonElement;
+  outfitController: ReturnType<typeof createOutfitController>;
+  statusController: ReturnType<typeof createStatusController>;
+  wardrobePanelController: ReturnType<typeof createWardrobePanelController>;
+  canvasRenderer: ReturnType<typeof createCanvasRenderer>;
+  onError: (error: unknown) => void;
 }) {
   /**
    * Save the current look as a PNG of fixed size, whatever the window size or pixel ratio.
@@ -83,7 +99,7 @@ export function createAppBootstrap({
   function start() {
     wardrobePanelController.syncWardrobeMode();
 
-    if ("ResizeObserver" in window) {
+    if (typeof ResizeObserver !== "undefined") {
       new ResizeObserver(canvasRenderer.resizePreview).observe(preview);
     } else {
       window.addEventListener("resize", canvasRenderer.resizePreview);

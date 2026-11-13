@@ -4,18 +4,19 @@
  * plus the DOM; exports createWardrobeUi without owning outfit mutations.
  * @module ui/wardrobe-ui
  */
+import type { Catalog, Category, Item, Look, Sprite } from "../types";
 
 /**
  * Bind wardrobe containers and delegate user actions to the outfit controller.
  * @param {object} options
  * @param {HTMLElement} options.categoryTabs
  * @param {HTMLElement} options.itemList
- * @param {import("../types.js").Catalog} options.catalog
+ * @param {import("../types").Catalog} options.catalog
  * @param {() => string} options.getActiveCategory
- * @param {() => import("../types.js").Look} options.getOutfit
- * @param {(item: import("../types.js").Item) => import("../types.js").Sprite | undefined} options.getSprite
- * @param {(category: import("../types.js").Category) => void} options.onCategorySelect
- * @param {(item: import("../types.js").Item) => void} options.onItemSelect
+ * @param {() => import("../types").Look} options.getOutfit
+ * @param {(item: import("../types").Item) => import("../types").Sprite | undefined} options.getSprite
+ * @param {(category: import("../types").Category) => void} options.onCategorySelect
+ * @param {(item: import("../types").Item) => void} options.onItemSelect
  * @param {() => void} options.onNoneSelect
  */
 export function createWardrobeUi({
@@ -28,8 +29,18 @@ export function createWardrobeUi({
   onCategorySelect,
   onItemSelect,
   onNoneSelect,
+}: {
+  categoryTabs: HTMLElement;
+  itemList: HTMLElement;
+  catalog: Catalog;
+  getActiveCategory: () => string;
+  getOutfit: () => Look;
+  getSprite: (item: Item) => Sprite | undefined;
+  onCategorySelect: (category: Category) => void;
+  onItemSelect: (item: Item) => void;
+  onNoneSelect: () => void;
 }) {
-  function makeThumbnailCanvas(item) {
+  function makeThumbnailCanvas(item: Item) {
     const canvas = document.createElement("canvas");
     canvas.className = "item-thumbnail";
     canvas.width = 112;
@@ -42,6 +53,9 @@ export function createWardrobeUi({
 
     // The thumbnail crop is in document pixels; the loaded sprite is cropped and downscaled.
     const sprite = getSprite(item);
+    if (!sprite) {
+      throw new Error(`Image is not loaded: ${item.source}`);
+    }
     const { x, y, width: sourceWidth, height: sourceHeight } = item.thumbnail;
     const scale = Math.min(88 / sourceWidth, 88 / sourceHeight);
     const width = sourceWidth * scale;
@@ -60,7 +74,7 @@ export function createWardrobeUi({
     return canvas;
   }
 
-  function makeThumbnail(item) {
+  function makeThumbnail(item: Item) {
     const image = document.createElement("img");
     image.className = "item-thumbnail";
     image.alt = "";
@@ -78,7 +92,7 @@ export function createWardrobeUi({
     return image;
   }
 
-  function makeItemButton(item) {
+  function makeItemButton(item: Item) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "item-card";
@@ -133,7 +147,7 @@ export function createWardrobeUi({
       }
     }
 
-    for (const button of categoryTabs.querySelectorAll(".category-tab")) {
+    for (const button of categoryTabs.querySelectorAll<HTMLButtonElement>(".category-tab")) {
       const selected = button.dataset.category === getActiveCategory();
       button.classList.toggle("is-active", selected);
       button.setAttribute("aria-pressed", String(selected));
@@ -147,7 +161,7 @@ export function createWardrobeUi({
   function updateItemSelection() {
     const activeCategory = getActiveCategory();
     const outfit = getOutfit();
-    for (const button of itemList.querySelectorAll(".item-card")) {
+    for (const button of itemList.querySelectorAll<HTMLButtonElement>(".item-card")) {
       const selected =
         button.dataset.none === "true"
           ? outfit[activeCategory] === null
@@ -158,17 +172,18 @@ export function createWardrobeUi({
       if (button.dataset.none === "true") {
         button.setAttribute("aria-label", selected ? "No item selected" : "Remove selected item");
       } else if (selected) {
-        button.setAttribute(
-          "aria-label",
-          `${button.querySelector(".item-label").textContent}, selected`,
-        );
+        const label = button.querySelector(".item-label");
+        if (!label) throw new Error("Item card label is missing.");
+        button.setAttribute("aria-label", `${label.textContent}, selected`);
       } else {
-        button.setAttribute("aria-label", button.querySelector(".item-label").textContent);
+        const label = button.querySelector(".item-label");
+        if (!label) throw new Error("Item card label is missing.");
+        button.setAttribute("aria-label", label.textContent ?? "");
       }
     }
   }
 
-  function makeLoadNotice(missingCount, category) {
+  function makeLoadNotice(missingCount: number, category: Category) {
     const notice = document.createElement("div");
     notice.className = "item-notice";
     notice.setAttribute("role", "alert");
@@ -203,6 +218,7 @@ export function createWardrobeUi({
 
     if (availableItems.length < categoryItems.length) {
       const category = catalog.categories.find((entry) => entry.id === activeCategory);
+      if (!category) throw new Error(`Unknown category: ${activeCategory}`);
       itemList.append(makeLoadNotice(categoryItems.length - availableItems.length, category));
     }
     if (activeCategory !== "hair") {

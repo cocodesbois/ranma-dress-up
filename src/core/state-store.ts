@@ -1,18 +1,23 @@
-// @ts-check
 /**
  * Owns synchronous look, panel and loading state without DOM dependencies.
  * Exports createStore; controllers coordinate side effects and rendering.
  * @module core/state-store
  */
 
-/** @typedef {import("../types.js").Look} Look */
+import type { Look } from "../types";
 
 /**
  * Create an isolated store, copying the initial look rather than mutating a preset.
  * @param {{defaultOutfit: Look, initialActiveCategory?: string}} options
  * @returns A store exposing synchronous state accessors and selection tokens.
  */
-export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
+export function createStore({
+  defaultOutfit,
+  initialActiveCategory = "tops",
+}: {
+  defaultOutfit: Look;
+  initialActiveCategory?: string;
+}) {
   let outfit = { ...defaultOutfit };
   let activeCategory = initialActiveCategory;
   let wardrobeOpen = false;
@@ -25,7 +30,7 @@ export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
       return outfit;
     },
     /** @param {Look} nextOutfit Replace the live map with a shallow copy. */
-    setOutfit(nextOutfit) {
+    setOutfit(nextOutfit: Look) {
       outfit = { ...nextOutfit };
     },
     /**
@@ -33,11 +38,11 @@ export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
      * @param {string} category
      * @param {string | null} itemId
      */
-    setOutfitItem(category, itemId) {
+    setOutfitItem(category: string, itemId: string | null) {
       outfit[category] = itemId;
     },
     /** @param {string[]} categories Categories whose selections become null. */
-    clearOutfitItems(categories) {
+    clearOutfitItems(categories: string[]) {
       for (const category of categories) {
         outfit[category] = null;
       }
@@ -47,7 +52,7 @@ export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
       return activeCategory;
     },
     /** @param {string} category Category ID to display. */
-    setActiveCategory(category) {
+    setActiveCategory(category: string) {
       activeCategory = category;
     },
     /** @returns {boolean} Whether the mobile wardrobe is open. */
@@ -55,7 +60,7 @@ export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
       return wardrobeOpen;
     },
     /** @param {boolean} open Desired mobile panel state. */
-    setWardrobeOpen(open) {
+    setWardrobeOpen(open: boolean) {
       wardrobeOpen = open;
     },
     /** @returns {number} A new token invalidating pending preset selections. */
@@ -72,7 +77,7 @@ export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
      * @param {number} request
      * @returns {boolean}
      */
-    isCurrentOutfitSelectionRequest(request) {
+    isCurrentOutfitSelectionRequest(request: number) {
       return request === outfitSelectionRequest;
     },
     /** @returns {boolean} Whether initial preview assets have loaded. */
@@ -80,10 +85,10 @@ export function createStore({ defaultOutfit, initialActiveCategory = "tops" }) {
       return previewReady;
     },
     /** @param {boolean} ready Whether resize may redraw the preview. */
-    setPreviewReady(ready) {
+    setPreviewReady(ready: boolean) {
       previewReady = ready;
     },
   };
 }
 
-/** @typedef {ReturnType<typeof createStore>} Store */
+export type Store = ReturnType<typeof createStore>;

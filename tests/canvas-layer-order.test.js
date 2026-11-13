@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createCanvasRenderer } from "../src/render/canvas-renderer.js";
+import { createCanvasRenderer } from "../src/render/canvas-renderer.ts";
 
 const expectedOrder = [
   "underwear",

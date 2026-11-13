@@ -4,21 +4,28 @@
  * and preset select; exports createOutfitController.
  * @module ui/outfit-controller
  */
+import type { Catalog, Category, Item, Look, OutfitPreset } from "../types";
+import type { Store } from "../core/state-store";
+import type * as CatalogModel from "../core/catalog-model";
+import type { createStatusController } from "./status-controller";
+import type { createImageLoader } from "../render/image-loader";
+import type { createCanvasRenderer } from "../render/canvas-renderer";
+import type { createWardrobeUi } from "./wardrobe-ui";
 
 /**
  * Connect state and presentation without binding browser events.
  * @param {object} options
- * @param {import("../types.js").Catalog} options.catalog
- * @param {typeof import("../core/catalog-model.js")} options.catalogModel
- * @param {import("../types.js").OutfitPreset[]} options.outfitPresets
- * @param {import("../types.js").Look} options.defaultOutfit
- * @param {import("../core/state-store.js").Store} options.appState
+ * @param {import("../types").Catalog} options.catalog
+ * @param {typeof import("../core/catalog-model")} options.catalogModel
+ * @param {import("../types").OutfitPreset[]} options.outfitPresets
+ * @param {import("../types").Look} options.defaultOutfit
+ * @param {import("../core/state-store").Store} options.appState
  * @param {HTMLSelectElement} options.outfitSelect
- * @param {ReturnType<import("./status-controller.js").createStatusController>} options.statusController
- * @param {ReturnType<import("../render/image-loader.js").createImageLoader>} options.imageLoader
- * @param {ReturnType<import("../render/canvas-renderer.js").createCanvasRenderer>} options.canvasRenderer
- * @param {ReturnType<import("./wardrobe-ui.js").createWardrobeUi>} options.wardrobeUi
- * @param {(error: Error) => void} options.onError
+ * @param {ReturnType<import("./status-controller").createStatusController>} options.statusController
+ * @param {ReturnType<import("../render/image-loader").createImageLoader>} options.imageLoader
+ * @param {ReturnType<import("../render/canvas-renderer").createCanvasRenderer>} options.canvasRenderer
+ * @param {ReturnType<import("./wardrobe-ui").createWardrobeUi>} options.wardrobeUi
+ * @param {(error: unknown) => void} options.onError
  */
 export function createOutfitController({
   catalog,
@@ -32,6 +39,18 @@ export function createOutfitController({
   canvasRenderer,
   wardrobeUi,
   onError,
+}: {
+  catalog: Catalog;
+  catalogModel: typeof CatalogModel;
+  outfitPresets: OutfitPreset[];
+  defaultOutfit: Look;
+  appState: Store;
+  outfitSelect: HTMLSelectElement;
+  statusController: ReturnType<typeof createStatusController>;
+  imageLoader: ReturnType<typeof createImageLoader>;
+  canvasRenderer: ReturnType<typeof createCanvasRenderer>;
+  wardrobeUi: ReturnType<typeof createWardrobeUi>;
+  onError: (error: unknown) => void;
 }) {
   function updateOutfitSelection() {
     const matchingOutfit = catalogModel.getMatchingOutfit(
@@ -44,10 +63,10 @@ export function createOutfitController({
 
   /**
    * Select a loaded item in the active category and clear exclusive selections.
-   * @param {import("../types.js").Item} item
+   * @param {import("../types").Item} item
    * @returns {void}
    */
-  function selectItem(item) {
+  function selectItem(item: Item) {
     appState.nextOutfitSelectionRequest();
     appState.clearOutfitItems(
       catalogModel.getExcludedCategories(catalog, appState.getActiveCategory()),
@@ -77,7 +96,7 @@ export function createOutfitController({
    * @param {PromiseSettledResult<unknown>[]} results
    * @returns {number} How many loads failed.
    */
-  function logRejections(results) {
+  function logRejections(results: PromiseSettledResult<unknown>[]) {
     const failures = results.filter((result) => result.status === "rejected");
     for (const failure of failures) {
       console.error(failure.reason);
@@ -89,10 +108,10 @@ export function createOutfitController({
    * Load category images, then render only if that category is still active. Images that
    * fail to load do not empty the grid: the loaded items are shown, and the wardrobe offers
    * a retry for the others.
-   * @param {import("../types.js").Category} category
+   * @param {import("../types").Category} category
    * @returns {Promise<void>} Load errors are forwarded to onError.
    */
-  async function selectCategory(category) {
+  async function selectCategory(category: Category) {
     appState.setActiveCategory(category.id);
     wardrobeUi.renderCategories();
     wardrobeUi.clearItems();
@@ -125,7 +144,7 @@ export function createOutfitController({
     }
   }
 
-  async function selectOutfit(preset) {
+  async function selectOutfit(preset: OutfitPreset) {
     const request = appState.nextOutfitSelectionRequest();
     const missingSources = imageLoader.getMissingSourcesForPreset(preset);
 
@@ -185,7 +204,7 @@ export function createOutfitController({
    * @param {number} step Navigation offset, normally -1 or 1.
    * @returns {void}
    */
-  function selectAdjacentOutfit(step) {
+  function selectAdjacentOutfit(step: number) {
     if (!outfitPresets.length) {
       return;
     }
@@ -270,7 +289,7 @@ export function createOutfitController({
    * @param {string | number} outfitId
    * @returns {void}
    */
-  function selectOutfitById(outfitId) {
+  function selectOutfitById(outfitId: string | number) {
     const preset = catalogModel.findPresetById(outfitPresets, outfitId);
     if (preset) {
       selectOutfit(preset);

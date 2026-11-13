@@ -7,7 +7,7 @@ assets/sprites/. Existing files are never overwritten. For each file, the
 catalog item snippet is printed with the thumbnail crop computed from the
 bounding box of the non-transparent pixels, and a static thumbnail file is
 written to public/images/thumbnails/ (requires Pillow). Finally the optimized WebP sprites
-and src/data/sprite-manifest.js are updated for the new files (same as
+and src/data/sprite-manifest.ts are updated for the new files (same as
 scripts/optimize-sprites.py).
 """
 import argparse

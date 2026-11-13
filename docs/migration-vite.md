@@ -1,5 +1,8 @@
 # Plan de migration vers Vite
 
+> Document historique : pour l'état actuel du code et du typage, voir
+> [Architecture](architecture.md).
+
 > Statut : étapes 1 à 6 fusionnées dans `main` ; étape 7 implémentée dans sa PR dédiée (documentation et typage progressif). Étape 8 optionnelle, non engagée.
 > Principe : une PR par étape, l'application reste fonctionnelle à chaque étape.
 > Toujours affecter les PR à l'utilisateur courant et choisir un label existant : `enhancement` pour les étapes techniques, `documentation` pour les changements documentaires. Le label `migration` n'existe pas dans le dépôt ; ne pas le créer.

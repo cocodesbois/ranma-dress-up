@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createCanvasRenderer } from "../src/render/canvas-renderer.js";
+import { createCanvasRenderer } from "../src/render/canvas-renderer.ts";
 
 const placement = { x: 0, y: 0, scale: 0.18, regX: 0, regY: 0 };
 

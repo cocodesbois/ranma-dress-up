@@ -5,15 +5,16 @@
  * plus browser canvas/media APIs; exports createCanvasRenderer.
  * @module render/canvas-renderer
  */
+import type { Catalog, Layer, Look, Sprite, SpriteManifest } from "../types";
 
 /**
  * Configure the canvas geometry and fixed layer order without loading images.
  * @param {object} options
  * @param {HTMLCanvasElement} options.preview
- * @param {import("../types.js").Catalog} options.catalog
- * @param {import("../types.js").SpriteManifest} options.manifest
- * @param {(item: import("../types.js").Layer | {source: string}) => import("../types.js").Sprite | undefined} options.getSprite
- * @param {() => import("../types.js").Look} options.getOutfit
+ * @param {import("../types").Catalog} options.catalog
+ * @param {import("../types").SpriteManifest} options.manifest
+ * @param {(item: import("../types").Layer | {source: string}) => import("../types").Sprite | undefined} options.getSprite
+ * @param {() => import("../types").Look} options.getOutfit
  * @param {() => boolean} options.isPreviewReady
  * @throws {Error} If a 2D context is unavailable.
  */
@@ -24,10 +25,17 @@ export function createCanvasRenderer({
   getSprite,
   getOutfit,
   isPreviewReady,
+}: {
+  preview: HTMLCanvasElement;
+  catalog: Catalog;
+  manifest: SpriteManifest;
+  getSprite: (item: { source: string }) => Sprite | undefined;
+  getOutfit: () => Look;
+  isPreviewReady: () => boolean;
 }) {
   // Width in pixels of the image saved by the download button, whatever the screen.
   const exportWidth = 2400;
-  const previewContext = preview.getContext("2d");
+  const context = preview.getContext("2d");
   const layerOrder = [
     "underwear",
     "slips",
@@ -44,9 +52,10 @@ export function createCanvasRenderer({
     "accessories",
   ];
 
-  if (!previewContext) {
+  if (!context) {
     throw new Error("This browser does not support the canvas preview.");
   }
+  const previewContext: CanvasRenderingContext2D = context;
 
   // The preview shows the whole Photoshop document: the background is drawn in full and
   // every sprite keeps its position on it. Drawing units are `placement.scale` times the
@@ -65,7 +74,7 @@ export function createCanvasRenderer({
 
   preview.style.aspectRatio = `${documentWidth} / ${documentHeight}`;
 
-  function requireSprite(item) {
+  function requireSprite(item: { source: string }): Sprite {
     const sprite = getSprite(item);
     if (!sprite) {
       throw new Error(`Image is not loaded: ${item.source}`);
@@ -73,7 +82,7 @@ export function createCanvasRenderer({
     return sprite;
   }
 
-  function drawItem(context, item) {
+  function drawItem(context: CanvasRenderingContext2D, item: Layer) {
     const sprite = requireSprite(item);
     const { x, y, scale, regX, regY } = item.placement;
     const left = x - regX * scale + sprite.x * scale - originX;
@@ -82,7 +91,7 @@ export function createCanvasRenderer({
     context.drawImage(sprite.image, left, top, sprite.width * scale, sprite.height * scale);
   }
 
-  function drawBackground(context) {
+  function drawBackground(context: CanvasRenderingContext2D) {
     context.drawImage(requireSprite(catalog.background).image, 0, 0, previewWidth, previewHeight);
   }
 
@@ -93,7 +102,7 @@ export function createCanvasRenderer({
    * @returns {void}
    * @throws {Error} If a selected item is unknown or its image is not loaded.
    */
-  function paintOutfit(context) {
+  function paintOutfit(context: CanvasRenderingContext2D) {
     // High quality filtering avoids aliasing when the sprites are scaled down to the screen.
     context.imageSmoothingQuality = "high";
     context.clearRect(0, 0, previewWidth, previewHeight);
@@ -158,7 +167,7 @@ export function createCanvasRenderer({
 
     context.setTransform(canvas.width / previewWidth, 0, 0, canvas.height / previewHeight, 0, 0);
     paintOutfit(context);
-    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
   }
 
   /**
