@@ -9,8 +9,9 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --project jsconfig.json",
-    "format": "prettier --write README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md package.json jsconfig.json vite.config.js eslint.config.js .prettierrc.json",
-    "format:check": "prettier --check README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md package.json jsconfig.json vite.config.js eslint.config.js .prettierrc.json",
+    "validate:catalog": "node scripts/validate-catalog.js",
+    "format": "prettier --write README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md scripts/validate-catalog.js package.json jsconfig.json vite.config.js eslint.config.js .prettierrc.json",
+    "format:check": "prettier --check README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md scripts/validate-catalog.js package.json jsconfig.json vite.config.js eslint.config.js .prettierrc.json",
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
