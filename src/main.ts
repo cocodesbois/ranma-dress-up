@@ -36,6 +36,7 @@ const statusMessage = requireElement("#status-message", HTMLElement);
 const wardrobePanel = requireElement("#wardrobe-panel", HTMLElement);
 const wardrobeToggle = requireElement("#wardrobe-toggle", HTMLButtonElement);
 const wardrobeClose = requireElement("#wardrobe-close", HTMLButtonElement);
+const wardrobeSize = requireElement("#wardrobe-size", HTMLButtonElement);
 const wardrobeBackdrop = requireElement("#wardrobe-backdrop", HTMLElement);
 const mobileWardrobe = window.matchMedia("(max-width: 720px)");
 const resetButton = requireElement("#reset-look", HTMLButtonElement);
@@ -95,6 +96,7 @@ const wardrobePanelController = createWardrobePanelController({
   wardrobePanel,
   wardrobeToggle,
   wardrobeClose,
+  wardrobeSize,
   wardrobeBackdrop,
   mobileWardrobe,
 });

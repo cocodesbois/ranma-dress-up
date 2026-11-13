@@ -212,6 +212,8 @@ export function createWardrobeUi({
    */
   function renderItems() {
     itemList.replaceChildren();
+    itemList.scrollLeft = 0;
+    itemList.scrollTop = 0;
     const activeCategory = getActiveCategory();
     const categoryItems = catalog.items.filter((entry) => entry.category === activeCategory);
     const availableItems = categoryItems.filter((item) => getSprite(item));
