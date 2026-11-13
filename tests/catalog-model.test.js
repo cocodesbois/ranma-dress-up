@@ -4,6 +4,7 @@ import {
   createOutfitPresets,
   findPresetById,
   getDefaultOutfitLook,
+  getExcludedCategories,
   getMatchingOutfit,
 } from "../src/core/catalog-model.js";
 
@@ -168,4 +169,59 @@ describe("preset lookup", () => {
     expect(getMatchingOutfit(input, presets, { ...presets[0].look, hair: null })).toBeUndefined();
     expect(getMatchingOutfit(input, [], presets[0].look)).toBeUndefined();
   });
+});
+
+describe("incompatible categories", () => {
+  const withPairs = (pairs) => ({ ...createCatalog(), incompatibleCategories: pairs });
+
+  it("derives symmetric exclusions from the declared pairs", () => {
+    const input = withPairs([
+      ["tops", "pants"],
+      ["tops", "dresses"],
+    ]);
+    expect(getExcludedCategories(input, "tops")).toEqual(["pants", "dresses"]);
+    expect(getExcludedCategories(input, "pants")).toEqual(["tops"]);
+    expect(getExcludedCategories(input, "dresses")).toEqual(["tops"]);
+    expect(getExcludedCategories(input, "hair")).toEqual([]);
+  });
+
+  it("applies no exclusion when the catalog declares no pairs", () => {
+    expect(getExcludedCategories(createCatalog(), "tops")).toEqual([]);
+  });
+
+  it("keeps the exclusions of the published catalog", () => {
+    const expected = {
+      bodysuits: ["tops", "pants", "dresses"],
+      tops: ["bodysuits"],
+      pants: ["bodysuits", "dresses"],
+      dresses: ["bodysuits", "pants"],
+    };
+    for (const { id } of catalog.categories) {
+      expect(getExcludedCategories(catalog, id).sort(), id).toEqual(
+        [...(expected[id] ?? [])].sort(),
+      );
+    }
+  });
+
+  it("rejects an outfit that combines incompatible categories", () => {
+    const input = withPairs([["tops", "pants"]]);
+    input.outfits[0].items = { hair: "shared-hair", tops: "tops-item", pants: "pants-item" };
+    expect(() => createOutfitPresets(input)).toThrow(
+      'Outfit "005" combines tops and pants, which are mutually exclusive.',
+    );
+  });
+
+  it("accepts outfits that use only one category of a pair", () => {
+    const presets = createOutfitPresets(withPairs([["tops", "pants"]]));
+    expect(presets).toHaveLength(2);
+  });
+
+  it.each([[[["tops"]]], [[["tops", "pants", "hats"]]], [[["tops", "unknown"]]], [[[]]]])(
+    "rejects a malformed pair declaration: %j",
+    (pairs) => {
+      expect(() => createOutfitPresets(withPairs(pairs))).toThrow(
+        "Invalid incompatibleCategories entry",
+      );
+    },
+  );
 });

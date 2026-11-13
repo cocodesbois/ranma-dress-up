@@ -33,10 +33,17 @@ export function createAppBootstrap({
   canvasRenderer,
   onError,
 }) {
-  function downloadPreview() {
-    preview.toBlob((blob) => {
+  /**
+   * Save the current look as a PNG of fixed size, whatever the window size or pixel ratio.
+   * @returns {Promise<void>} Export errors are forwarded to onError.
+   */
+  async function downloadPreview() {
+    downloadButton.disabled = true;
+    try {
+      statusController.setStatusMessage("Preparing your look...", { loading: true });
+      const blob = await canvasRenderer.exportPreview();
       if (!blob) {
-        statusController.setStatusMessage("The preview could not be saved.");
+        statusController.setStatusMessage("The preview could not be saved.", { isError: true });
         return;
       }
 
@@ -47,7 +54,11 @@ export function createAppBootstrap({
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       statusController.setStatusMessage("Your look has been downloaded.");
-    }, "image/png");
+    } catch (error) {
+      onError(error);
+    } finally {
+      downloadButton.disabled = false;
+    }
   }
 
   /**
