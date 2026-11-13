@@ -3,12 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f7f1e8" />
+    <meta name="theme-color" content="#1759a8" />
     <meta
       name="description"
       content="Mix and match Ranma's original outfits, hairstyles, and accessories."
     />
     <title>Ranma 1/2 Dress-up</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="src/styles/main.css" />
     <script type="module" src="src/main.ts"></script>
   </head>
@@ -16,12 +19,13 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="brand" href="./" aria-label="Ranma 1/2 Dress-up home">
-          <span class="brand-mark" aria-hidden="true">R</span>
+          <img class="brand-mark" src="favicon.svg" alt="" />
           <h1 class="brand-copy">
             <span class="brand-kicker">RANMA 1/2</span>
             <span class="brand-name">Dress-up</span>
           </h1>
         </a>
+        <p id="offline-status" class="offline-status" role="status" aria-live="polite" hidden></p>
       </header>
 
       <main class="workspace">

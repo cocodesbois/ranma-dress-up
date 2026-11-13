@@ -159,3 +159,36 @@ const appBootstrap = createAppBootstrap({
 
 appBootstrap.bindEvents();
 appBootstrap.start();
+
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  const offlineStatus = requireElement("#offline-status", HTMLElement);
+  const showOfflineError = (error: unknown) => {
+    console.error("Could not prepare the offline app:", error);
+    offlineStatus.textContent = "Offline setup failed. Reconnect and reload to try again.";
+    offlineStatus.classList.add("is-error");
+    offlineStatus.hidden = false;
+  };
+
+  window.addEventListener("load", () => {
+    offlineStatus.textContent = "Preparing offline access...";
+    offlineStatus.hidden = false;
+    navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .then((registration) => {
+        const worker = registration.installing;
+        if (worker && !registration.active) {
+          worker.addEventListener("statechange", () => {
+            if (worker.state === "redundant" && !registration.active) {
+              showOfflineError(new Error("Service worker installation failed."));
+            }
+          });
+        }
+        return navigator.serviceWorker.ready;
+      })
+      .then(() => {
+        offlineStatus.textContent = "Ready to use offline.";
+        offlineStatus.classList.remove("is-error");
+      })
+      .catch(showOfflineError);
+  });
+}
