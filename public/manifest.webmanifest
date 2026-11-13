@@ -1,0 +1,14 @@
+{
+  "name": "Ranma 1/2 Dress-up",
+  "short_name": "Dress-up",
+  "description": "Mix and match outfits, hairstyles, and accessories.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff2f4",
+  "theme_color": "#1759a8",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

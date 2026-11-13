@@ -26,6 +26,21 @@ npm run build
 npm run preview
 ```
 
+### Install and use offline
+
+The production build includes a web app manifest and a service worker. On a
+supported browser, open the deployed app over HTTPS (or the local preview on
+localhost) and use the browser's install option. After the first online visit,
+the service worker downloads the application and its optimized images and
+thumbnails; leave the page open until that download completes before going
+offline. The header shows when offline access is ready, or if setup failed.
+The wardrobe and PNG export then work without a connection.
+
+The offline cache is updated on a subsequent visit after a deployment. An
+already-open app keeps its previous version until its tabs are closed, so a
+new version does not mix with assets from the old one. Service workers are not
+registered by the Vite development server.
+
 ### Technical checks
 
 ```powershell

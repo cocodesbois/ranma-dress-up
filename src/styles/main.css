@@ -1,18 +1,18 @@
 :root {
   color-scheme: light;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  color: #29272b;
-  background: #f7f2ea;
+  color: #242d42;
+  background: #fbe4ed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --ink: #29272b;
-  --muted: #827b77;
-  --paper: #fffdf9;
-  --rose: #be5967;
-  --rose-dark: #a94757;
-  --line: #e9dfd4;
-  --soft-rose: #f8e9e8;
-  --shadow: 0 16px 45px rgba(80, 59, 50, 0.08);
+  --ink: #242d42;
+  --muted: #62526a;
+  --paper: #fffdfb;
+  --rose: #c51e42;
+  --rose-dark: #a31534;
+  --line: #e8c1d0;
+  --soft-rose: #fbe0eb;
+  --shadow: 0 6px 0 rgba(26, 67, 125, 0.16), 0 14px 32px rgba(76, 46, 77, 0.12);
 }
 
 * {
@@ -23,9 +23,11 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(ellipse at 12% 0%, rgba(236, 203, 190, 0.34), transparent 30rem),
-    #f7f2ea;
+  background-color: #fff2f4;
+  background-image:
+    linear-gradient(90deg, rgba(226, 122, 164, 0.24) 50%, transparent 50%),
+    linear-gradient(rgba(226, 122, 164, 0.24) 50%, transparent 50%);
+  background-size: 32px 32px;
 }
 
 button,
@@ -45,8 +47,10 @@ button {
 .site-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   min-height: 56px;
-  border-bottom: 1px solid rgba(95, 76, 66, 0.12);
+  border-bottom: 3px solid #1759a8;
 }
 
 .brand {
@@ -58,16 +62,9 @@ button {
 }
 
 .brand-mark {
-  display: grid;
+  display: block;
   width: 34px;
   height: 34px;
-  place-items: center;
-  border-radius: 50% 50% 50% 12px;
-  background: var(--rose);
-  color: white;
-  font-family: Georgia, serif;
-  font-size: 20px;
-  font-style: italic;
 }
 
 .brand-copy {
@@ -79,14 +76,27 @@ button {
 .brand-kicker {
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   color: var(--rose);
 }
 
 .brand-name {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   font-size: 16px;
+  font-weight: 900;
+  color: #1759a8;
+}
+
+.offline-status {
+  margin: 0;
+  color: #1759a8;
+  font-size: 11px;
   font-weight: 700;
+  text-align: right;
+}
+
+.offline-status.is-error {
+  color: var(--rose-dark);
 }
 
 .workspace {
@@ -100,8 +110,8 @@ button {
 .preview-panel,
 .wardrobe-panel {
   min-width: 0;
-  border: 1px solid rgba(117, 95, 83, 0.12);
-  border-radius: 12px;
+  border: 2px solid #1759a8;
+  border-radius: 14px;
   background: var(--paper);
   box-shadow: var(--shadow);
 }
@@ -113,7 +123,7 @@ button {
 .stage-frame {
   position: relative;
   overflow: hidden;
-  border: 1px solid #e9dccb;
+  border: 2px solid #8ab9d8;
   border-radius: 8px;
   background: #eee2d2;
 }
@@ -195,7 +205,7 @@ button {
 .brand:focus-visible,
 .outfit-select:focus-visible,
 .wardrobe-close:focus-visible {
-  outline: 3px solid rgba(190, 89, 103, 0.35);
+  outline: 3px solid #1759a8;
   outline-offset: 2px;
 }
 
@@ -205,8 +215,8 @@ button {
 }
 
 .button-secondary:hover {
-  border-color: #d6b6ad;
-  background: #fff9f6;
+  border-color: #c51e42;
+  background: #fff2f4;
 }
 
 .button-primary {
@@ -227,6 +237,8 @@ button {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
+  padding: 3px 4px 6px;
+  border-bottom: 3px solid #ffcf39;
 }
 
 .wardrobe-heading-actions {
@@ -295,8 +307,8 @@ button {
   padding: 5px 4px;
   border: 1px solid transparent;
   border-radius: 6px;
-  background: #f7f3ed;
-  color: #756d68;
+  background: #f3e7ed;
+  color: #594257;
   cursor: pointer;
   font-size: 11px;
   font-weight: 700;
@@ -304,14 +316,14 @@ button {
 }
 
 .category-tab:hover {
-  border-color: #e9d2cd;
+  border-color: #c51e42;
   color: var(--rose-dark);
 }
 
 .category-tab.is-active {
-  border-color: #e6c8c2;
-  background: var(--soft-rose);
-  color: var(--rose-dark);
+  border-color: #1759a8;
+  background: #1759a8;
+  color: white;
 }
 
 .item-grid {
@@ -348,9 +360,9 @@ button {
   align-items: center;
   gap: 7px;
   padding: 7px 5px 8px;
-  border: 1px solid #eee7df;
+  border: 1px solid #e8c1d0;
   border-radius: 9px;
-  background: #fffdfa;
+  background: #fffafb;
   cursor: pointer;
   text-align: center;
   transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
@@ -358,13 +370,13 @@ button {
 
 .item-card:hover {
   transform: translateY(-2px);
-  border-color: #d8b4ab;
+  border-color: #1759a8;
 }
 
 .item-card.is-selected {
   border-color: var(--rose);
-  background: #fff7f4;
-  box-shadow: inset 0 0 0 1px rgba(190, 89, 103, 0.15);
+  background: #fff1f4;
+  box-shadow: inset 0 0 0 1px var(--rose);
 }
 
 .item-thumbnail,
@@ -375,12 +387,12 @@ button {
   height: auto;
   aspect-ratio: 1;
   border-radius: 5px;
-  background-color: #f2ece4;
+  background-color: #fff0f3;
   background-image:
-    linear-gradient(45deg, #e9e1d8 25%, transparent 25%),
-    linear-gradient(-45deg, #e9e1d8 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #e9e1d8 75%),
-    linear-gradient(-45deg, transparent 75%, #e9e1d8 75%);
+    linear-gradient(45deg, #f3d9e3 25%, transparent 25%),
+    linear-gradient(-45deg, #f3d9e3 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f3d9e3 75%),
+    linear-gradient(-45deg, transparent 75%, #f3d9e3 75%);
   background-position: 0 0, 0 5px, 5px -5px, -5px 0;
   background-size: 10px 10px;
 }
