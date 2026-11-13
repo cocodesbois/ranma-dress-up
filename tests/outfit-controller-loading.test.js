@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import catalog from "../src/data/sprite-catalog.js";
-import * as catalogModel from "../src/core/catalog-model.js";
-import { createStore } from "../src/core/state-store.js";
-import { createOutfitController } from "../src/ui/outfit-controller.js";
+import catalog from "../src/data/sprite-catalog.ts";
+import * as catalogModel from "../src/core/catalog-model.ts";
+import { createStore } from "../src/core/state-store.ts";
+import { createOutfitController } from "../src/ui/outfit-controller.ts";
 
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
 const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "005");

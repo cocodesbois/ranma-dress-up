@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createImageLoader } from "../src/render/image-loader.js";
+import { createImageLoader } from "../src/render/image-loader.ts";
 
 const manifest = {
   settings: { scale: 0.5 },

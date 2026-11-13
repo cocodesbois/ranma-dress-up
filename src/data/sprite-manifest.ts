@@ -2,10 +2,12 @@
 /**
  * Generated WebP URLs and crop geometry, keyed by catalog PNG source paths.
  * Has no runtime dependencies; exports spriteManifest as the default value.
- * Regenerate through scripts/optimize-sprites.py; see src/types.js for its contract.
+ * Regenerate through scripts/optimize-sprites.py; see src/types.ts for its contract.
  * @module data/sprite-manifest
  */
-const spriteManifest = {
+import type * as Types from "../types";
+
+const spriteManifest: Types.SpriteManifest = {
   "version": 1,
   "document": {
     "width": 6643,

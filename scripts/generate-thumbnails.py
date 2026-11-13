@@ -13,7 +13,7 @@ from pathlib import Path
 from thumbnail_utils import THUMBNAILS_DIR, write_thumbnail
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-CATALOG_PATH = ROOT_DIR / "src" / "data" / "sprite-catalog.js"
+CATALOG_PATH = ROOT_DIR / "src" / "data" / "sprite-catalog.ts"
 
 ITEMS_SECTION_PATTERN = re.compile(
     r"items:\s*\[(?P<body>[\s\S]*?)\],\s*outfits:",

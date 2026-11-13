@@ -1,21 +1,21 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import catalog from "../src/data/sprite-catalog.js";
-import spriteManifest from "../src/data/sprite-manifest.js";
-import { createOutfitPresets } from "../src/core/catalog-model.js";
+import catalog from "../src/data/sprite-catalog";
+import spriteManifest from "../src/data/sprite-manifest";
+import { createOutfitPresets } from "../src/core/catalog-model";
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const errors = [];
+const errors: string[] = [];
 
-function reportMissingFile(description, relativePath) {
+function reportMissingFile(description: string, relativePath: string) {
   const absolutePath = path.resolve(rootDirectory, relativePath);
   if (!absolutePath.startsWith(`${rootDirectory}${path.sep}`) || !existsSync(absolutePath)) {
     errors.push(`${description}: ${relativePath}`);
   }
 }
 
-function checkUniqueIds(entries, description) {
+function checkUniqueIds(entries: { id: string }[], description: string) {
   const ids = new Set();
   for (const { id } of entries) {
     if (!id || ids.has(id)) {

@@ -5,32 +5,41 @@
  * @module main
  */
 
-import catalog from "./data/sprite-catalog.js";
-import spriteManifest from "./data/sprite-manifest.js";
-import * as catalogModel from "./core/catalog-model.js";
-import { createStore } from "./core/state-store.js";
-import { createImageLoader } from "./render/image-loader.js";
-import { createCanvasRenderer } from "./render/canvas-renderer.js";
-import { createWardrobeUi } from "./ui/wardrobe-ui.js";
-import { createStatusController } from "./ui/status-controller.js";
-import { createWardrobePanelController } from "./ui/wardrobe-panel-controller.js";
-import { createOutfitController } from "./ui/outfit-controller.js";
-import { createAppBootstrap } from "./app-bootstrap.js";
+import catalog from "./data/sprite-catalog";
+import spriteManifest from "./data/sprite-manifest";
+import * as catalogModel from "./core/catalog-model";
+import { createStore } from "./core/state-store";
+import { createImageLoader } from "./render/image-loader";
+import { createCanvasRenderer } from "./render/canvas-renderer";
+import { createWardrobeUi } from "./ui/wardrobe-ui";
+import { createStatusController } from "./ui/status-controller";
+import { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
+import { createOutfitController } from "./ui/outfit-controller";
+import { createAppBootstrap } from "./app-bootstrap";
+import type { Sprite } from "./types";
 
-const preview = document.querySelector("#outfit-preview");
-const categoryTabs = document.querySelector("#category-tabs");
-const itemList = document.querySelector("#item-list");
-const outfitSelect = document.querySelector("#outfit-select");
-const outfitPreviousButton = document.querySelector("#outfit-previous");
-const outfitNextButton = document.querySelector("#outfit-next");
-const statusMessage = document.querySelector("#status-message");
-const wardrobePanel = document.querySelector("#wardrobe-panel");
-const wardrobeToggle = document.querySelector("#wardrobe-toggle");
-const wardrobeClose = document.querySelector("#wardrobe-close");
-const wardrobeBackdrop = document.querySelector("#wardrobe-backdrop");
+function requireElement<T extends HTMLElement>(selector: string, type: { new (): T }): T {
+  const element = document.querySelector(selector);
+  if (!(element instanceof type)) {
+    throw new Error(`Missing or invalid element: ${selector}`);
+  }
+  return element;
+}
+
+const preview = requireElement("#outfit-preview", HTMLCanvasElement);
+const categoryTabs = requireElement("#category-tabs", HTMLElement);
+const itemList = requireElement("#item-list", HTMLElement);
+const outfitSelect = requireElement("#outfit-select", HTMLSelectElement);
+const outfitPreviousButton = requireElement("#outfit-previous", HTMLButtonElement);
+const outfitNextButton = requireElement("#outfit-next", HTMLButtonElement);
+const statusMessage = requireElement("#status-message", HTMLElement);
+const wardrobePanel = requireElement("#wardrobe-panel", HTMLElement);
+const wardrobeToggle = requireElement("#wardrobe-toggle", HTMLButtonElement);
+const wardrobeClose = requireElement("#wardrobe-close", HTMLButtonElement);
+const wardrobeBackdrop = requireElement("#wardrobe-backdrop", HTMLElement);
 const mobileWardrobe = window.matchMedia("(max-width: 720px)");
-const resetButton = document.querySelector("#reset-look");
-const downloadButton = document.querySelector("#download-look");
+const resetButton = requireElement("#reset-look", HTMLButtonElement);
+const downloadButton = requireElement("#download-look", HTMLButtonElement);
 
 if (!spriteManifest) {
   throw new Error("Sprite manifest is missing. Run: python scripts/optimize-sprites.py");
@@ -66,9 +75,9 @@ const imageLoader = createImageLoader({
 /**
  * Adapt a catalog layer to the loader's stable PNG source key.
  * @param {{source: string}} item
- * @returns {import("./types.js").Sprite | undefined}
+ * @returns {import("./types").Sprite | undefined}
  */
-function getSprite(item) {
+function getSprite(item: { source: string }): Sprite | undefined {
   return imageLoader.getSprite(item.source);
 }
 
@@ -90,7 +99,7 @@ const wardrobePanelController = createWardrobePanelController({
   mobileWardrobe,
 });
 
-let outfitController;
+let outfitController: ReturnType<typeof createOutfitController>;
 const wardrobeUi = createWardrobeUi({
   categoryTabs,
   itemList,
@@ -114,9 +123,11 @@ const wardrobeUi = createWardrobeUi({
  * @param {Error} error
  * @returns {void}
  */
-function showError(error) {
+function showError(error: unknown) {
   console.error(error);
-  statusController.setStatusMessage(error.message, { isError: true });
+  statusController.setStatusMessage(error instanceof Error ? error.message : String(error), {
+    isError: true,
+  });
 }
 
 outfitController = createOutfitController({

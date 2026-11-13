@@ -2,7 +2,7 @@
 
 The PNG exports in assets/sprites/ are the source of truth and are never modified.
 Every PNG is converted to a cropped, downscaled WebP in public/images/optimized/, and the
-crop offsets are written to src/data/sprite-manifest.js so the app can draw each
+crop offsets are written to src/data/sprite-manifest.ts so the app can draw each
 sprite at its original position on the shared document canvas.
 
 - Sprites are cropped to the bounding box of their non-transparent pixels. This does
@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_DIR = ROOT / "public"
 SPRITES_DIR = ROOT / "assets" / "sprites"
 OPTIMIZED_DIR = PUBLIC_DIR / "images" / "optimized"
-MANIFEST_PATH = ROOT / "src" / "data" / "sprite-manifest.js"
+MANIFEST_PATH = ROOT / "src" / "data" / "sprite-manifest.ts"
 MANIFEST_VARIABLE = "spriteManifest"
 MANIFEST_VERSION = 1
 FULL_FRAME_PREFIX = "background"
@@ -86,10 +86,11 @@ def write_manifest(manifest):
         "/**\n"
         " * Generated WebP URLs and crop geometry, keyed by catalog PNG source paths.\n"
         " * Has no runtime dependencies; exports spriteManifest as the default value.\n"
-        " * Regenerate through scripts/optimize-sprites.py; see src/types.js for its contract.\n"
+        " * Regenerate through scripts/optimize-sprites.py; see src/types.ts for its contract.\n"
         " * @module data/sprite-manifest\n"
         " */\n"
-        f"const {MANIFEST_VARIABLE} = {body};\n\n"
+        'import type * as Types from "../types";\n\n'
+        f"const {MANIFEST_VARIABLE}: Types.SpriteManifest = {body};\n\n"
         f"export default {MANIFEST_VARIABLE};\n",
         encoding="utf-8",
     )
@@ -225,7 +226,7 @@ def check():
     """Return a list of problems (empty when optimized outputs match sprite sources)."""
     manifest = load_manifest()
     if manifest is None:
-        return ["src/data/sprite-manifest.js is missing."]
+        return ["src/data/sprite-manifest.ts is missing."]
 
     problems = []
     sources = source_files()

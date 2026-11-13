@@ -35,7 +35,7 @@ jobs:
         run: npm run lint
       - name: Check formatting
         run: npm run format:check
-      - name: Check JavaScript types
+      - name: Check TypeScript types
         run: npm run typecheck
       - name: Validate catalog data and assets
         run: npm run validate:catalog

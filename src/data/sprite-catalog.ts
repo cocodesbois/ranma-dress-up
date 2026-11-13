@@ -1,4 +1,3 @@
-﻿// @ts-check
 /**
  * Author-maintained catalog of layers, categories and outfit mappings.
  * Depends on shared data contracts; exports the catalog as the default value.
@@ -16,8 +15,9 @@ const sharedSpritePlacement = {
   regY: 3405,
 };
 
-/** @type {import("../types.js").Catalog} */
-const catalog = {
+import type { Catalog } from "../types";
+
+const catalog: Catalog = {
   background: {
     source: "assets/sprites/background.png",
   },

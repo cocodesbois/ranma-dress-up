@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import babelParser from "@babel/eslint-parser";
 import globals from "globals";
 
 export default [
@@ -29,6 +30,25 @@ export default [
     },
     rules: {
       "no-console": "off",
+    },
+  },
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser: babelParser,
+      parserOptions: {
+        requireConfigFile: false,
+        babelOptions: { plugins: ["@babel/plugin-syntax-typescript"] },
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      "no-undef": "off",
+      "no-unused-vars": "off",
     },
   },
 ];

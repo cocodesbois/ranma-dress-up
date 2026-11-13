@@ -1,6 +1,6 @@
 # Architecture de Ranma Dress-up Studio
 
-L'application est statique, en modules ES JavaScript, servie et construite par
+L'application est statique, en modules ES TypeScript, servie et construite par
 Vite. Elle n'a ni serveur applicatif ni stockage persistant. Le catalogue et les
 presets sont des données versionnées ; le look courant vit uniquement en mémoire.
 
@@ -8,25 +8,25 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 
 | Module                                | Rôle et dépendances                                                                                                                                                     |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/main.js`                         | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                       |
-| `src/types.js`                        | Contrats JSDoc partagés, importés uniquement dans les commentaires de types. Aucune valeur métier à l'exécution.                                                        |
-| `src/data/sprite-catalog.js`          | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                |
-| `src/data/sprite-manifest.js`         | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                                                           |
-| `src/core/catalog-model.js`           | Valide et résout les presets, y compris les paires de catégories incompatibles ; fournit les recherches par ID, look, preset par défaut et exclusions. Sans DOM.        |
-| `src/core/state-store.js`             | État synchrone isolé : `Look`, catégorie active, panneau mobile, disponibilité du preview et jetons de sélection. Sans DOM ni rendu.                                    |
-| `src/render/image-loader.js`          | Deux caches distincts (chargements en cours, images décodées), résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                        |
-| `src/render/canvas-renderer.js`       | Composition des calques, ombre, redimensionnement selon la densité de pixels et export PNG à taille fixe. Lit le store via des getters et ne charge pas d'images.       |
-| `src/ui/outfit-controller.js`         | Orchestre sélections, exclusivités, chargements, mutations du store et rafraîchissement de la présentation.                                                             |
-| `src/ui/wardrobe-ui.js`               | Onglets et cartes accessibles, miniatures statiques et fallback canvas, avis avec reprise si des sprites n'ont pas pu être chargés ; délègue les actions au contrôleur. |
-| `src/ui/status-controller.js`         | Texte de statut et activation/désactivation des contrôles de presets.                                                                                                   |
-| `src/ui/wardrobe-panel-controller.js` | Panneau mobile, attributs de dialogue, focus, Échap et navigation Tab.                                                                                                  |
-| `src/app-bootstrap.js`                | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                       |
+| `src/main.ts`                         | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                       |
+| `src/types.ts`                        | Contrats TypeScript partagés, importés uniquement comme types. Aucune valeur métier à l'exécution.                                                                      |
+| `src/data/sprite-catalog.ts`          | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                |
+| `src/data/sprite-manifest.ts`         | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                                                           |
+| `src/core/catalog-model.ts`           | Valide et résout les presets, y compris les paires de catégories incompatibles ; fournit les recherches par ID, look, preset par défaut et exclusions. Sans DOM.        |
+| `src/core/state-store.ts`             | État synchrone isolé : `Look`, catégorie active, panneau mobile, disponibilité du preview et jetons de sélection. Sans DOM ni rendu.                                    |
+| `src/render/image-loader.ts`          | Deux caches distincts (chargements en cours, images décodées), résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                        |
+| `src/render/canvas-renderer.ts`       | Composition des calques, ombre, redimensionnement selon la densité de pixels et export PNG à taille fixe. Lit le store via des getters et ne charge pas d'images.       |
+| `src/ui/outfit-controller.ts`         | Orchestre sélections, exclusivités, chargements, mutations du store et rafraîchissement de la présentation.                                                             |
+| `src/ui/wardrobe-ui.ts`               | Onglets et cartes accessibles, miniatures statiques et fallback canvas, avis avec reprise si des sprites n'ont pas pu être chargés ; délègue les actions au contrôleur. |
+| `src/ui/status-controller.ts`         | Texte de statut et activation/désactivation des contrôles de presets.                                                                                                   |
+| `src/ui/wardrobe-panel-controller.ts` | Panneau mobile, attributs de dialogue, focus, Échap et navigation Tab.                                                                                                  |
+| `src/app-bootstrap.ts`                | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                       |
 | `src/styles/main.css`                 | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                    |
 
 ## Flux des données
 
 ```text
-sprite-catalog.js ──→ catalog-model ──→ presets validés + look par défaut
+sprite-catalog.ts ──→ catalog-model ──→ presets validés + look par défaut
                                                │
                                                ▼
                                            state-store
@@ -40,7 +40,7 @@ DOM ──→ bootstrap / wardrobe-ui ──→ controllers ──┤
 controllers ──→ wardrobe-ui / status-controller ──→ DOM
 ```
 
-Le câblage se fait dans `main.js`, sans globales applicatives `window.RanmaDressUp*`.
+Le câblage se fait dans `main.ts`, sans globales applicatives `window.RanmaDressUp*`.
 Les factories reçoivent leurs collaborateurs ; les modules de présentation
 utilisent encore les API globales du navigateur. Les tests injectent des doubles
 pour le DOM, les images ou le contexte canvas sans lancer de navigateur ; les tests
@@ -51,7 +51,7 @@ de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
 1. Le modèle transforme chaque `Outfit` en preset avec ses objets `Item` résolus et
    son `Look` complet (catégorie → ID ou `null`). Il vérifie les références,
    les catégories, la présence de cheveux et d'au moins un vêtement.
-2. `main.js` choisit le preset `005`, ou le premier disponible, et copie son look
+2. `main.ts` choisit le preset `005`, ou le premier disponible, et copie son look
    dans un nouveau store.
 3. Le bootstrap branche les contrôles et les observateurs de taille/densité, puis
    appelle `startApp()`.
@@ -86,7 +86,7 @@ de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
 
 ## Contrats et invariants
 
-Les typedefs `Catalog`, `Item`, `Outfit` et `Look` sont définis dans `src/types.js`,
+Les types `Catalog`, `Item`, `Outfit` et `Look` sont définis dans `src/types.ts`,
 avec les contrats auxiliaires `Placement`, `Crop`, `Layer`, `Category`,
 `OutfitPreset`, `SpriteManifest` et `Sprite`.
 
@@ -129,15 +129,13 @@ fenêtre et de la densité d'écran. `exportPreview()` redessine le look, avec l
 composition, sur un canvas hors écran de largeur fixe (2400 px, plafonnée à la
 résolution des WebP) : le PNG obtenu est identique quel que soit l'appareil.
 
-## Typage progressif et vérifications
+## Typage et vérifications
 
-`jsconfig.json` décrit les modules ES et les API DOM, avec `strict: true`,
-`noEmit: true` et `checkJs: false`. Seuls les modules optant explicitement pour
-`// @ts-check` sont vérifiés : les types partagés, le catalogue, le modèle, le
-store et le contrôleur de statut. Le reste du runtime possède une documentation
-JSDoc mais n'est pas encore soumis au contrôle strict. Le manifest généré, les
-tests et les configurations d'outillage ne font pas partie de cette première
-activation. Aucun fichier TypeScript ni JavaScript compilé n'est produit.
+`tsconfig.json` vérifie tous les modules TypeScript de l'application en mode strict
+sans émettre de fichiers ; `tsconfig.node.json` vérifie le validateur du catalogue
+avec les types Node. Vite produit le JavaScript du site. Les tests existants restent
+en JavaScript : leur migration et le typage de leurs doubles constituent une étape
+ultérieure. Les configurations d'outillage restent en JavaScript.
 
 ```powershell
 npm run typecheck
@@ -146,11 +144,10 @@ npm run format:check
 npm test
 ```
 
-Pour étendre la couverture, ajouter `// @ts-check` à un module, typer ses frontières
-DOM et ses paramètres, puis corriger ses diagnostics sans modifier le comportement.
 Ne pas masquer les erreurs par `@ts-ignore`, `any` ou un cast non justifié.
-Le compilateur TypeScript est seulement une dépendance de développement pour
-vérifier le JavaScript ; Vite reste l'outil de build, sans Vite+.
+Les types n'excluent pas la validation des données à l'exécution. ESLint utilise
+le parseur Babel pour la syntaxe TypeScript ; les noms non définis et les variables
+locales inutilisées des fichiers TypeScript sont vérifiés par le compilateur.
 
 La CI applique lint, format, types, tests, vérification des sprites et build Vite.
 Les PR construisent `dist/` sans déploiement ; seul `main` (ou un lancement manuel

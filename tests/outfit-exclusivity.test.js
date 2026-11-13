@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import catalog from "../src/data/sprite-catalog.js";
-import * as catalogModel from "../src/core/catalog-model.js";
-import { createStore } from "../src/core/state-store.js";
-import { createOutfitController } from "../src/ui/outfit-controller.js";
+import catalog from "../src/data/sprite-catalog.ts";
+import * as catalogModel from "../src/core/catalog-model.ts";
+import { createStore } from "../src/core/state-store.ts";
+import { createOutfitController } from "../src/ui/outfit-controller.ts";
 
 const exclusions = {
   bodysuits: ["tops", "pants", "dresses"],
