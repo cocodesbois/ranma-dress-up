@@ -68,16 +68,13 @@ describe("mobile wardrobe panel", () => {
     expect(size.textContent).toBe("Expand");
   });
 
-  it("keeps keyboard focus inside the dialog and closes on Escape", () => {
+  it("allows focus outside the non-modal dialog and closes on Escape", () => {
     const { element } = setup();
     element<HTMLButtonElement>("#toggle").click();
-    const first = element<HTMLButtonElement>("#size");
-    const last = element<HTMLButtonElement>("#item");
-    first.focus();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
-    expect(document.activeElement).toBe(last);
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-    expect(document.activeElement).toBe(first);
+    expect(element("#panel").getAttribute("aria-modal")).toBe("false");
+    const event = new KeyboardEvent("keydown", { key: "Tab", cancelable: true });
+    document.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     expect(element("#panel").getAttribute("aria-hidden")).toBe("true");
     expect(document.activeElement).toBe(element("#toggle"));

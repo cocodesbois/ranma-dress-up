@@ -12,7 +12,6 @@
   --rose-dark: #a31534;
   --line: #e8c1d0;
   --soft-rose: #fbe0eb;
-  --shadow: 0 6px 0 rgba(26, 67, 125, 0.16), 0 14px 32px rgba(76, 46, 77, 0.12);
 }
 
 * {
@@ -110,14 +109,12 @@ button {
 .preview-panel,
 .wardrobe-panel {
   min-width: 0;
+}
+
+.wardrobe-panel {
   border: 2px solid #1759a8;
   border-radius: 14px;
   background: var(--paper);
-  box-shadow: var(--shadow);
-}
-
-.preview-panel {
-  padding: 8px;
 }
 
 .stage-frame {
@@ -141,7 +138,11 @@ button {
   justify-content: space-between;
   gap: 8px;
   min-height: 44px;
-  padding: 7px 2px 0;
+  margin-top: 6px;
+  padding: 5px 8px;
+  border: 2px solid #1759a8;
+  border-radius: 8px;
+  background: var(--paper);
 }
 
 .status-message {
@@ -457,14 +458,10 @@ button {
     padding: 4px 0;
   }
 
-  .preview-panel {
-    padding: 4px;
-  }
-
   .preview-footer {
     gap: 5px;
     min-height: 38px;
-    padding-top: 4px;
+    padding: 4px 6px;
   }
 
   .status-message {
@@ -519,7 +516,6 @@ button {
     width: calc(100% - 32px);
     min-height: 48px;
     display: inline-flex;
-    box-shadow: 0 8px 24px rgba(80, 59, 50, 0.2);
   }
 
   .page-shell {
@@ -579,7 +575,6 @@ button {
     overflow: hidden;
     padding: 6px 10px max(6px, env(safe-area-inset-bottom));
     border-radius: 14px 14px 0 0;
-    box-shadow: 0 -18px 50px rgba(48, 36, 31, 0.18);
     transform: translateY(105%);
     transition:
       transform 260ms cubic-bezier(0.2, 0.75, 0.3, 1),
@@ -597,36 +592,30 @@ button {
 
   body.wardrobe-open .preview-panel {
     position: fixed;
+    z-index: 21;
     top: 0;
     right: 0;
     bottom: var(--wardrobe-height);
     left: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 6px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
+    pointer-events: none;
   }
 
   body.wardrobe-open .stage-frame {
-    width: min(100%, (100dvh - var(--wardrobe-height) - 12px) * 6643 / 6507);
-    flex: 0 1 auto;
+    width: min(100%, (100dvh - var(--wardrobe-height) - 64px) * 6643 / 6507);
+    flex: 0 0 auto;
   }
 
   body.wardrobe-open .preview-footer {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    min-height: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-
-  body.wardrobe-open .action-buttons {
-    display: none;
+    position: relative;
+    z-index: 22;
+    width: min(100%, 620px);
+    flex: 0 0 auto;
+    pointer-events: auto;
   }
 
   .wardrobe-heading {
@@ -675,11 +664,17 @@ button {
 
   .item-thumbnail,
   .none-symbol {
-    flex: 1 1 0;
+    flex: 0 1 auto;
     width: auto;
+    height: 100%;
     min-height: 0;
     max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
+  }
+
+  body:not(.wardrobe-expanded) .item-label {
+    display: none;
   }
 
   .item-notice {
@@ -700,6 +695,7 @@ button {
   body.wardrobe-expanded .none-symbol {
     flex: none;
     width: 100%;
+    height: auto;
   }
 
   body.wardrobe-expanded .item-card {

@@ -61,7 +61,7 @@ export function createWardrobePanelController({
 
     if (mobileWardrobe.matches) {
       wardrobePanel.setAttribute("role", "dialog");
-      wardrobePanel.setAttribute("aria-modal", String(isWardrobeOpen));
+      wardrobePanel.setAttribute("aria-modal", "false");
     } else {
       wardrobePanel.removeAttribute("role");
       wardrobePanel.removeAttribute("aria-modal");
@@ -119,23 +119,6 @@ export function createWardrobePanelController({
 
       if (event.key === "Escape") {
         setWardrobeOpen(false);
-        return;
-      }
-
-      if (event.key === "Tab") {
-        const focusable = wardrobePanel.querySelectorAll<HTMLElement>(
-          "button:not(:disabled), select:not(:disabled), a[href], [tabindex]:not([tabindex='-1'])",
-        );
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (first && last && event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (first && last && !event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
       }
     });
   }

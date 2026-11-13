@@ -19,7 +19,7 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 | `src/ui/outfit-controller.ts`         | Orchestre sélections, exclusivités, chargements, mutations du store et rafraîchissement de la présentation.                                                             |
 | `src/ui/wardrobe-ui.ts`               | Onglets et cartes accessibles, miniatures statiques et fallback canvas, avis avec reprise si des sprites n'ont pas pu être chargés ; délègue les actions au contrôleur. |
 | `src/ui/status-controller.ts`         | Texte de statut et activation/désactivation des contrôles de presets.                                                                                                   |
-| `src/ui/wardrobe-panel-controller.ts` | Panneau mobile, attributs de dialogue, focus, Échap et navigation Tab.                                                                                                  |
+| `src/ui/wardrobe-panel-controller.ts` | Panneau mobile non modal, attributs de dialogue, focus et fermeture avec Échap.                                                                                         |
 | `src/app-bootstrap.ts`                | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                       |
 | `src/styles/main.css`                 | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                    |
 
