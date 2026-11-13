@@ -37,6 +37,8 @@ jobs:
         run: npm run format:check
       - name: Check JavaScript types
         run: npm run typecheck
+      - name: Validate catalog data and assets
+        run: npm run validate:catalog
       - name: Run tests
         run: npm test
       - name: Check optimized sprites are up to date

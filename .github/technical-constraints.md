@@ -54,6 +54,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 - Shared typedefs live in `src/types.js`: `Catalog`, `Item`, `Outfit`, `Look` and supporting geometry/preset/manifest types. Import them through JSDoc, not runtime imports.
 - `jsconfig.json` enables strict, no-emit checking only for modules opting into `// @ts-check`. Initially this covers shared types, the catalog, catalog model, state store and status controller; other runtime modules remain documented but unchecked.
 - Run `npm run typecheck` when changing data or contracts. Structural types do not replace runtime validation of IDs, required hair/clothing or catalog tests.
+- Run `npm run validate:catalog` to check catalog IDs, outfit rules, source and optimized sprite files, and thumbnails. The Pages workflow runs this check on every pull request and deployment.
 - Preserve generated documentation by editing the template in `scripts/sprite_optimize.py`, not just the manifest output. Do not put brace-delimited JSDoc types before the manifest object: Python readers locate the first JSON brace.
 
 ## Change checklist
@@ -62,4 +63,5 @@ Use this file as the source of truth for data and behavior constraints when chan
 - When adding categories/items, update both data and any logic that depends on category IDs.
 - When adding or changing a sprite PNG, run `python scripts/optimize-sprites.py` and commit `public/images/optimized/` and `src/data/sprite-manifest.js`; regenerate thumbnails if the item changed.
 - When changing exclusivity (`incompatibleCategories`) or draw order, update this document and the tests, and verify behavior in the browser.
+- When changing catalog data or assets, run `npm run validate:catalog`.
 - Run `npm run lint`, `npm run format:check`, `npm run typecheck` and `npm test` before submitting changes. CI also checks optimized sprites and builds with Vite; visual/browser validation remains the maintainer's responsibility during this migration.
