@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
-import catalog from "../src/data/sprite-catalog.ts";
+import catalog from "../src/data/sprite-catalog";
 import {
   createOutfitPresets,
   findPresetById,
   getDefaultOutfitLook,
   getExcludedCategories,
   getMatchingOutfit,
-} from "../src/core/catalog-model.ts";
+} from "../src/core/catalog-model";
+import type { Catalog } from "../src/types";
+import { item, required } from "./fixtures";
 
 const clothingCategories = [
   "bodysuits",
@@ -18,13 +20,15 @@ const clothingCategories = [
   "pants",
 ];
 
-function createCatalog() {
+function createCatalog(): Catalog {
   return {
-    categories: ["hair", ...clothingCategories, "hats"].map((id) => ({ id })),
+    background: { source: "background.png" },
+    base: item("body", "base"),
+    categories: ["hair", ...clothingCategories, "hats"].map((id) => ({ id, label: id })),
     items: [
-      { id: "shared-hair", category: "hair" },
-      ...clothingCategories.map((category) => ({ id: `${category}-item`, category })),
-      { id: "hat", category: "hats" },
+      item("shared-hair", "hair"),
+      ...clothingCategories.map((category) => item(`${category}-item`, category)),
+      item("hat", "hats"),
     ],
     outfits: [
       { id: "005", label: "Default", items: { hair: "shared-hair", tops: "tops-item" } },
@@ -61,14 +65,14 @@ describe("published catalog constraints", () => {
     for (const [category, itemId] of Object.entries(outfit.items)) {
       expect(categoryIds).toContain(category);
       expect(itemsById.has(itemId), itemId).toBe(true);
-      expect(itemsById.get(itemId).category).toBe(category);
+      expect(required(itemsById.get(itemId)).category).toBe(category);
     }
   });
 
   it("creates every published preset and resolves the default look", () => {
     const presets = createOutfitPresets(catalog);
     expect(presets).toHaveLength(catalog.outfits.length);
-    expect(getDefaultOutfitLook(presets)).toBe(findPresetById(presets, "005").look);
+    expect(getDefaultOutfitLook(presets)).toBe(required(findPresetById(presets, "005")).look);
     for (const preset of presets) {
       expect(Object.keys(preset.look).sort()).toEqual(
         catalog.categories.map(({ id }) => id).sort(),
@@ -101,7 +105,8 @@ describe("createOutfitPresets", () => {
 
   it.each([undefined, null, [], "tops-item"])("rejects malformed items: %j", (items) => {
     const input = createCatalog();
-    input.outfits[0].items = items;
+    // Deliberately pass invalid external data to exercise runtime validation.
+    Object.assign(input.outfits[0], { items });
     expect(() => createOutfitPresets(input)).toThrow('Outfit "005" must define items by category.');
   });
 
@@ -153,11 +158,15 @@ describe("preset lookup", () => {
     expect(getDefaultOutfitLook(presets, "alternate")).toBe(presets[1].look);
     expect(getDefaultOutfitLook(presets, "missing")).toBe(presets[0].look);
     expect(getDefaultOutfitLook([])).toBeUndefined();
-    expect(getDefaultOutfitLook([{ id: 5, look: presets[0].look }], "5")).toBe(presets[0].look);
+    const numericPreset = { ...presets[0], id: 5 };
+    expect(Reflect.apply(getDefaultOutfitLook, undefined, [[numericPreset], "5"])).toBe(
+      presets[0].look,
+    );
   });
 
   it("normalizes numeric IDs without assuming filenames or dropping leading zeroes", () => {
-    expect(findPresetById([{ id: 5 }], "5")).toEqual({ id: 5 });
+    const numericPreset = { ...presets[0], id: 5 };
+    expect(Reflect.apply(findPresetById, undefined, [[numericPreset], "5"])).toEqual(numericPreset);
     expect(findPresetById(presets, "005")).toBe(presets[0]);
     expect(findPresetById(presets, 5)).toBeUndefined();
     expect(findPresetById(presets, "missing")).toBeUndefined();
@@ -172,7 +181,10 @@ describe("preset lookup", () => {
 });
 
 describe("incompatible categories", () => {
-  const withPairs = (pairs) => ({ ...createCatalog(), incompatibleCategories: pairs });
+  const withPairs = (pairs: string[][]): Catalog => ({
+    ...createCatalog(),
+    incompatibleCategories: pairs,
+  });
 
   it("derives symmetric exclusions from the declared pairs", () => {
     const input = withPairs([
@@ -190,7 +202,7 @@ describe("incompatible categories", () => {
   });
 
   it("keeps the exclusions of the published catalog", () => {
-    const expected = {
+    const expected: Record<string, string[]> = {
       bodysuits: ["tops", "pants", "dresses"],
       tops: ["bodysuits"],
       pants: ["bodysuits", "dresses"],

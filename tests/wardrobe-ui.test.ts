@@ -1,24 +1,34 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import catalog from "../src/data/sprite-catalog.ts";
-import { createWardrobeUi } from "../src/ui/wardrobe-ui.ts";
+import catalog from "../src/data/sprite-catalog";
+import { createWardrobeUi } from "../src/ui/wardrobe-ui";
+import type { Look } from "../src/types";
+import { required } from "./fixtures";
 
-const sprite = { image: {}, x: 0, y: 0, width: 1, height: 1, scale: 1 };
-const itemsOf = (category) => catalog.items.filter((item) => item.category === category);
+const sprite = { image: document.createElement("img"), x: 0, y: 0, width: 1, height: 1, scale: 1 };
+const itemsOf = (category: string) => catalog.items.filter((item) => item.category === category);
 
 /**
  * Build the wardrobe on a fresh DOM. `loadedIds` lists the items whose sprite is loaded
  * (all by default); `outfit` is the live look.
  */
-function setup({ activeCategory = "tops", loadedIds, outfit = {} } = {}) {
+function setup({
+  activeCategory = "tops",
+  loadedIds,
+  outfit = {},
+}: {
+  activeCategory?: string;
+  loadedIds?: string[];
+  outfit?: Look;
+} = {}) {
   document.body.innerHTML = '<div id="category-tabs"></div><div id="item-list"></div>';
-  const itemList = document.querySelector("#item-list");
+  const itemList = required(document.querySelector<HTMLElement>("#item-list"));
   const items = itemsOf(activeCategory);
   const loaded = new Set(loadedIds ?? items.map(({ id }) => id));
   const onCategorySelect = vi.fn();
   const onItemSelect = vi.fn();
   const ui = createWardrobeUi({
-    categoryTabs: document.querySelector("#category-tabs"),
+    categoryTabs: required(document.querySelector<HTMLElement>("#category-tabs")),
     itemList,
     catalog,
     getActiveCategory: () => activeCategory,
@@ -34,7 +44,7 @@ function setup({ activeCategory = "tops", loadedIds, outfit = {} } = {}) {
     items,
     onCategorySelect,
     onItemSelect,
-    cards: () => [...itemList.querySelectorAll(".item-card:not(.none-card)")],
+    cards: () => [...itemList.querySelectorAll<HTMLButtonElement>(".item-card:not(.none-card)")],
     notice: () => itemList.querySelector(".item-notice"),
     noneCard: () => itemList.querySelector(".none-card"),
   };
@@ -58,20 +68,20 @@ describe("wardrobe items", () => {
       loadedIds: items.slice(1).map(({ id }) => id),
     });
     expect(cards().map((card) => card.dataset.itemId)).toEqual(items.slice(1).map(({ id }) => id));
-    expect(notice().getAttribute("role")).toBe("alert");
-    expect(notice().textContent).toContain("1 item could not be loaded.");
+    expect(required(notice()).getAttribute("role")).toBe("alert");
+    expect(required(notice()).textContent).toContain("1 item could not be loaded.");
     expect(itemList.firstElementChild).toBe(notice());
   });
 
   it("uses the plural and offers nothing when no sprite is loaded", () => {
     const { cards, notice, items } = setup({ loadedIds: [] });
     expect(cards()).toHaveLength(0);
-    expect(notice().textContent).toContain(`${items.length} items could not be loaded.`);
+    expect(required(notice()).textContent).toContain(`${items.length} items could not be loaded.`);
   });
 
   it("retries by selecting the active category again", () => {
     const { notice, onCategorySelect } = setup({ loadedIds: [] });
-    const retry = notice().querySelector("button");
+    const retry = required(required(notice()).querySelector("button"));
     expect(retry.textContent).toBe("Try again");
     retry.click();
     expect(onCategorySelect).toHaveBeenCalledExactlyOnceWith(
@@ -103,8 +113,8 @@ describe("accessible names", () => {
   });
 
   it("labels the None card according to whether an item is worn", () => {
-    expect(setup().noneCard().getAttribute("aria-label")).toBe("No item selected");
+    expect(required(setup().noneCard()).getAttribute("aria-label")).toBe("No item selected");
     const worn = setup({ outfit: { tops: itemsOf("tops")[0].id } });
-    expect(worn.noneCard().getAttribute("aria-label")).toBe("Remove selected item");
+    expect(required(worn.noneCard()).getAttribute("aria-label")).toBe("Remove selected item");
   });
 });

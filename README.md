@@ -35,9 +35,9 @@ npm run typecheck
 npm test
 ```
 
-`npm run typecheck` checks the TypeScript application and catalog validator in
-strict mode, using the shared contracts in `src/types.ts`; it emits no files.
-The existing Vitest tests remain JavaScript and are executed by `npm test`.
+`npm run typecheck` checks the TypeScript application, catalog validator and
+Vitest tests in strict mode, using the shared contracts in `src/types.ts`; it
+emits no files. Run the tests with `npm test`.
 See [Architecture](docs/architecture.md) for module responsibilities, data flow
 and the checked scope.
 

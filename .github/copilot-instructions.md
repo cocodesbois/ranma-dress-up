@@ -9,7 +9,7 @@
 # Application structure and validation
 
 - The app uses Vite and ES modules: `src/main.ts` is the composition root, `src/core/` owns model/state, `src/ui/` owns controllers/presentation, and `src/render/` owns image loading/canvas rendering. Read [architecture](../docs/architecture.md) and [technical constraints](technical-constraints.md) before changing behavior or data.
-- The catalog is `src/data/sprite-catalog.ts`; shared TypeScript contracts are in `src/types.ts`. Document each module and public function. Type-check with `tsconfig.json` and `tsconfig.node.json`; do not suppress diagnostics or change runtime behavior just to satisfy types. Existing tests remain JavaScript.
+- The catalog is `src/data/sprite-catalog.ts`; shared TypeScript contracts are in `src/types.ts`. Document each module and public function. Type-check the application, validator and tests with `npm run typecheck`; do not suppress diagnostics or change runtime behavior just to satisfy types.
 - Full-size PNGs in `assets/sprites/` stay untouched. Runtime WebP and thumbnail assets live in `public/images/`; the generated manifest is `src/data/sprite-manifest.ts`. Use the [add-outfit skill](skills/add-outfit/SKILL.md) for asset/catalog changes.
 - Use `npm run dev` for local serving, not a raw static server. `npm run build` produces `dist/`; `npm run preview` serves that build. Pages publishes `dist/`, never the Photoshop exports.
 - Automated assistant checks during the Vite migration are `npm run lint`, `npm run format:check`, `npm run typecheck` and `npm test`. The maintainer performs browser/rendering/PNG-download checks. CI also verifies optimized sprites and the Vite build; PRs do not deploy.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createStore } from "../src/core/state-store.ts";
+import { createStore } from "../src/core/state-store";
 
 describe("state store", () => {
   it("initializes the look and UI state without mutating the default outfit", () => {

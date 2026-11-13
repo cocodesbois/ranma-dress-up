@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createImageLoader } from "../src/render/image-loader.ts";
+import { createImageLoader } from "../src/render/image-loader";
+import type { OutfitPreset, SpriteManifest } from "../src/types";
+import { item, manifest as createManifest } from "./fixtures";
 
-const manifest = {
-  settings: { scale: 0.5 },
+const manifest: SpriteManifest = {
+  ...createManifest(),
   sprites: {
     "assets/sprites/a.png": {
       file: "images/optimized/a.webp",
@@ -10,23 +12,36 @@ const manifest = {
       y: 20,
       width: 30,
       height: 40,
+      sourceHash: "a",
     },
-    "assets/sprites/b.png": { file: "images/optimized/b.webp", x: 1, y: 2, width: 3, height: 4 },
+    "assets/sprites/b.png": {
+      file: "images/optimized/b.webp",
+      x: 1,
+      y: 2,
+      width: 3,
+      height: 4,
+      sourceHash: "b",
+    },
   },
 };
 const A = "assets/sprites/a.png";
 const B = "assets/sprites/b.png";
 
 /** Stand-in for the browser Image: loads are settled by hand, in creation order. */
-let created;
+let created: FakeImage[];
 class FakeImage {
+  src = "";
+  onload: (() => void) | null = null;
+  onerror: (() => void) | null = null;
   constructor() {
     created.push(this);
   }
   succeed() {
+    if (!this.onload) throw new Error("Missing load handler");
     this.onload();
   }
   fail() {
+    if (!this.onerror) throw new Error("Missing error handler");
     this.onerror();
   }
 }
@@ -76,7 +91,15 @@ describe("image loader caches", () => {
 
   it("reports sources still loading as missing, so callers wait instead of drawing early", async () => {
     const loader = setup();
-    const preset = { items: [{ source: A }, { source: B }] };
+    const preset: OutfitPreset = {
+      id: "preset",
+      label: "Preset",
+      look: {},
+      items: [
+        { ...item("a", "tops"), source: A },
+        { ...item("b", "hair"), source: B },
+      ],
+    };
     const loading = loader.loadImage(A);
     expect(loader.getMissingSourcesForPreset(preset)).toEqual([A, B]);
     created[0].succeed();
@@ -90,13 +113,20 @@ describe("image loader caches", () => {
     created[0].fail();
     await expect(failed).rejects.toThrow("Could not load image asset: images/optimized/a.webp");
     expect(loader.getSprite(A)).toBeUndefined();
-    expect(loader.getMissingSourcesForPreset({ items: [{ source: A }] })).toEqual([A]);
+    expect(
+      loader.getMissingSourcesForPreset({
+        id: "preset",
+        label: "Preset",
+        look: {},
+        items: [{ ...item("a", "tops"), source: A }],
+      }),
+    ).toEqual([A]);
 
     const retry = loader.loadImage(A);
     expect(created).toHaveLength(2);
     created[1].succeed();
     await expect(retry).resolves.toBe(created[1]);
-    expect(loader.getSprite(A).image).toBe(created[1]);
+    expect(loader.getSprite(A)?.image).toBe(created[1]);
   });
 
   it("rejects a source missing from the manifest with the command to run", async () => {

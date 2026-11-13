@@ -6,7 +6,7 @@ describe("application bootstrap", () => {
     document.body.innerHTML = "";
     vi.resetModules();
 
-    await expect(import("../src/main.ts")).rejects.toThrow(
+    await expect(import("../src/main")).rejects.toThrow(
       "Missing or invalid element: #outfit-preview",
     );
   });

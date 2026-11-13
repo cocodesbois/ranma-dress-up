@@ -133,9 +133,9 @@ résolution des WebP) : le PNG obtenu est identique quel que soit l'appareil.
 
 `tsconfig.json` vérifie tous les modules TypeScript de l'application en mode strict
 sans émettre de fichiers ; `tsconfig.node.json` vérifie le validateur du catalogue
-avec les types Node. Vite produit le JavaScript du site. Les tests existants restent
-en JavaScript : leur migration et le typage de leurs doubles constituent une étape
-ultérieure. Les configurations d'outillage restent en JavaScript.
+avec les types Node. `tsconfig.test.json` vérifie les tests et leurs doubles en mode
+strict. Vite produit le JavaScript du site. Les configurations d'outillage restent
+en JavaScript.
 
 ```powershell
 npm run typecheck

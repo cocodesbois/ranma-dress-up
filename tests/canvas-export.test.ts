@@ -1,16 +1,18 @@
+// @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createCanvasRenderer } from "../src/render/canvas-renderer.ts";
+import { createCanvasRenderer } from "../src/render/canvas-renderer";
+import { item, manifest, placement as basePlacement } from "./fixtures";
 
-const placement = { x: 0, y: 0, scale: 0.18, regX: 0, regY: 0 };
+const placement = { ...basePlacement, scale: 0.18 };
 
 function createContext() {
   return {
-    drawImage: vi.fn(),
-    clearRect: vi.fn(),
-    beginPath: vi.fn(),
-    ellipse: vi.fn(),
-    fill: vi.fn(),
-    setTransform: vi.fn(),
+    drawImage: vi.fn<CanvasRenderingContext2D["drawImage"]>(),
+    clearRect: vi.fn<CanvasRenderingContext2D["clearRect"]>(),
+    beginPath: vi.fn<CanvasRenderingContext2D["beginPath"]>(),
+    ellipse: vi.fn<CanvasRenderingContext2D["ellipse"]>(),
+    fill: vi.fn<CanvasRenderingContext2D["fill"]>(),
+    setTransform: vi.fn<CanvasRenderingContext2D["setTransform"]>(),
   };
 }
 
@@ -18,11 +20,39 @@ function createContext() {
  * Renderer whose offscreen canvases are recorded in `exports`. The visible preview is
  * deliberately a different size from any export.
  */
-function setup({ document: size = { width: 6643, height: 6507 }, scale = 0.5, blob } = {}) {
+function setup({
+  document: size = { width: 6643, height: 6507 },
+  scale = 0.5,
+  blob,
+}: {
+  document?: { width: number; height: number };
+  scale?: number;
+  blob?: Blob | null;
+} = {}) {
+  vi.unstubAllGlobals();
   const previewContext = createContext();
-  const exports = [];
-  vi.stubGlobal("document", {
-    createElement: vi.fn(() => {
+  const preview = document.createElement("canvas");
+  preview.width = 390;
+  preview.height = 382;
+  // Only 2D operations used by the renderer are supplied by this test double.
+  vi.spyOn(preview, "getContext").mockReturnValue(
+    previewContext as unknown as CanvasRenderingContext2D,
+  );
+  const exports: Array<{
+    width: number;
+    height: number;
+    context: ReturnType<typeof createContext>;
+    getContext: () => ReturnType<typeof createContext>;
+    toBlob: ReturnType<typeof vi.fn<(callback: BlobCallback, type?: string) => void>>;
+  }> = [];
+  const createElement = vi.fn(
+    (): {
+      width: number;
+      height: number;
+      context: ReturnType<typeof createContext>;
+      getContext: () => ReturnType<typeof createContext> | null;
+      toBlob: ReturnType<typeof vi.fn<(callback: BlobCallback, type?: string) => void>>;
+    } => {
       const canvas = {
         width: 0,
         height: 0,
@@ -30,38 +60,42 @@ function setup({ document: size = { width: 6643, height: 6507 }, scale = 0.5, bl
         getContext() {
           return this.context;
         },
-        toBlob: vi.fn((callback, type) =>
+        toBlob: vi.fn((callback: BlobCallback, type?: string) =>
           callback(blob === undefined ? new Blob(["png"], { type }) : blob),
         ),
       };
       exports.push(canvas);
       return canvas;
-    }),
-  });
+    },
+  );
+  vi.stubGlobal("document", { createElement });
 
   const items = [
-    { id: "top-item", category: "tops", source: "top.png", placement },
-    { id: "hair-item", category: "hair", source: "hair.png", placement },
+    { ...item("top-item", "tops"), source: "top.png", placement },
+    { ...item("hair-item", "hair"), source: "hair.png", placement },
   ];
   const renderer = createCanvasRenderer({
-    preview: { getContext: () => previewContext, style: {}, width: 390, height: 382 },
+    preview,
     catalog: {
       background: { source: "background.png" },
-      base: { source: "body.png", placement },
+      base: { ...item("body", "base"), source: "body.png", placement },
+      categories: [],
+      outfits: [],
       items,
     },
-    manifest: { document: size, settings: { scale } },
+    manifest: manifest(size.width, size.height, scale),
     getSprite: (item) => ({
-      image: item.source,
+      image: { src: item.source } as HTMLImageElement,
       x: 0,
       y: 0,
       width: size.width,
       height: size.height,
+      scale,
     }),
     getOutfit: () => ({ tops: "top-item", hair: "hair-item" }),
     isPreviewReady: () => true,
   });
-  return { renderer, previewContext, exports };
+  return { renderer, previewContext, exports, createElement };
 }
 
 afterEach(() => vi.unstubAllGlobals());
@@ -105,7 +139,9 @@ describe("fixed-size export", () => {
   it("paints the whole scene on the offscreen canvas and leaves the preview untouched", async () => {
     const { renderer, previewContext, exports } = setup();
     await renderer.exportPreview();
-    const drawn = exports[0].context.drawImage.mock.calls.map(([image]) => image);
+    const drawn = exports[0].context.drawImage.mock.calls.map(
+      ([image]) => (image as HTMLImageElement).src,
+    );
     expect(drawn).toEqual(["background.png", "body.png", "top.png", "hair.png"]);
     expect(exports[0].context.ellipse).toHaveBeenCalledOnce();
     expect(previewContext.drawImage).not.toHaveBeenCalled();
@@ -116,7 +152,7 @@ describe("fixed-size export", () => {
     const png = setup();
     const blob = await png.renderer.exportPreview();
     expect(blob).toBeInstanceOf(Blob);
-    expect(blob.type).toBe("image/png");
+    expect(blob?.type).toBe("image/png");
     expect(png.exports[0].toBlob).toHaveBeenCalledWith(expect.any(Function), "image/png");
 
     const failed = setup({ blob: null });
@@ -124,8 +160,14 @@ describe("fixed-size export", () => {
   });
 
   it("throws when a 2D context is unavailable", () => {
-    const { renderer, exports } = setup();
-    document.createElement.mockImplementationOnce(() => ({ getContext: () => null }));
+    const { renderer, exports, createElement } = setup();
+    createElement.mockImplementationOnce(() => ({
+      width: 0,
+      height: 0,
+      context: createContext(),
+      getContext: () => null,
+      toBlob: vi.fn(),
+    }));
     expect(() => renderer.exportPreview()).toThrow("This browser cannot export the preview.");
     expect(exports).toHaveLength(0);
   });

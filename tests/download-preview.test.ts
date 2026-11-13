@@ -1,23 +1,30 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createAppBootstrap } from "../src/app-bootstrap.ts";
+import { createAppBootstrap } from "../src/app-bootstrap";
 
 function deferred() {
-  let resolve;
-  let reject;
-  const promise = new Promise((res, rej) => {
+  let resolve!: (value: Blob | null) => void;
+  const promise = new Promise<Blob | null>((res) => {
     resolve = res;
-    reject = rej;
   });
-  return { promise, resolve, reject };
+  return { promise, resolve };
 }
 
-function setup(exportPreview) {
+function setup(exportPreview: () => Promise<Blob | null>) {
   const button = () => document.createElement("button");
   const downloadButton = button();
-  const statusController = { setStatusMessage: vi.fn() };
+  const statusController = {
+    setStatusMessage:
+      vi.fn<(text: string, options?: { loading?: boolean; isError?: boolean }) => void>(),
+    setOutfitControlsDisabled: vi.fn(),
+  };
   const onError = vi.fn();
-  const canvasRenderer = { exportPreview: vi.fn(exportPreview) };
+  const canvasRenderer = {
+    exportPreview: vi.fn(exportPreview),
+    drawOutfit: vi.fn(),
+    resizePreview: vi.fn(),
+    watchDevicePixelRatio: vi.fn(),
+  };
   const bootstrap = createAppBootstrap({
     preview: document.createElement("canvas"),
     resetButton: button(),
@@ -25,9 +32,21 @@ function setup(exportPreview) {
     outfitSelect: document.createElement("select"),
     outfitPreviousButton: button(),
     outfitNextButton: button(),
-    outfitController: {},
+    outfitController: {
+      selectItem: vi.fn(),
+      removeActiveCategoryItem: vi.fn(),
+      selectCategory: vi.fn(async () => {}),
+      selectAdjacentOutfit: vi.fn(),
+      selectOutfitById: vi.fn(),
+      resetOutfit: vi.fn(),
+      startApp: vi.fn(async () => {}),
+    },
     statusController,
-    wardrobePanelController: { bindEvents: vi.fn() },
+    wardrobePanelController: {
+      bindEvents: vi.fn(),
+      syncWardrobeMode: vi.fn(),
+      setWardrobeOpen: vi.fn(),
+    },
     canvasRenderer,
     onError,
   });
@@ -35,16 +54,18 @@ function setup(exportPreview) {
   return { downloadButton, statusController, canvasRenderer, onError };
 }
 
-const messages = (statusController) =>
+const messages = (statusController: ReturnType<typeof setup>["statusController"]) =>
   statusController.setStatusMessage.mock.calls.map(([text]) => text);
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-let clickedLinks;
+let clickedLinks: HTMLAnchorElement[];
 beforeEach(() => {
   clickedLinks = [];
   URL.createObjectURL = vi.fn(() => "blob:ranma");
   URL.revokeObjectURL = vi.fn();
-  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function click() {
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function click(
+    this: HTMLAnchorElement,
+  ) {
     clickedLinks.push(this);
   });
 });
