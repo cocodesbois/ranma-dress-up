@@ -21,5 +21,4 @@ description: Add new outfit sprites to Ranma Dress Up. Use when the user adds PN
 
 Requires Node.js 22.18+ in the 22.x line (as in CI), or 24.11+, and Python with Pillow (`pip install pillow`).
 Follow [technical constraints](../../technical-constraints.md) and
-[architecture](../../../docs/architecture.md). The app uses TypeScript and Vite;
-the existing tests remain JavaScript.
+[architecture](../../../docs/architecture.md). The app and its tests use TypeScript and Vite.

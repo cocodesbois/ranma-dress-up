@@ -1,34 +1,38 @@
+// @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import catalog from "../src/data/sprite-catalog.ts";
-import * as catalogModel from "../src/core/catalog-model.ts";
-import { createStore } from "../src/core/state-store.ts";
-import { createOutfitController } from "../src/ui/outfit-controller.ts";
+import catalog from "../src/data/sprite-catalog";
+import * as catalogModel from "../src/core/catalog-model";
+import { createStore } from "../src/core/state-store";
+import { createOutfitController } from "../src/ui/outfit-controller";
+import { required } from "./fixtures";
 
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
-const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "005");
-const topsCategory = catalog.categories.find(({ id }) => id === "tops");
-const dressesCategory = catalog.categories.find(({ id }) => id === "dresses");
+const defaultOutfit = required(catalogModel.getDefaultOutfitLook(outfitPresets, "005"));
+const topsCategory = required(catalog.categories.find(({ id }) => id === "tops"));
+const dressesCategory = required(catalog.categories.find(({ id }) => id === "dresses"));
 const topItems = catalog.items.filter(({ category }) => category === "tops");
 // Items of the initial category that are not part of the default look.
 const otherTops = topItems.filter(({ id }) => id !== defaultOutfit.tops);
 
 function deferred() {
-  let resolve;
-  let reject;
-  const promise = new Promise((res, rej) => {
+  let resolve!: (value: HTMLImageElement) => void;
+  let reject!: (reason: Error) => void;
+  const promise = new Promise<HTMLImageElement>((res, rej) => {
     resolve = res;
     reject = rej;
   });
   return { promise, resolve, reject };
 }
 
-function setup({ failing = new Set() } = {}) {
+function setup({ failing = new Set<string>() } = {}) {
   const imageLoader = {
-    loadImage: vi.fn((source) =>
+    loadImage: vi.fn((source: string) =>
       failing.has(source)
         ? Promise.reject(new Error(`Could not load image asset: ${source}`))
-        : Promise.resolve({}),
+        : Promise.resolve(document.createElement("img")),
     ),
+    getSprite: vi.fn(() => undefined),
+    getMissingSourcesForPreset: vi.fn((): string[] => []),
     preloadAdjacentOutfits: vi.fn(),
     preloadAllOutfitsInBackground: vi.fn(),
   };
@@ -39,16 +43,25 @@ function setup({ failing = new Set() } = {}) {
     clearItems: vi.fn(),
     updateItemSelection: vi.fn(),
   };
-  const statusController = { setStatusMessage: vi.fn(), setOutfitControlsDisabled: vi.fn() };
-  const canvasRenderer = { drawOutfit: vi.fn() };
-  const onError = vi.fn();
+  const statusController = {
+    setStatusMessage:
+      vi.fn<(text: string, options?: { loading?: boolean; isError?: boolean }) => void>(),
+    setOutfitControlsDisabled: vi.fn(),
+  };
+  const canvasRenderer = {
+    drawOutfit: vi.fn(),
+    exportPreview: vi.fn(async () => null),
+    resizePreview: vi.fn(),
+    watchDevicePixelRatio: vi.fn(),
+  };
+  const onError = vi.fn<(error: unknown) => void>();
   const controller = createOutfitController({
     catalog,
     catalogModel,
     outfitPresets,
     defaultOutfit,
     appState,
-    outfitSelect: { value: "", append: vi.fn() },
+    outfitSelect: document.createElement("select"),
     statusController,
     imageLoader,
     canvasRenderer,
@@ -66,12 +79,11 @@ function setup({ failing = new Set() } = {}) {
   };
 }
 
-const messages = (statusController) =>
+const messages = (statusController: ReturnType<typeof setup>["statusController"]) =>
   statusController.setStatusMessage.mock.calls.map(([text]) => text);
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
-  vi.stubGlobal("document", { createElement: () => ({}) });
 });
 afterEach(() => {
   vi.restoreAllMocks();
@@ -94,8 +106,8 @@ describe("selecting a category", () => {
 
     expect(wardrobeUi.renderItems).toHaveBeenCalledOnce();
     expect(onError).toHaveBeenCalledOnce();
-    expect(onError.mock.calls[0][0].message).toBe(
-      `2 of ${topItems.length} tops could not be loaded.`,
+    expect(onError.mock.calls[0][0]).toEqual(
+      new Error(`2 of ${topItems.length} tops could not be loaded.`),
     );
     expect(console.error).toHaveBeenCalledTimes(2);
     expect(messages(statusController)).not.toContain("Tops selected.");
@@ -158,7 +170,7 @@ describe("starting the app", () => {
   });
 
   it("fails when the scene or the current look cannot be loaded", async () => {
-    const hair = catalog.items.find(({ id }) => id === defaultOutfit.hair);
+    const hair = required(catalog.items.find(({ id }) => id === defaultOutfit.hair));
     const { controller, appState, canvasRenderer } = setup({ failing: new Set([hair.source]) });
     await expect(controller.startApp()).rejects.toThrow(
       `Could not load image asset: ${hair.source}`,

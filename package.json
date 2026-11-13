@@ -11,10 +11,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "typecheck": "tsc --project tsconfig.json && tsc --project tsconfig.node.json",
+    "typecheck": "tsc --project tsconfig.json && tsc --project tsconfig.node.json && tsc --project tsconfig.test.json",
     "validate:catalog": "tsx scripts/validate-catalog.ts",
-    "format": "prettier --write README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md scripts/validate-catalog.ts src/*.ts src/core/*.ts src/render/*.ts src/ui/*.ts package.json tsconfig*.json vite.config.js eslint.config.js .prettierrc.json",
-    "format:check": "prettier --check README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md scripts/validate-catalog.ts src/*.ts src/core/*.ts src/render/*.ts src/ui/*.ts package.json tsconfig*.json vite.config.js eslint.config.js .prettierrc.json",
+    "format": "prettier --write README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md scripts/validate-catalog.ts src/*.ts src/core/*.ts src/render/*.ts src/ui/*.ts tests/*.ts package.json tsconfig*.json vite.config.js eslint.config.js .prettierrc.json",
+    "format:check": "prettier --check README.md docs/*.md .github/*.md .github/skills/add-outfit/SKILL.md scripts/validate-catalog.ts src/*.ts src/core/*.ts src/render/*.ts src/ui/*.ts tests/*.ts package.json tsconfig*.json vite.config.js eslint.config.js .prettierrc.json",
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {

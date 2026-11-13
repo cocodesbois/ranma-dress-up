@@ -1,5 +1,8 @@
+// @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { createCanvasRenderer } from "../src/render/canvas-renderer.ts";
+import { createCanvasRenderer } from "../src/render/canvas-renderer";
+import type { Look } from "../src/types";
+import { item, manifest } from "./fixtures";
 
 const expectedOrder = [
   "underwear",
@@ -20,38 +23,44 @@ const expectedOrder = [
 function setup() {
   const placement = { x: 0, y: 0, scale: 1, regX: 0, regY: 0 };
   const items = [...expectedOrder].reverse().map((category) => ({
-    id: `${category}-item`,
-    category,
+    ...item(`${category}-item`, category),
     source: `${category}.png`,
     placement,
   }));
-  const outfit = Object.fromEntries(items.map((item) => [item.category, item.id]));
+  const outfit: Look = Object.fromEntries(items.map((item) => [item.category, item.id]));
   const context = {
-    drawImage: vi.fn(),
-    clearRect: vi.fn(),
-    beginPath: vi.fn(),
-    ellipse: vi.fn(),
-    fill: vi.fn(),
+    drawImage: vi.fn<CanvasRenderingContext2D["drawImage"]>(),
+    clearRect: vi.fn<CanvasRenderingContext2D["clearRect"]>(),
+    beginPath: vi.fn<CanvasRenderingContext2D["beginPath"]>(),
+    ellipse: vi.fn<CanvasRenderingContext2D["ellipse"]>(),
+    fill: vi.fn<CanvasRenderingContext2D["fill"]>(),
   };
+  const preview = document.createElement("canvas");
+  // Only the canvas operations exercised by this test are mocked.
+  vi.spyOn(preview, "getContext").mockReturnValue(context as unknown as CanvasRenderingContext2D);
   const renderer = createCanvasRenderer({
-    preview: { getContext: () => context, style: {} },
+    preview,
     catalog: {
       background: { source: "background.png" },
-      base: { source: "body.png", placement },
+      base: { ...item("body", "base"), source: "body.png", placement },
       items,
+      categories: [],
+      outfits: [],
     },
-    manifest: { document: { width: 100, height: 200 } },
+    manifest: manifest(),
     getSprite: (item) => ({
-      image: item.source,
+      image: { src: item.source } as HTMLImageElement,
       x: 0,
       y: 0,
       width: 100,
       height: 200,
+      scale: 0.5,
     }),
     getOutfit: () => outfit,
     isPreviewReady: () => true,
   });
-  const drawnImages = () => context.drawImage.mock.calls.map(([image]) => image);
+  const drawnImages = () =>
+    context.drawImage.mock.calls.map(([image]) => (image as HTMLImageElement).src);
   return { renderer, context, outfit, drawnImages };
 }
 
