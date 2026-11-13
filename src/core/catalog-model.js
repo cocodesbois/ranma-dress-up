@@ -20,13 +20,40 @@ const REQUIRED_CLOTHING_CATEGORIES = [
 ];
 
 /**
+ * List the categories that cannot be worn together with the given one, from the catalog's
+ * `incompatibleCategories` pairs. Each pair applies in both directions.
+ * @param {Catalog} catalog
+ * @param {string} categoryId
+ * @returns {string[]}
+ */
+export function getExcludedCategories(catalog, categoryId) {
+  const excluded = [];
+  for (const [first, second] of catalog.incompatibleCategories ?? []) {
+    if (first === categoryId) {
+      excluded.push(second);
+    } else if (second === categoryId) {
+      excluded.push(first);
+    }
+  }
+  return excluded;
+}
+
+/**
  * Resolve item references, fill empty categories and require hair plus clothing.
+ * Outfits must also respect the catalog's incompatible category pairs.
  * @param {Catalog} catalog
  * @returns {OutfitPreset[]}
- * @throws {Error} If an outfit has invalid references or is incomplete.
+ * @throws {Error} If an outfit has invalid references or is incomplete, or the catalog
+ *   declares an incompatible pair with an unknown category.
  */
 export function createOutfitPresets(catalog) {
   const outfitCategories = new Set(catalog.categories.map((category) => category.id));
+
+  for (const pair of catalog.incompatibleCategories ?? []) {
+    if (pair.length !== 2 || !pair.every((category) => outfitCategories.has(category))) {
+      throw new Error(`Invalid incompatibleCategories entry: ${JSON.stringify(pair)}.`);
+    }
+  }
   const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
 
   return catalog.outfits.map((outfit) => {
@@ -56,6 +83,14 @@ export function createOutfitPresets(catalog) {
 
       look[category] = item.id;
       items.push(item);
+    }
+
+    for (const [first, second] of catalog.incompatibleCategories ?? []) {
+      if (look[first] && look[second]) {
+        throw new Error(
+          `Outfit "${outfit.id}" combines ${first} and ${second}, which are mutually exclusive.`,
+        );
+      }
     }
 
     if (!look.hair || !items.some((item) => REQUIRED_CLOTHING_CATEGORIES.includes(item.category))) {

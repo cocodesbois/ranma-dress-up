@@ -325,6 +325,22 @@ button {
   scrollbar-width: thin;
 }
 
+.item-notice {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #e6c8c2;
+  border-radius: 9px;
+  background: #fff7f4;
+  color: var(--rose-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .item-card {
   display: flex;
   min-width: 0;

@@ -1,6 +1,6 @@
 # Ranma Dress-up Studio
 
-A responsive, static dress-up app built from the existing Ranma artwork. Select a numbered outfit preset or choose individual pieces by category, reset to the original look, or download the preview as a PNG. Hairstyles are always selected.
+A responsive, static dress-up app built from the existing Ranma artwork. Select a numbered outfit preset or choose individual pieces by category, reset to the original look, or download the look as a PNG of fixed size (2400 px wide), whatever the screen. Hairstyles are always selected.
 
 ## Run locally
 

@@ -158,25 +158,58 @@ export function createWardrobeUi({
       if (button.dataset.none === "true") {
         button.setAttribute("aria-label", selected ? "No item selected" : "Remove selected item");
       } else if (selected) {
-        button.setAttribute("aria-label", `${button.dataset.itemId}, selected`);
+        button.setAttribute(
+          "aria-label",
+          `${button.querySelector(".item-label").textContent}, selected`,
+        );
       } else {
         button.setAttribute("aria-label", button.querySelector(".item-label").textContent);
       }
     }
   }
 
+  function makeLoadNotice(missingCount, category) {
+    const notice = document.createElement("div");
+    notice.className = "item-notice";
+    notice.setAttribute("role", "alert");
+
+    const text = document.createElement("span");
+    text.textContent =
+      missingCount === 1
+        ? "1 item could not be loaded."
+        : `${missingCount} items could not be loaded.`;
+    notice.append(text);
+
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "button button-secondary";
+    retry.textContent = "Try again";
+    retry.addEventListener("click", () => onCategorySelect(category));
+    notice.append(retry);
+    return notice;
+  }
+
   /**
-   * Rebuild active-category cards; hair deliberately has no None option.
+   * Rebuild active-category cards; hair deliberately has no None option. Only items whose
+   * sprite is loaded are offered, since choosing another one could not be drawn; a notice
+   * with a retry button stands in for the missing ones.
    * @returns {void}
    */
   function renderItems() {
     itemList.replaceChildren();
     const activeCategory = getActiveCategory();
+    const categoryItems = catalog.items.filter((entry) => entry.category === activeCategory);
+    const availableItems = categoryItems.filter((item) => getSprite(item));
+
+    if (availableItems.length < categoryItems.length) {
+      const category = catalog.categories.find((entry) => entry.id === activeCategory);
+      itemList.append(makeLoadNotice(categoryItems.length - availableItems.length, category));
+    }
     if (activeCategory !== "hair") {
       itemList.append(makeNoneButton());
     }
 
-    for (const item of catalog.items.filter((entry) => entry.category === activeCategory)) {
+    for (const item of availableItems) {
       itemList.append(makeItemButton(item));
     }
     updateItemSelection();

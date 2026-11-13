@@ -6,22 +6,22 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 
 ## Structure et responsabilités
 
-| Module                                | Rôle et dépendances                                                                                                                     |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/main.js`                         | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.       |
-| `src/types.js`                        | Contrats JSDoc partagés, importés uniquement dans les commentaires de types. Aucune valeur métier à l'exécution.                        |
-| `src/data/sprite-catalog.js`          | Export par défaut du `Catalog` : fond, personnage, catégories, `Item` et `Outfit`.                                                      |
-| `src/data/sprite-manifest.js`         | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                           |
-| `src/core/catalog-model.js`           | Valide et résout les presets ; fournit les recherches par ID, look et preset par défaut. Sans DOM.                                      |
-| `src/core/state-store.js`             | État synchrone isolé : `Look`, catégorie active, panneau mobile, disponibilité du preview et jetons de sélection. Sans DOM ni rendu.    |
-| `src/render/image-loader.js`          | Cache d'images et de promesses, résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                       |
-| `src/render/canvas-renderer.js`       | Composition des calques, ombre et redimensionnement selon la densité de pixels. Lit le store via des getters et ne charge pas d'images. |
-| `src/ui/outfit-controller.js`         | Orchestre sélections, exclusivités, chargements, mutations du store et rafraîchissement de la présentation.                             |
-| `src/ui/wardrobe-ui.js`               | Onglets et cartes accessibles, miniatures statiques et fallback canvas ; délègue les actions au contrôleur.                             |
-| `src/ui/status-controller.js`         | Texte de statut et activation/désactivation des contrôles de presets.                                                                   |
-| `src/ui/wardrobe-panel-controller.js` | Panneau mobile, attributs de dialogue, focus, Échap et navigation Tab.                                                                  |
-| `src/app-bootstrap.js`                | Branche les événements, observe le canvas, lance le chargement initial et gère le téléchargement PNG.                                   |
-| `src/styles/main.css`                 | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                    |
+| Module                                | Rôle et dépendances                                                                                                                                                     |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/main.js`                         | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                       |
+| `src/types.js`                        | Contrats JSDoc partagés, importés uniquement dans les commentaires de types. Aucune valeur métier à l'exécution.                                                        |
+| `src/data/sprite-catalog.js`          | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                |
+| `src/data/sprite-manifest.js`         | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                                                           |
+| `src/core/catalog-model.js`           | Valide et résout les presets, y compris les paires de catégories incompatibles ; fournit les recherches par ID, look, preset par défaut et exclusions. Sans DOM.        |
+| `src/core/state-store.js`             | État synchrone isolé : `Look`, catégorie active, panneau mobile, disponibilité du preview et jetons de sélection. Sans DOM ni rendu.                                    |
+| `src/render/image-loader.js`          | Deux caches distincts (chargements en cours, images décodées), résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                        |
+| `src/render/canvas-renderer.js`       | Composition des calques, ombre, redimensionnement selon la densité de pixels et export PNG à taille fixe. Lit le store via des getters et ne charge pas d'images.       |
+| `src/ui/outfit-controller.js`         | Orchestre sélections, exclusivités, chargements, mutations du store et rafraîchissement de la présentation.                                                             |
+| `src/ui/wardrobe-ui.js`               | Onglets et cartes accessibles, miniatures statiques et fallback canvas, avis avec reprise si des sprites n'ont pas pu être chargés ; délègue les actions au contrôleur. |
+| `src/ui/status-controller.js`         | Texte de statut et activation/désactivation des contrôles de presets.                                                                                                   |
+| `src/ui/wardrobe-panel-controller.js` | Panneau mobile, attributs de dialogue, focus, Échap et navigation Tab.                                                                                                  |
+| `src/app-bootstrap.js`                | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                       |
+| `src/styles/main.css`                 | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                    |
 
 ## Flux des données
 
@@ -43,7 +43,8 @@ controllers ──→ wardrobe-ui / status-controller ──→ DOM
 Le câblage se fait dans `main.js`, sans globales applicatives `window.RanmaDressUp*`.
 Les factories reçoivent leurs collaborateurs ; les modules de présentation
 utilisent encore les API globales du navigateur. Les tests injectent des doubles
-pour le DOM, les images ou le contexte canvas sans lancer de navigateur.
+pour le DOM, les images ou le contexte canvas sans lancer de navigateur ; les tests
+de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
 
 ### Démarrage
 
@@ -54,23 +55,32 @@ pour le DOM, les images ou le contexte canvas sans lancer de navigateur.
    dans un nouveau store.
 3. Le bootstrap branche les contrôles et les observateurs de taille/densité, puis
    appelle `startApp()`.
-4. Le contrôleur charge le fond, le personnage, les pièces sélectionnées et la
-   catégorie initiale `tops`. Il construit les options et les cartes, marque le
+4. Le contrôleur charge le fond, le personnage et les pièces sélectionnées, qui sont
+   requis, puis le reste de la catégorie initiale `tops`, facultatif. Il construit les options et les cartes, marque le
    preview prêt, dessine puis précharge les presets voisins et les autres pièces.
 
 ### Sélections et concurrence
 
-- Une sélection de catégorie charge ses images avant de reconstruire les cartes.
-  Une réponse devenue obsolète ne remplace pas la catégorie active.
-- Une sélection manuelle applique les exclusivités dans le contrôleur, modifie le
-  store, synchronise le preset reconnu et redessine. Le store n'applique pas de
-  règles métier lui-même.
+- Une sélection de catégorie charge ses images avant de reconstruire les cartes. Un
+  échec ne vide pas la grille : les cartes dont le sprite est décodé sont affichées,
+  un avis avec un bouton « Try again » remplace les autres et le statut indique
+  combien d'images ont échoué. Une réponse devenue obsolète ne remplace pas la
+  catégorie active et ne signale aucune erreur.
+- Une sélection manuelle applique les exclusivités déclarées dans le catalogue
+  (`incompatibleCategories`), modifie le store, synchronise le preset reconnu et
+  redessine. Le store n'applique pas de règles métier lui-même.
 - Une sélection de preset obtient un jeton monotone du store. Après chargement,
   seul le jeton encore courant peut appliquer le look et réactiver les contrôles.
   Les sélections manuelles et Reset invalident également les requêtes en cours.
-- Le cache conserve soit une promesse en cours, soit une image décodée.
-  `getSprite()` ne renvoie un sprite que lorsque l'image est décodée. Un échec est
-  retiré du cache pour permettre une nouvelle tentative.
+- Deux caches distincts conservent les chargements en cours et les images décodées.
+  `loadImage()` renvoie toujours une promesse. `getSprite()` ne renvoie un sprite
+  que lorsque l'image est décodée. `getMissingSourcesForPreset()` compte aussi comme
+  manquantes les images encore en cours de chargement : une sélection de preset
+  attend alors leur fin au lieu de dessiner trop tôt. Un échec est retiré du cache
+  pour permettre une nouvelle tentative.
+- Au démarrage, le fond, le personnage et le look courant sont requis : leur échec
+  est signalé et l'application ne démarre pas. Les autres pièces de la catégorie
+  initiale sont facultatives et l'avis de reprise de la garde-robe s'applique.
 - Les erreurs de sélection/démarrage sont transmises au statut et à la console ;
   les erreurs de préchargement sont journalisées sans bloquer la sélection.
 
@@ -88,7 +98,10 @@ avec les contrats auxiliaires `Placement`, `Crop`, `Layer`, `Category`,
   la carte courante, à traiter en lecture seule par ses consommateurs.
 - Les cheveux sont obligatoires dans les presets ; leur catégorie ne propose pas
   de bouton None.
-- Les exclusivités et l'ordre des calques sont détaillés dans
+- `Catalog.incompatibleCategories` liste des paires de catégories qui ne se portent
+  pas ensemble. Une paire vaut dans les deux sens, le modèle refuse un preset qui
+  combine les deux catégories et le contrôleur applique les exclusions à la
+  sélection manuelle. Elles et l'ordre des calques sont détaillés dans
   [les contraintes techniques](../.github/technical-constraints.md).
   Les robes restent au-dessus des chaussures.
 
@@ -110,6 +123,11 @@ miniatures et offsets du manifest sont en pixels du document ; l'échelle du Web
 ne change pas l'alignement. Le fond n'est jamais recadré. Le renderer compose le
 fond, l'ombre, le personnage et les vêtements dans un ordre fixe, puis adapte la
 résolution du canvas à ses dimensions CSS et à `devicePixelRatio`.
+
+Le téléchargement n'enregistre pas le canvas visible, dont la taille dépend de la
+fenêtre et de la densité d'écran. `exportPreview()` redessine le look, avec la même
+composition, sur un canvas hors écran de largeur fixe (2400 px, plafonnée à la
+résolution des WebP) : le PNG obtenu est identique quel que soit l'appareil.
 
 ## Typage progressif et vérifications
 

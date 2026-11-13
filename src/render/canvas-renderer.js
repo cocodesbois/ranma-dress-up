@@ -1,5 +1,6 @@
 /**
- * Composes document-aligned layers and resizes the preview for device density.
+ * Composes document-aligned layers, resizes the preview for device density and exports a
+ * fixed-size PNG.
  * Depends on injected catalog, manifest, decoded sprites and state getters,
  * plus browser canvas/media APIs; exports createCanvasRenderer.
  * @module render/canvas-renderer
@@ -24,6 +25,8 @@ export function createCanvasRenderer({
   getOutfit,
   isPreviewReady,
 }) {
+  // Width in pixels of the image saved by the download button, whatever the screen.
+  const exportWidth = 2400;
   const previewContext = preview.getContext("2d");
   const layerOrder = [
     "underwear",
@@ -58,6 +61,8 @@ export function createCanvasRenderer({
   // Soft floor shadow under the character, in document pixels.
   const shadow = { x: 3700, y: 5587, radiusX: 806, radiusY: 104 };
 
+  const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
+
   preview.style.aspectRatio = `${documentWidth} / ${documentHeight}`;
 
   function requireSprite(item) {
@@ -82,12 +87,13 @@ export function createCanvasRenderer({
   }
 
   /**
-   * Draw background, floor shadow, base and selected wearables in fixed order.
+   * Paint background, floor shadow, base and selected wearables in fixed order, in stage
+   * units: the caller sets the context transform.
+   * @param {CanvasRenderingContext2D} context
    * @returns {void}
    * @throws {Error} If a selected item is unknown or its image is not loaded.
    */
-  function drawOutfit() {
-    const context = previewContext;
+  function paintOutfit(context) {
     // High quality filtering avoids aliasing when the sprites are scaled down to the screen.
     context.imageSmoothingQuality = "high";
     context.clearRect(0, 0, previewWidth, previewHeight);
@@ -115,13 +121,44 @@ export function createCanvasRenderer({
         continue;
       }
 
-      const item = catalog.items.find((entry) => entry.id === selectedId);
+      const item = itemsById.get(selectedId);
       if (!item) {
         throw new Error(`Unknown outfit item: ${selectedId}.`);
       }
 
       drawItem(context, item);
     }
+  }
+
+  /**
+   * Draw the current look on the visible preview.
+   * @returns {void}
+   * @throws {Error} If a selected item is unknown or its image is not loaded.
+   */
+  function drawOutfit() {
+    paintOutfit(previewContext);
+  }
+
+  /**
+   * Render the current look on an offscreen canvas of fixed size, independent of the window
+   * and pixel ratio. The width never exceeds the decoded sprites' own resolution.
+   * @param {number} [width] Output width in pixels; defaults to 2400.
+   * @returns {Promise<Blob | null>} PNG data, or null if the browser could not encode it.
+   * @throws {Error} If a 2D context is unavailable or an image is not loaded.
+   */
+  function exportPreview(width = exportWidth) {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.min(width, Math.round(documentWidth * manifest.settings.scale));
+    canvas.height = Math.round((canvas.width * documentHeight) / documentWidth);
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("This browser cannot export the preview.");
+    }
+
+    context.setTransform(canvas.width / previewWidth, 0, 0, canvas.height / previewHeight, 0, 0);
+    paintOutfit(context);
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
   }
 
   /**
@@ -166,6 +203,7 @@ export function createCanvasRenderer({
 
   return {
     drawOutfit,
+    exportPreview,
     resizePreview,
     watchDevicePixelRatio,
   };

@@ -64,6 +64,7 @@
  * @property {{source: string}} background
  * @property {Layer} base
  * @property {Category[]} categories
+ * @property {string[][]} [incompatibleCategories] Pairs of category IDs that cannot be worn together.
  * @property {Item[]} items
  * @property {Outfit[]} outfits
  */

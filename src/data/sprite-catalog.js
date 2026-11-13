@@ -42,6 +42,14 @@ const catalog = {
     { id: "bracelets", label: "Bracelets" },
     { id: "accessories", label: "Accessories" },
   ],
+  // Categories that cannot be worn together: choosing an item in one removes the item chosen
+  // in the other. Each pair works both ways, and outfits are validated against it.
+  incompatibleCategories: [
+    ["bodysuits", "tops"],
+    ["bodysuits", "pants"],
+    ["bodysuits", "dresses"],
+    ["pants", "dresses"],
+  ],
   items: [
     {
       id: "top001",

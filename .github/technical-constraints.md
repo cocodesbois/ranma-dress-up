@@ -13,6 +13,7 @@ Use this file as the source of truth for data and behavior constraints when chan
    - at least one clothing category among: `bodysuits`, `underwear`, `slips`, `tights`, `tops`, `dresses`, `pants`.
 5. Outfit IDs and image filenames are independent. Do not infer item filenames from outfit IDs.
 6. Keep shared item IDs reused across outfits instead of duplicating catalog items.
+7. `incompatibleCategories` is a list of `[categoryA, categoryB]` pairs of category IDs that cannot be worn together. Both IDs must exist, a pair works in both directions, and no outfit may contain items from both categories of a pair (`createOutfitPresets` throws otherwise).
 
 ## Sprite asset constraints
 
@@ -28,19 +29,21 @@ Use this file as the source of truth for data and behavior constraints when chan
 1. The canvas shows the whole Photoshop document. Its drawing units are `catalog.base.placement.scale` times document pixels, with the document's top-left corner at (0, 0); the aspect ratio comes from `manifest.document`.
 2. An item is drawn at `placement.x - placement.regX * scale + sprite.x * scale - origin`, where `sprite.x` is the crop offset from the manifest and `origin` derives from the base placement. Items are expected to use the shared placement; a different placement shifts only that item.
 3. The floor shadow is defined in document pixels in `canvas-renderer.js`. Adjust it there if the base character moves on the document.
-4. `imageSmoothingQuality` is set to `"high"` in `drawOutfit` because the context state is reset whenever the canvas is resized.
+4. `imageSmoothingQuality` is set to `"high"` in `paintOutfit` because the context state is reset whenever the canvas is resized.
+5. The download button saves `exportPreview()`, not the visible canvas: the look is painted again on an offscreen canvas of fixed width (2400 px, capped at the decoded sprites' resolution, `manifest.document` aspect ratio). The saved PNG therefore does not depend on the window size or the device pixel ratio. Painting goes through `paintOutfit` for both, so the composition cannot differ.
 
 ## Runtime/UI constraints (`src/ui/outfit-controller.js`, `src/ui/wardrobe-ui.js`)
 
 1. Hair is mandatory in presets and user flows:
    - Presets without hair throw during startup (`createOutfitPresets` validation).
    - The Hair category does not render a `None` button, so users cannot remove hair interactively.
-2. Mutual exclusivity rules when selecting an item manually:
+2. Mutual exclusivity rules when selecting an item manually come from `catalog.incompatibleCategories` through `getExcludedCategories` (not from controller code). The current pairs give:
    - `bodysuits` clears `tops`, `pants`, `dresses`
    - `tops` clears `bodysuits`
    - `pants` clears `bodysuits`, `dresses`
    - `dresses` clears `bodysuits`, `pants`
-3. Layer draw order in `src/render/canvas-renderer.js` is fixed and must stay coherent with visual composition:
+3. A category whose images only partly load still shows the loaded items, plus an alert with a "Try again" button for the others. Items whose sprite is not loaded are never offered, because they could not be drawn. Only the scene, the base character and the current look are required at startup.
+4. Layer draw order in `src/render/canvas-renderer.js` is fixed and must stay coherent with visual composition:
    `underwear → slips → tights → bodysuits → pants → tops → shoes → dresses → hair → hats → necklace → bracelets → accessories`.
    Dresses render over shoes so their hems can hide them where appropriate.
 
@@ -58,5 +61,5 @@ Use this file as the source of truth for data and behavior constraints when chan
 - When editing outfits, validate that each preset still includes `hair`.
 - When adding categories/items, update both data and any logic that depends on category IDs.
 - When adding or changing a sprite PNG, run `python scripts/optimize-sprites.py` and commit `public/images/optimized/` and `src/data/sprite-manifest.js`; regenerate thumbnails if the item changed.
-- When changing exclusivity or draw order, update this document and verify behavior in the browser.
+- When changing exclusivity (`incompatibleCategories`) or draw order, update this document and the tests, and verify behavior in the browser.
 - Run `npm run lint`, `npm run format:check`, `npm run typecheck` and `npm test` before submitting changes. CI also checks optimized sprites and builds with Vite; visual/browser validation remains the maintainer's responsibility during this migration.
