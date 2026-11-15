@@ -73,11 +73,7 @@ const imageLoader = createImageLoader({
   },
 });
 
-/**
- * Adapt a catalog layer to the loader's stable PNG source key.
- * @param {{source: string}} item
- * @returns {import("./types").Sprite | undefined}
- */
+/** Adapt a catalog layer to the loader's stable PNG source key. */
 function getSprite(item: { source: string }): Sprite | undefined {
   return imageLoader.getSprite(item.source);
 }
@@ -120,11 +116,7 @@ const wardrobeUi = createWardrobeUi({
   },
 });
 
-/**
- * Report controller/startup failures both to developers and in the status area.
- * @param {Error} error
- * @returns {void}
- */
+/** Report controller/startup failures both to developers and in the status area. */
 function showError(error: unknown) {
   console.error(error);
   statusController.setStatusMessage(error instanceof Error ? error.message : String(error), {
