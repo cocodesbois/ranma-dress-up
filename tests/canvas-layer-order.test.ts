@@ -12,7 +12,9 @@ const expectedOrder: CategoryId[] = [
   "pants",
   "tops",
   "shoes",
+  "jumpsuits",
   "dresses",
+  "aprons",
   "hair",
   "hats",
   "necklace",
@@ -108,6 +110,34 @@ describe("canvas layer order", () => {
     }
     renderer.drawOutfit();
     expect(drawnImages()).toEqual(["background.png", "body.png"]);
+  });
+
+  it("draws jumpsuit hems over shoes and an optional apron over the jumpsuit", () => {
+    const { renderer, context, outfit, drawnImages } = setup();
+    for (const category of expectedOrder) {
+      if (!["shoes", "jumpsuits", "aprons", "hair"].includes(category)) {
+        outfit[category] = null;
+      }
+    }
+    renderer.drawOutfit();
+    expect(drawnImages()).toEqual([
+      "background.png",
+      "body.png",
+      "shoes.png",
+      "jumpsuits.png",
+      "aprons.png",
+      "hair.png",
+    ]);
+    context.drawImage.mockClear();
+    outfit.aprons = null;
+    renderer.drawOutfit();
+    expect(drawnImages()).toEqual([
+      "background.png",
+      "body.png",
+      "shoes.png",
+      "jumpsuits.png",
+      "hair.png",
+    ]);
   });
 
   it("reports an unknown selected item instead of silently omitting its layer", () => {

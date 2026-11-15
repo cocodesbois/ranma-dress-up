@@ -8,11 +8,12 @@ import { createOutfitController } from "../src/ui/outfit-controller";
 import { item } from "./fixtures";
 
 const exclusions: Partial<Record<CategoryId, CategoryId[]>> = {
-  bodysuits: ["tops", "pants", "dresses", "slips"],
+  bodysuits: ["tops", "pants", "dresses", "slips", "jumpsuits"],
   slips: ["bodysuits"],
   tops: ["bodysuits"],
-  pants: ["bodysuits", "dresses"],
-  dresses: ["bodysuits", "pants"],
+  pants: ["bodysuits", "dresses", "jumpsuits"],
+  dresses: ["bodysuits", "pants", "jumpsuits"],
+  jumpsuits: ["pants", "dresses", "bodysuits"],
 };
 
 function setup(activeCategory: CategoryId) {
@@ -120,6 +121,29 @@ describe("manual selection exclusivity", () => {
     expect(appState.getOutfit()).toEqual({ ...defaultOutfit, bodysuits: null });
     expect(appState.getOutfitSelectionRequest()).toBe(1);
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Item removed.");
+  });
+
+  it("preserves a jumpsuit and its underlayers when adding or removing an apron", () => {
+    const { controller, appState } = setup("jumpsuits");
+    controller.selectItem(item("jumpsuit", "jumpsuits"));
+    expect(appState.getOutfit()).toMatchObject({
+      jumpsuits: "jumpsuit",
+      tops: "existing-tops",
+      slips: "existing-slips",
+      tights: "existing-tights",
+      underwear: "existing-underwear",
+      aprons: "existing-aprons",
+      pants: null,
+      dresses: null,
+      bodysuits: null,
+    });
+    appState.setActiveCategory("aprons");
+    controller.selectItem(item("apron", "aprons"));
+    const withApron = { ...appState.getOutfit() };
+    expect(withApron.jumpsuits).toBe("jumpsuit");
+    expect(withApron.aprons).toBe("apron");
+    controller.removeActiveCategoryItem();
+    expect(appState.getOutfit()).toEqual({ ...withApron, aprons: null });
   });
 
   it("restores the default look without applying manual selection exclusions", () => {

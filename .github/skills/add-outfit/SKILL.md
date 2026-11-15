@@ -8,6 +8,7 @@ description: Add new outfit sprites to Ranma Dress Up. Use when the user adds PN
 1. Ask for the folder containing the exported PNGs if it was not given.
 2. Dry run: `python scripts/prepare-sprites.py <folder> --dry-run`.
    - Prefixes before the category word are dropped: `xxx_xxx-top001.png` becomes `top001.png`. `accessoires` maps to the `accessories` category and `pant` to `pants`.
+   - Use `jumpsuitNNN.png` for one-piece garments with trouser legs (`jumpsuits` category), and `apronNNN.png` for optional aprons or pinafores (`aprons` category). Plural filename tokens are accepted too. Export the two pieces separately on the shared canvas for independent selection. Aprons alone do not satisfy a preset's clothing requirement.
    - New files can be copied to a temporary folder first so the source folder is left untouched.
    - The script stops on unrecognized names, collisions with existing sprites, or duplicate targets. Never overwrite; ask the user how to resolve.
 3. Run it again without `--dry-run`. It moves the files to `assets/sprites/` (the full-size exports, which stay untouched), generates `public/images/thumbnails/<item-id>.png`, builds the optimized sprite `public/images/optimized/<name>.webp` and updates `src/data/sprite-manifest.ts`, and prints a catalog item snippet per file with both `thumbnailSource` and `thumbnail` crop metadata. The exports must have the same canvas size as the existing ones; the script stops otherwise.

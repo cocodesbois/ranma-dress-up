@@ -23,6 +23,10 @@ from thumbnail_utils import THUMBNAILS_DIR, compute_alpha_bbox, write_thumbnail
 CATEGORIES = {
     "bodysuit": ("bodysuit", "bodysuits", "Bodysuit"),
     "bodysuits": ("bodysuit", "bodysuits", "Bodysuit"),
+    "jumpsuit": ("jumpsuit", "jumpsuits", "Jumpsuit"),
+    "jumpsuits": ("jumpsuit", "jumpsuits", "Jumpsuit"),
+    "apron": ("apron", "aprons", "Apron"),
+    "aprons": ("apron", "aprons", "Apron"),
     "underwear": ("underwear", "underwear", "Underwear"),
     "slip": ("slip", "slips", "Slip"),
     "slips": ("slip", "slips", "Slip"),

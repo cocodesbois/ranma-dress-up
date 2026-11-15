@@ -12,6 +12,7 @@ import { item, layer, required } from "./fixtures";
 
 const clothingCategories: CategoryId[] = [
   "bodysuits",
+  "jumpsuits",
   "underwear",
   "slips",
   "tights",
@@ -24,7 +25,7 @@ function createCatalog(): Catalog {
   return {
     background: { source: "background.png" },
     base: layer("body"),
-    categories: (["hair", ...clothingCategories, "hats"] as CategoryId[]).map((id) => ({
+    categories: (["hair", ...clothingCategories, "hats", "aprons"] as CategoryId[]).map((id) => ({
       id,
       label: id,
     })),
@@ -32,6 +33,7 @@ function createCatalog(): Catalog {
       item("shared-hair", "hair"),
       ...clothingCategories.map((category) => item(`${category}-item`, category)),
       item("hat", "hats"),
+      item("apron", "aprons"),
     ],
     outfits: [
       { id: "005", label: "Default", items: { hair: "shared-hair", tops: "tops-item" } },
@@ -82,6 +84,20 @@ describe("published catalog constraints", () => {
       );
       expect(getMatchingOutfit(catalog, presets, preset.look)).toBe(preset);
     }
+  });
+
+  it.each(["006", "016"])("reclassifies outfit %s without changing its wearables", (id) => {
+    const preset = required(findPresetById(createOutfitPresets(catalog), id));
+    expect(preset.look.jumpsuits).toBe(`dress${id}`);
+    expect(preset.look.dresses).toBeNull();
+    const jumpsuit = required(preset.items.find((item) => item.category === "jumpsuits"));
+    expect(jumpsuit.source).toBe(`assets/sprites/dress${id}.png`);
+    expect(jumpsuit.label).toBe(`Jumpsuit ${id.slice(1)}`);
+    expect(preset.items.map((item) => item.id)).toEqual(
+      id === "006"
+        ? ["top006", "dress006", "slip006", "hair001", "shoes006"]
+        : ["dress016", "hair001", "shoes016", "bracelets016"],
+    );
   });
 });
 
@@ -138,6 +154,7 @@ describe("createOutfitPresets", () => {
     ["missing hair", { tops: "tops-item" }],
     ["missing clothing", { hair: "shared-hair" }],
     ["accessory only", { hair: "shared-hair", hats: "hat" }],
+    ["apron only", { hair: "shared-hair", aprons: "apron" }],
     ["empty look", {}],
   ])("rejects an incomplete outfit: %s", (_name, items) => {
     const input = createCatalog();
@@ -152,6 +169,20 @@ describe("createOutfitPresets", () => {
     input.outfits[0].items = { hair: "shared-hair", [category]: `${category}-item` };
     expect(createOutfitPresets(input)[0].look[category]).toBe(`${category}-item`);
   });
+
+  it.each(["jumpsuits", "dresses", "tops"] as const)(
+    "accepts an apron layered over %s",
+    (category) => {
+      const input = createCatalog();
+      input.incompatibleCategories = catalog.incompatibleCategories;
+      input.outfits[0].items = {
+        hair: "shared-hair",
+        [category]: `${category}-item`,
+        aprons: "apron",
+      };
+      expect(createOutfitPresets(input)[0].look).toMatchObject(input.outfits[0].items);
+    },
+  );
 });
 
 describe("preset lookup", () => {
@@ -209,10 +240,12 @@ describe("incompatible categories", () => {
 
   it("keeps the exclusions of the published catalog", () => {
     const expected: Record<string, string[]> = {
-      bodysuits: ["tops", "pants", "dresses"],
+      bodysuits: ["tops", "pants", "dresses", "slips", "jumpsuits"],
+      slips: ["bodysuits"],
       tops: ["bodysuits"],
-      pants: ["bodysuits", "dresses"],
-      dresses: ["bodysuits", "pants"],
+      pants: ["bodysuits", "dresses", "jumpsuits"],
+      dresses: ["bodysuits", "pants", "jumpsuits"],
+      jumpsuits: ["pants", "dresses", "bodysuits"],
     };
     for (const { id } of catalog.categories) {
       expect(getExcludedCategories(catalog, id).sort(), id).toEqual(
@@ -228,6 +261,20 @@ describe("incompatible categories", () => {
       'Outfit "005" combines tops and pants, which are mutually exclusive.',
     );
   });
+
+  it.each(["pants", "dresses", "bodysuits"] as const)(
+    "rejects a jumpsuit preset combined with %s",
+    (category) => {
+      const input = createCatalog();
+      input.incompatibleCategories = catalog.incompatibleCategories;
+      input.outfits[0].items = {
+        hair: "shared-hair",
+        jumpsuits: "jumpsuits-item",
+        [category]: `${category}-item`,
+      };
+      expect(() => createOutfitPresets(input)).toThrow("which are mutually exclusive");
+    },
+  );
 
   it("accepts outfits that use only one category of a pair", () => {
     const presets = createOutfitPresets(withPairs([["tops", "pants"]]));
