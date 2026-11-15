@@ -97,17 +97,22 @@ describe("wardrobe items", () => {
 
   it("offers the migrated jumpsuits with their new labels", () => {
     const { cards, noneCard } = setup({ activeCategory: "jumpsuits" });
-    expect(cards().map((card) => card.dataset.itemId)).toEqual(["dress006", "dress016"]);
+    expect(cards().map((card) => card.dataset.itemId)).toEqual([
+      "dress006",
+      "dress016",
+      "jumpsuit021",
+    ]);
     expect(cards().map((card) => card.getAttribute("aria-label"))).toEqual([
       "Jumpsuit 06",
       "Jumpsuit 16",
+      "Jumpsuit 21",
     ]);
     expect(noneCard()).not.toBeNull();
   });
 
-  it("keeps the empty apron category optional until sprites are added", () => {
+  it("offers apron sprites while keeping the category optional", () => {
     const { cards, noneCard, notice } = setup({ activeCategory: "aprons" });
-    expect(cards()).toHaveLength(0);
+    expect(cards().map((card) => card.dataset.itemId)).toEqual(["apron021"]);
     expect(noneCard()).not.toBeNull();
     expect(notice()).toBeNull();
   });
