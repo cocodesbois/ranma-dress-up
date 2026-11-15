@@ -146,7 +146,7 @@ export function createWardrobeUi({
     for (const button of itemList.querySelectorAll<HTMLButtonElement>(".item-card")) {
       const selected =
         button.dataset.none === "true"
-          ? outfit[activeCategory] === null
+          ? (outfit[activeCategory] ?? null) === null
           : outfit[activeCategory] === button.dataset.itemId;
       button.classList.toggle("is-selected", selected);
       button.setAttribute("aria-pressed", String(selected));

@@ -16,7 +16,7 @@ const itemsOf = (category: CategoryId) =>
 function setup({
   activeCategory = "tops",
   loadedIds,
-  outfit = {},
+  outfit,
 }: {
   activeCategory?: CategoryId;
   loadedIds?: string[];
@@ -26,6 +26,7 @@ function setup({
   const itemList = required(document.querySelector<HTMLElement>("#item-list"));
   const items = itemsOf(activeCategory);
   const loaded = new Set(loadedIds ?? items.map(({ id }) => id));
+  const liveOutfit = outfit ?? { [activeCategory]: null };
   const onCategorySelect = vi.fn();
   const onItemSelect = vi.fn();
   const ui = createWardrobeUi({
@@ -33,7 +34,7 @@ function setup({
     itemList,
     catalog,
     getActiveCategory: () => activeCategory,
-    getOutfit: () => ({ [activeCategory]: null, ...outfit }),
+    getOutfit: () => liveOutfit,
     getSprite: (item) => (loaded.has(item.id) ? sprite : undefined),
     onCategorySelect,
     onItemSelect,
@@ -115,6 +116,8 @@ describe("accessible names", () => {
 
   it("labels the None card according to whether an item is worn", () => {
     expect(required(setup().noneCard()).getAttribute("aria-label")).toBe("No item selected");
+    const omittedSelection = setup({ outfit: {} });
+    expect(required(omittedSelection.noneCard()).getAttribute("aria-pressed")).toBe("true");
     const worn = setup({ outfit: { tops: itemsOf("tops")[0].id } });
     expect(required(worn.noneCard()).getAttribute("aria-label")).toBe("Remove selected item");
   });

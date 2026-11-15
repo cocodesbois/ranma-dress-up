@@ -178,6 +178,9 @@ describe("preset lookup", () => {
 
   it("matches the whole look, including unselected categories", () => {
     expect(getMatchingOutfit(input, presets, { ...presets[0].look })).toBe(presets[0]);
+    const omittedCategory = { ...presets[0].look };
+    delete omittedCategory.hats;
+    expect(getMatchingOutfit(input, presets, omittedCategory)).toBe(presets[0]);
     expect(getMatchingOutfit(input, presets, { ...presets[0].look, hats: "hat" })).toBeUndefined();
     expect(getMatchingOutfit(input, presets, { ...presets[0].look, hair: null })).toBeUndefined();
     expect(getMatchingOutfit(input, [], presets[0].look)).toBeUndefined();

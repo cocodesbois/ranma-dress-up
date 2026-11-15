@@ -124,6 +124,8 @@ export function getMatchingOutfit(
   outfit: Look,
 ): OutfitPreset | undefined {
   return outfitPresets.find((preset) =>
-    catalog.categories.every((category) => outfit[category.id] === preset.look[category.id]),
+    catalog.categories.every(
+      (category) => (outfit[category.id] ?? null) === (preset.look[category.id] ?? null),
+    ),
   );
 }
