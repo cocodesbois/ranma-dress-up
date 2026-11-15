@@ -183,7 +183,7 @@ const catalog: Catalog = {
       source: "assets/sprites/dress020.png",
       thumbnailSource: "images/thumbnails/dress020.png",
       thumbnail: { x: 2273, y: 1933, width: 1904, height: 2022 },
-      placement: sharedSpritePlacement
+      placement: sharedSpritePlacement,
     },
     {
       id: "slip006",
@@ -208,7 +208,7 @@ const catalog: Catalog = {
       source: "assets/sprites/slip020.png",
       thumbnailSource: "images/thumbnails/slip020.png",
       thumbnail: { x: 2914, y: 2906, width: 613, height: 412 },
-      placement: sharedSpritePlacement
+      placement: sharedSpritePlacement,
     },
     {
       id: "tights008",
@@ -467,7 +467,7 @@ const catalog: Catalog = {
       source: "assets/sprites/shoes020.png",
       thumbnailSource: "images/thumbnails/shoes020.png",
       thumbnail: { x: 3136, y: 5080, width: 1191, height: 686 },
-      placement: sharedSpritePlacement
+      placement: sharedSpritePlacement,
     },
     {
       id: "tights009",
@@ -701,8 +701,8 @@ const catalog: Catalog = {
         slips: "slip020",
         dresses: "dress020",
         hair: "hair001",
-      }
-    }
+      },
+    },
   ],
 };
 
