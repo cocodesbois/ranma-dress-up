@@ -134,6 +134,7 @@ button {
 
 .preview-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -149,10 +150,12 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  min-width: 0;
   min-height: 18px;
   margin: 0;
   color: var(--muted);
   font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .status-message.is-loading::before {
@@ -421,6 +424,20 @@ button {
 
 .none-card.is-selected .item-label {
   color: var(--rose-dark);
+}
+
+@media (min-width: 721px) {
+  .preview-panel {
+    width: min(100%, max(200px, (100dvh - 160px) * 6643 / 6507));
+    justify-self: center;
+  }
+}
+
+@media (min-width: 721px) and (min-height: 480px) {
+  .preview-panel {
+    position: sticky;
+    top: 10px;
+  }
 }
 
 @media (max-width: 980px) {
