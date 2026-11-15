@@ -44,12 +44,18 @@ button {
 }
 
 .site-header {
+  position: sticky;
+  z-index: 22;
+  top: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   min-height: 56px;
+  padding: 4px 0;
   border-bottom: 3px solid #1759a8;
+  background: #fff2f4;
 }
 
 .brand {
@@ -132,22 +138,9 @@ button {
   aspect-ratio: 6643 / 6507;
 }
 
-.preview-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  margin-top: 6px;
-  padding: 5px 8px;
-  border: 2px solid #1759a8;
-  border-radius: 8px;
-  background: var(--paper);
-}
-
 .status-message {
   display: inline-flex;
+  flex: 1 1 180px;
   align-items: center;
   gap: 7px;
   min-width: 0;
@@ -428,7 +421,7 @@ button {
 
 @media (min-width: 721px) {
   .preview-panel {
-    width: min(100%, max(200px, (100dvh - 160px) * 6643 / 6507));
+    width: min(100%, max(200px, (100dvh - 100px) * 6643 / 6507));
     justify-self: center;
   }
 }
@@ -436,7 +429,7 @@ button {
 @media (min-width: 721px) and (min-height: 480px) {
   .preview-panel {
     position: sticky;
-    top: 10px;
+    top: 70px;
   }
 }
 
@@ -461,18 +454,13 @@ button {
   }
 
   .site-header {
+    gap: 4px 8px;
     min-height: 46px;
   }
 
   .workspace {
     gap: 4px;
     padding: 4px 0;
-  }
-
-  .preview-footer {
-    gap: 5px;
-    min-height: 38px;
-    padding: 4px 6px;
   }
 
   .status-message {
@@ -510,6 +498,12 @@ button {
 }
 
 @media (max-width: 720px) {
+  .status-message,
+  .offline-status {
+    order: 1;
+    flex-basis: 100%;
+  }
+
   .workspace {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -601,36 +595,35 @@ button {
     overflow: hidden;
   }
 
-  body.wardrobe-open .site-header {
-    visibility: hidden;
+  body.wardrobe-open .page-shell {
+    position: fixed;
+    z-index: 20;
+    inset: 0 0 var(--wardrobe-height);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+  }
+
+  body.wardrobe-open .workspace {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   body.wardrobe-open .preview-panel {
-    position: fixed;
-    z-index: 21;
-    top: 0;
-    right: 0;
-    bottom: var(--wardrobe-height);
-    left: 0;
     display: flex;
-    flex-direction: column;
+    flex: 1 1 auto;
     align-items: center;
     justify-content: center;
-    padding: 6px;
+    min-height: 0;
     pointer-events: none;
   }
 
   body.wardrobe-open .stage-frame {
-    width: min(100%, (100dvh - var(--wardrobe-height) - 64px) * 6643 / 6507);
+    width: auto;
+    height: min(100%, (100vw - 24px) * 6507 / 6643);
+    aspect-ratio: 6643 / 6507;
     flex: 0 0 auto;
-  }
-
-  body.wardrobe-open .preview-footer {
-    position: relative;
-    z-index: 22;
-    width: min(100%, 620px);
-    flex: 0 0 auto;
-    pointer-events: auto;
   }
 
   .wardrobe-heading {
