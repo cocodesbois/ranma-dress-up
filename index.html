@@ -25,7 +25,14 @@
             <span class="brand-name">Dress-up</span>
           </h1>
         </a>
+        <p id="status-message" class="status-message" role="status" aria-live="polite">
+          Loading the wardrobe...
+        </p>
         <p id="offline-status" class="offline-status" role="status" aria-live="polite" hidden></p>
+        <div class="action-buttons">
+          <button id="reset-look" class="button button-secondary" type="button">Reset</button>
+          <button id="download-look" class="button button-primary" type="button">Save look</button>
+        </div>
       </header>
 
       <main class="workspace">
@@ -41,30 +48,18 @@
               Your browser does not support the outfit preview.
             </canvas>
           </div>
-
-          <div class="preview-footer">
-            <p id="status-message" class="status-message" role="status" aria-live="polite">
-              Loading the wardrobe...
-            </p>
-            <div class="action-buttons">
-              <button
-                id="wardrobe-toggle"
-                class="button button-secondary wardrobe-trigger"
-                type="button"
-                aria-controls="wardrobe-panel"
-                aria-expanded="false"
-                aria-haspopup="dialog"
-              >
-                Wardrobe
-              </button>
-              <button id="reset-look" class="button button-secondary" type="button">Reset</button>
-              <button id="download-look" class="button button-primary" type="button">
-                Save look
-              </button>
-            </div>
-          </div>
         </section>
 
+        <button
+          id="wardrobe-toggle"
+          class="button button-secondary wardrobe-trigger"
+          type="button"
+          aria-controls="wardrobe-panel"
+          aria-expanded="false"
+          aria-haspopup="dialog"
+        >
+          Wardrobe
+        </button>
         <button
           id="wardrobe-backdrop"
           class="wardrobe-backdrop"
