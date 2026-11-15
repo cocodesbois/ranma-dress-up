@@ -164,9 +164,8 @@ export function validateCatalog({
   }
 
   const referencedThumbnails = new Set(
-    catalog.items.map(
-      ({ id, thumbnailSource }) =>
-        path.posix.normalize(thumbnailSource ?? `${DEFAULT_THUMBNAIL_DIRECTORY}/${id}.png`),
+    catalog.items.map(({ id, thumbnailSource }) =>
+      path.posix.normalize(thumbnailSource ?? `${DEFAULT_THUMBNAIL_DIRECTORY}/${id}.png`),
     ),
   );
   for (const file of files.list(THUMBNAIL_DIRECTORY).filter((name) => name.endsWith(".png"))) {
