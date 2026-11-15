@@ -348,6 +348,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "bodysuit019",
+      category: "bodysuits",
+      label: "Bodysuit 19",
+      source: "assets/sprites/bodysuit019.png",
+      thumbnailSource: "images/thumbnails/bodysuit019.png",
+      thumbnail: { x: 2464, y: 1857, width: 1499, height: 1459 },
+      placement: sharedSpritePlacement,
+    },
+    {
       id: "dress016",
       category: "dresses",
       label: "Dress 16",
@@ -421,6 +430,15 @@ const catalog: Catalog = {
       source: "assets/sprites/shoes018.png",
       thumbnailSource: "images/thumbnails/shoes018.png",
       thumbnail: { x: 3119, y: 4907, width: 1272, height: 926 },
+      placement: sharedSpritePlacement,
+    },
+    {
+      id: "shoes019",
+      category: "shoes",
+      label: "Shoes 19",
+      source: "assets/sprites/shoes019.png",
+      thumbnailSource: "images/thumbnails/shoes019.png",
+      thumbnail: { x: 3026, y: 4293, width: 1359, height: 1531 },
       placement: sharedSpritePlacement,
     },
     {
@@ -636,6 +654,15 @@ const catalog: Catalog = {
         pants: "pants018",
         hair: "hair001",
         shoes: "shoes018",
+      },
+    },
+    {
+      id: "019",
+      label: "Outfit 19",
+      items: {
+        bodysuits: "bodysuit019",
+        hair: "hair001",
+        shoes: "shoes019",
       },
     },
   ],
