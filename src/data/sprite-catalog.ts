@@ -390,6 +390,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "jumpsuit021",
+      category: "jumpsuits",
+      label: "Jumpsuit 21",
+      source: "assets/sprites/jumpsuit021.png",
+      thumbnailSource: "images/thumbnails/jumpsuit021.png",
+      thumbnail: { x: 2746, y: 1854, width: 1229, height: 2970 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "hat009",
       category: "hats",
       label: "Hat 09",
@@ -405,6 +414,15 @@ const catalog: Catalog = {
       thumbnailSource: "images/thumbnails/hat017.png",
       thumbnail: { x: 2863, y: 1047, width: 842, height: 456 },
       placement: sharedSpritePlacement,
+    },
+    {
+      id: "hat021",
+      category: "hats",
+      label: "Hat 21",
+      source: "assets/sprites/hat021.png",
+      thumbnailSource: "images/thumbnails/hat021.png",
+      thumbnail: { x: 2977, y: 1097, width: 412, height: 432 },
+      placement: sharedSpritePlacement
     },
     {
       id: "shoes009",
@@ -475,6 +493,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "shoes021",
+      category: "shoes",
+      label: "Shoes 21",
+      source: "assets/sprites/shoes021.png",
+      thumbnailSource: "images/thumbnails/shoes021.png",
+      thumbnail: { x: 3131, y: 5078, width: 1206, height: 684 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "tights009",
       category: "tights",
       label: "Tights 09",
@@ -505,6 +532,15 @@ const catalog: Catalog = {
       source: "assets/sprites/accessories012.png",
       thumbnail: { x: 2028, y: 2951, width: 574, height: 2261 },
       placement: sharedSpritePlacement,
+    },
+    {
+      id: "apron021",
+      category: "aprons",
+      label: "Apron 21",
+      source: "assets/sprites/apron021.png",
+      thumbnailSource: "images/thumbnails/apron021.png",
+      thumbnail: { x: 2762, y: 1921, width: 955, height: 1476 },
+      placement: sharedSpritePlacement
     },
   ],
   outfits: [
@@ -708,6 +744,17 @@ const catalog: Catalog = {
         hair: "hair001",
       },
     },
+    {
+      id: "021",
+      label: "Outfit 21",
+      items: {
+        jumpsuits: "jumpsuit021",
+        aprons: "apron021",
+        hats: "hat021",
+        shoes: "shoes021",
+        hair: "hair001",
+      },
+    }
   ],
 };
 

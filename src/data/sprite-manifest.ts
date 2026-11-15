@@ -43,6 +43,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 2261,
       "sourceHash": "916e2efd4f8ef593fec6b3f82cfb9bed78e15233"
     },
+    "assets/sprites/apron021.png": {
+      "file": "images/optimized/apron021.webp",
+      "x": 2762,
+      "y": 1921,
+      "width": 955,
+      "height": 1476,
+      "sourceHash": "ba9da00f147c8776c76e77cd49ebb15e02502429"
+    },
     "assets/sprites/background.png": {
       "file": "images/optimized/background.webp",
       "x": 0,
@@ -195,6 +203,22 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 456,
       "sourceHash": "22829f9e86538e61bd2d16ede8cbc6a8ed7b22a1"
     },
+    "assets/sprites/hat021.png": {
+      "file": "images/optimized/hat021.webp",
+      "x": 2977,
+      "y": 1097,
+      "width": 412,
+      "height": 432,
+      "sourceHash": "3595bcc55acc5a562dfc8962757fefe4defd5698"
+    },
+    "assets/sprites/jumpsuit021.png": {
+      "file": "images/optimized/jumpsuit021.webp",
+      "x": 2746,
+      "y": 1854,
+      "width": 1229,
+      "height": 2970,
+      "sourceHash": "aea04626a7e99b92db1574e2af14a211fd5ecf20"
+    },
     "assets/sprites/pant002.png": {
       "file": "images/optimized/pant002.webp",
       "x": 2800,
@@ -338,6 +362,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1191,
       "height": 686,
       "sourceHash": "baf07772085ede82fefa038796d241532cd48bca"
+    },
+    "assets/sprites/shoes021.png": {
+      "file": "images/optimized/shoes021.webp",
+      "x": 3131,
+      "y": 5078,
+      "width": 1206,
+      "height": 684,
+      "sourceHash": "8a664674e4f8d58719b4b5c49828ab3e3b39ff9d"
     },
     "assets/sprites/slip006.png": {
       "file": "images/optimized/slip006.webp",
