@@ -4,7 +4,7 @@
  * plus the DOM; exports createWardrobeUi without owning outfit mutations.
  * @module ui/wardrobe-ui
  */
-import type { Catalog, Category, Item, Look, Sprite } from "../types";
+import type { Catalog, Category, CategoryId, Item, Look, Sprite } from "../types";
 
 /** Bind wardrobe containers and delegate user actions to the outfit controller. */
 export function createWardrobeUi({
@@ -21,7 +21,7 @@ export function createWardrobeUi({
   categoryTabs: HTMLElement;
   itemList: HTMLElement;
   catalog: Catalog;
-  getActiveCategory: () => string;
+  getActiveCategory: () => CategoryId;
   getOutfit: () => Look;
   getSprite: (item: Item) => Sprite | undefined;
   onCategorySelect: (category: Category) => void;

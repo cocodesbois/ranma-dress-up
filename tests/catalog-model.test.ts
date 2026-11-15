@@ -7,10 +7,10 @@ import {
   getExcludedCategories,
   getMatchingOutfit,
 } from "../src/core/catalog-model";
-import type { Catalog } from "../src/types";
-import { item, required } from "./fixtures";
+import type { Catalog, CategoryId } from "../src/types";
+import { item, layer, required } from "./fixtures";
 
-const clothingCategories = [
+const clothingCategories: CategoryId[] = [
   "bodysuits",
   "underwear",
   "slips",
@@ -23,8 +23,11 @@ const clothingCategories = [
 function createCatalog(): Catalog {
   return {
     background: { source: "background.png" },
-    base: item("body", "base"),
-    categories: ["hair", ...clothingCategories, "hats"].map((id) => ({ id, label: id })),
+    base: layer("body"),
+    categories: (["hair", ...clothingCategories, "hats"] as CategoryId[]).map((id) => ({
+      id,
+      label: id,
+    })),
     items: [
       item("shared-hair", "hair"),
       ...clothingCategories.map((category) => item(`${category}-item`, category)),
@@ -112,7 +115,8 @@ describe("createOutfitPresets", () => {
 
   it("rejects unknown categories", () => {
     const input = createCatalog();
-    input.outfits[0].items.unknown = "tops-item";
+    // Deliberately pass invalid external data to exercise runtime validation.
+    Object.assign(input.outfits[0].items, { unknown: "tops-item" });
     expect(() => createOutfitPresets(input)).toThrow('Unknown category "unknown" in outfit "005".');
   });
 
@@ -181,10 +185,9 @@ describe("preset lookup", () => {
 });
 
 describe("incompatible categories", () => {
-  const withPairs = (pairs: string[][]): Catalog => ({
-    ...createCatalog(),
-    incompatibleCategories: pairs,
-  });
+  // Malformed pairs are deliberately accepted here to exercise runtime validation.
+  const withPairs = (pairs: string[][]): Catalog =>
+    Object.assign(createCatalog(), { incompatibleCategories: pairs });
 
   it("derives symmetric exclusions from the declared pairs", () => {
     const input = withPairs([

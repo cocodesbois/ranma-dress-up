@@ -2,11 +2,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import catalog from "../src/data/sprite-catalog";
 import { createWardrobeUi } from "../src/ui/wardrobe-ui";
-import type { Look } from "../src/types";
+import type { CategoryId, Look } from "../src/types";
 import { required } from "./fixtures";
 
 const sprite = { image: document.createElement("img"), x: 0, y: 0, width: 1, height: 1, scale: 1 };
-const itemsOf = (category: string) => catalog.items.filter((item) => item.category === category);
+const itemsOf = (category: CategoryId) =>
+  catalog.items.filter((item) => item.category === category);
 
 /**
  * Build the wardrobe on a fresh DOM. `loadedIds` lists the items whose sprite is loaded
@@ -17,7 +18,7 @@ function setup({
   loadedIds,
   outfit = {},
 }: {
-  activeCategory?: string;
+  activeCategory?: CategoryId;
   loadedIds?: string[];
   outfit?: Look;
 } = {}) {

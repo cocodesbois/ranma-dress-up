@@ -1,8 +1,13 @@
-import type { Item, Placement, SpriteManifest } from "../src/types";
+import type { CategoryId, Item, Layer, Placement, SpriteManifest } from "../src/types";
 
 export const placement: Placement = { x: 0, y: 0, scale: 1, regX: 0, regY: 0 };
 
-export function item(id: string, category: string, label = id): Item {
+/** A layer without a category, such as the base character. */
+export function layer(id: string, label = id): Layer {
+  return { id, label, source: `${id}.png`, placement };
+}
+
+export function item(id: string, category: CategoryId, label = id): Item {
   return {
     id,
     category,

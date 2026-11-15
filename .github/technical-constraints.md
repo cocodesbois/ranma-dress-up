@@ -43,9 +43,9 @@ Use this file as the source of truth for data and behavior constraints when chan
    - `pants` clears `bodysuits`, `dresses`
    - `dresses` clears `bodysuits`, `pants`
 3. A category whose images only partly load still shows the loaded items, plus an alert with a "Try again" button for the others. Items whose sprite is not loaded are never offered, because they could not be drawn. Only the scene, the base character and the current look are required at startup.
-4. Layer draw order in `src/render/canvas-renderer.ts` is fixed and must stay coherent with visual composition:
+4. `layerOrder` in `src/data/layer-order.ts` is the single list of categories and their draw order, and must stay coherent with visual composition:
    `underwear → slips → tights → bodysuits → pants → tops → shoes → dresses → hair → hats → necklace → bracelets → accessories`.
-   Dresses render over shoes so their hems can hide them where appropriate.
+   Dresses render over shoes so their hems can hide them where appropriate. The `CategoryId` type is derived from this list, so an item, an outfit or an incompatible pair cannot use a category that is missing from it, and the renderer draws every category. To add a category: add it to `layerOrder` at its draw position, then to `categories` in the catalog (label and tab position).
 
 ## Modules, documentation and type checking
 

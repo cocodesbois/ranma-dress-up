@@ -3,8 +3,12 @@
  * Paths identify source assets relative to the repository or public root.
  */
 
-/** Category IDs mapped to the selected item, or null when nothing is selected. */
-export type Look = Record<string, string | null>;
+import type { CategoryId } from "./data/layer-order";
+
+export type { CategoryId };
+
+/** Category IDs mapped to the selected item; null or omitted when nothing is selected. */
+export type Look = Partial<Record<CategoryId, string | null>>;
 
 /** Transform in Photoshop document pixels. */
 export interface Placement {
@@ -33,13 +37,13 @@ export interface Layer {
 
 /** Wearable catalog entry. Legacy entries may use the default thumbnail URL. */
 export interface Item extends Layer {
-  category: string;
+  category: CategoryId;
   thumbnail: Crop;
   thumbnailSource?: string;
 }
 
 export interface Category {
-  id: string;
+  id: CategoryId;
   label: string;
 }
 
@@ -47,14 +51,14 @@ export interface Category {
 export interface Outfit {
   id: string;
   label: string;
-  items: Record<string, string>;
+  items: Partial<Record<CategoryId, string>>;
 }
 
 export interface Catalog {
   background: { source: string };
   base: Layer;
   categories: Category[];
-  incompatibleCategories?: string[][];
+  incompatibleCategories?: [CategoryId, CategoryId][];
   items: Item[];
   outfits: Outfit[];
 }
