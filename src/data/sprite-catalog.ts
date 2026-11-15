@@ -48,6 +48,7 @@ const catalog: Catalog = {
     ["bodysuits", "tops"],
     ["bodysuits", "pants"],
     ["bodysuits", "dresses"],
+    ["bodysuits", "slips"],
     ["pants", "dresses"],
   ],
   items: [
@@ -176,6 +177,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "dress020",
+      category: "dresses",
+      label: "Dress 20",
+      source: "assets/sprites/dress020.png",
+      thumbnailSource: "images/thumbnails/dress020.png",
+      thumbnail: { x: 2273, y: 1933, width: 1904, height: 2022 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "slip006",
       category: "slips",
       label: "Slip 06",
@@ -190,6 +200,15 @@ const catalog: Catalog = {
       source: "assets/sprites/slip008.png",
       thumbnail: { x: 2902, y: 2946, width: 624, height: 373 },
       placement: sharedSpritePlacement,
+    },
+    {
+      id: "slip020",
+      category: "slips",
+      label: "Slip 20",
+      source: "assets/sprites/slip020.png",
+      thumbnailSource: "images/thumbnails/slip020.png",
+      thumbnail: { x: 2914, y: 2906, width: 613, height: 412 },
+      placement: sharedSpritePlacement
     },
     {
       id: "tights008",
@@ -442,6 +461,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "shoes020",
+      category: "shoes",
+      label: "Shoes 20",
+      source: "assets/sprites/shoes020.png",
+      thumbnailSource: "images/thumbnails/shoes020.png",
+      thumbnail: { x: 3136, y: 5080, width: 1191, height: 686 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "tights009",
       category: "tights",
       label: "Tights 09",
@@ -665,6 +693,16 @@ const catalog: Catalog = {
         shoes: "shoes019",
       },
     },
+    {
+      id: "020",
+      label: "Outfit 20",
+      items: {
+        shoes: "shoes020",
+        slips: "slip020",
+        dresses: "dress020",
+        hair: "hair001",
+      }
+    }
   ],
 };
 

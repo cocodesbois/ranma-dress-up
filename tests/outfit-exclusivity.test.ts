@@ -8,7 +8,8 @@ import type { CategoryId, Look } from "../src/types";
 import { item } from "./fixtures";
 
 const exclusions: Partial<Record<CategoryId, CategoryId[]>> = {
-  bodysuits: ["tops", "pants", "dresses"],
+  bodysuits: ["tops", "pants", "dresses", "slips"],
+  slips: ["bodysuits"],
   tops: ["bodysuits"],
   pants: ["bodysuits", "dresses"],
   dresses: ["bodysuits", "pants"],
