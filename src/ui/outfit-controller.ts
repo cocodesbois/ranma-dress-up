@@ -12,21 +12,7 @@ import type { createImageLoader } from "../render/image-loader";
 import type { createCanvasRenderer } from "../render/canvas-renderer";
 import type { createWardrobeUi } from "./wardrobe-ui";
 
-/**
- * Connect state and presentation without binding browser events.
- * @param {object} options
- * @param {import("../types").Catalog} options.catalog
- * @param {typeof import("../core/catalog-model")} options.catalogModel
- * @param {import("../types").OutfitPreset[]} options.outfitPresets
- * @param {import("../types").Look} options.defaultOutfit
- * @param {import("../core/state-store").Store} options.appState
- * @param {HTMLSelectElement} options.outfitSelect
- * @param {ReturnType<import("./status-controller").createStatusController>} options.statusController
- * @param {ReturnType<import("../render/image-loader").createImageLoader>} options.imageLoader
- * @param {ReturnType<import("../render/canvas-renderer").createCanvasRenderer>} options.canvasRenderer
- * @param {ReturnType<import("./wardrobe-ui").createWardrobeUi>} options.wardrobeUi
- * @param {(error: unknown) => void} options.onError
- */
+/** Connect state and presentation without binding browser events. */
 export function createOutfitController({
   catalog,
   catalogModel,
@@ -61,11 +47,7 @@ export function createOutfitController({
     outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
   }
 
-  /**
-   * Select a loaded item in the active category and clear exclusive selections.
-   * @param {import("../types").Item} item
-   * @returns {void}
-   */
+  /** Select a loaded item in the active category and clear exclusive selections. */
   function selectItem(item: Item) {
     appState.nextOutfitSelectionRequest();
     appState.clearOutfitItems(
@@ -78,10 +60,7 @@ export function createOutfitController({
     statusController.setStatusMessage(`${item.label} selected.`);
   }
 
-  /**
-   * Clear the active category; the wardrobe UI does not offer this for hair.
-   * @returns {void}
-   */
+  /** Clear the active category; the wardrobe UI does not offer this for hair. */
   function removeActiveCategoryItem() {
     appState.nextOutfitSelectionRequest();
     appState.setOutfitItem(appState.getActiveCategory(), null);
@@ -93,8 +72,7 @@ export function createOutfitController({
 
   /**
    * Log every rejected result of Promise.allSettled.
-   * @param {PromiseSettledResult<unknown>[]} results
-   * @returns {number} How many loads failed.
+   * @returns How many loads failed.
    */
   function logRejections(results: PromiseSettledResult<unknown>[]) {
     const failures = results.filter((result) => result.status === "rejected");
@@ -108,8 +86,7 @@ export function createOutfitController({
    * Load category images, then render only if that category is still active. Images that
    * fail to load do not empty the grid: the loaded items are shown, and the wardrobe offers
    * a retry for the others.
-   * @param {import("../types").Category} category
-   * @returns {Promise<void>} Load errors are forwarded to onError.
+   * @returns Load errors are forwarded to onError.
    */
   async function selectCategory(category: Category) {
     appState.setActiveCategory(category.id);
@@ -201,8 +178,7 @@ export function createOutfitController({
 
   /**
    * Start a neighboring preset load, wrapping at either end of the list.
-   * @param {number} step Navigation offset, normally -1 or 1.
-   * @returns {void}
+   * @param step - Navigation offset, normally -1 or 1.
    */
   function selectAdjacentOutfit(step: number) {
     if (!outfitPresets.length) {
@@ -222,10 +198,7 @@ export function createOutfitController({
     }
   }
 
-  /**
-   * Restore the default look and tops category, invalidating pending selections.
-   * @returns {void}
-   */
+  /** Restore the default look and tops category, invalidating pending selections. */
   function resetOutfit() {
     appState.nextOutfitSelectionRequest();
     appState.setOutfit(defaultOutfit);
@@ -240,8 +213,7 @@ export function createOutfitController({
   /**
    * Load the initial scene and look, build the UI and warm remaining presets. Items of the
    * initial category that fail to load are not fatal: the wardrobe offers a retry for them.
-   * @returns {Promise<void>}
-   * @throws {Error} Failures to load the scene or the initial look reject for bootstrap to report.
+   * @throws Failures to load the scene or the initial look reject for bootstrap to report.
    */
   async function startApp() {
     statusController.setStatusMessage("Loading the wardrobe...", { loading: true });
@@ -284,11 +256,7 @@ export function createOutfitController({
     imageLoader.preloadAllOutfitsInBackground();
   }
 
-  /**
-   * Start selecting a known preset; ignore an ID not found in the preset list.
-   * @param {string | number} outfitId
-   * @returns {void}
-   */
+  /** Start selecting a known preset; ignore an ID not found in the preset list. */
   function selectOutfitById(outfitId: string | number) {
     const preset = catalogModel.findPresetById(outfitPresets, outfitId);
     if (preset) {

@@ -6,19 +6,7 @@
  */
 import type { Catalog, Category, Item, Look, Sprite } from "../types";
 
-/**
- * Bind wardrobe containers and delegate user actions to the outfit controller.
- * @param {object} options
- * @param {HTMLElement} options.categoryTabs
- * @param {HTMLElement} options.itemList
- * @param {import("../types").Catalog} options.catalog
- * @param {() => string} options.getActiveCategory
- * @param {() => import("../types").Look} options.getOutfit
- * @param {(item: import("../types").Item) => import("../types").Sprite | undefined} options.getSprite
- * @param {(category: import("../types").Category) => void} options.onCategorySelect
- * @param {(item: import("../types").Item) => void} options.onItemSelect
- * @param {() => void} options.onNoneSelect
- */
+/** Bind wardrobe containers and delegate user actions to the outfit controller. */
 export function createWardrobeUi({
   categoryTabs,
   itemList,
@@ -129,10 +117,7 @@ export function createWardrobeUi({
     return button;
   }
 
-  /**
-   * Create category tabs once, then synchronize their active/pressed states.
-   * @returns {void}
-   */
+  /** Create category tabs once, then synchronize their active/pressed states. */
   function renderCategories() {
     if (categoryTabs.childElementCount === 0) {
       for (const category of catalog.categories) {
@@ -154,10 +139,7 @@ export function createWardrobeUi({
     }
   }
 
-  /**
-   * Synchronize existing cards with the active category's live selection.
-   * @returns {void}
-   */
+  /** Synchronize existing cards with the active category's live selection. */
   function updateItemSelection() {
     const activeCategory = getActiveCategory();
     const outfit = getOutfit();
@@ -208,7 +190,6 @@ export function createWardrobeUi({
    * Rebuild active-category cards; hair deliberately has no None option. Only items whose
    * sprite is loaded are offered, since choosing another one could not be drawn; a notice
    * with a retry button stands in for the missing ones.
-   * @returns {void}
    */
   function renderItems() {
     itemList.replaceChildren();
@@ -233,10 +214,7 @@ export function createWardrobeUi({
     updateItemSelection();
   }
 
-  /**
-   * Remove stale cards while the next category's assets are loading.
-   * @returns {void}
-   */
+  /** Remove stale cards while the next category's assets are loading. */
   function clearItems() {
     itemList.replaceChildren();
   }

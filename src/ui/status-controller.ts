@@ -4,14 +4,7 @@
  * @module ui/status-controller
  */
 
-/**
- * Bind status and preset controls.
- * @param {object} options
- * @param {HTMLElement} options.statusMessage
- * @param {HTMLSelectElement} options.outfitSelect
- * @param {HTMLButtonElement} options.outfitPreviousButton
- * @param {HTMLButtonElement} options.outfitNextButton
- */
+/** Bind status and preset controls. */
 export function createStatusController({
   statusMessage,
   outfitSelect,
@@ -23,12 +16,7 @@ export function createStatusController({
   outfitPreviousButton: HTMLButtonElement;
   outfitNextButton: HTMLButtonElement;
 }) {
-  /**
-   * Replace the message and its loading/error presentation.
-   * @param {string} text
-   * @param {{loading?: boolean, isError?: boolean}} [options]
-   * @returns {void}
-   */
+  /** Replace the message and its loading/error presentation. */
   function setStatusMessage(
     text: string,
     {
@@ -44,11 +32,7 @@ export function createStatusController({
     statusMessage.classList.toggle("is-error", isError);
   }
 
-  /**
-   * Toggle the select and both adjacent-preset buttons together.
-   * @param {boolean} disabled
-   * @returns {void}
-   */
+  /** Toggle the select and both adjacent-preset buttons together. */
   function setOutfitControlsDisabled(disabled: boolean) {
     outfitSelect.disabled = disabled;
     outfitPreviousButton.disabled = disabled;

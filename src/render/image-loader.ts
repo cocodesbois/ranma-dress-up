@@ -8,10 +8,6 @@ import type { OutfitPreset, Sprite, SpriteManifest } from "../types";
 /**
  * Create an independent image cache shared by the preview and thumbnail fallback.
  * Failed loads are evicted so later requests can retry.
- * @param {object} [options]
- * @param {import("../types").OutfitPreset[]} options.outfitPresets
- * @param {import("../types").SpriteManifest} options.manifest
- * @param {(error: unknown) => void} [options.onError=console.error]
  */
 export function createImageLoader({
   outfitPresets,
@@ -24,9 +20,7 @@ export function createImageLoader({
 }) {
   // In-flight loads and decoded images are kept apart, so code that needs an image can never
   // receive a promise by mistake.
-  /** @type {Map<string, Promise<HTMLImageElement>>} */
   const pending = new Map<string, Promise<HTMLImageElement>>();
-  /** @type {Map<string, HTMLImageElement>} */
   const loaded = new Map<string, HTMLImageElement>();
 
   // Catalog `source` paths point at the Photoshop exports. The app actually loads the
@@ -42,8 +36,7 @@ export function createImageLoader({
   /**
    * Reuse a decoded image or an in-flight load for the stable PNG source key.
    * A failed load is forgotten, so calling again retries it.
-   * @param {string} source
-   * @returns {Promise<HTMLImageElement>} Always a promise, even for a cached image.
+   * @returns Always a promise, even for a cached image.
    */
   function loadImage(source: string): Promise<HTMLImageElement> {
     const image = loaded.get(source);
@@ -80,8 +73,7 @@ export function createImageLoader({
 
   /**
    * Read a decoded sprite without starting a load; geometry uses document pixels.
-   * @param {string} source
-   * @returns {import("../types").Sprite | undefined} Undefined until decoded.
+   * @returns Undefined until decoded.
    */
   function getSprite(source: string): Sprite | undefined {
     const image = loaded.get(source);
@@ -96,8 +88,6 @@ export function createImageLoader({
   /**
    * List preset sources that are not decoded yet. Loads still in flight count as missing, so
    * callers wait for them (loadImage returns the load already running) instead of drawing early.
-   * @param {import("../types").OutfitPreset} preset
-   * @returns {string[]}
    */
   function getMissingSourcesForPreset(preset: OutfitPreset): string[] {
     const missing: string[] = [];
@@ -119,9 +109,7 @@ export function createImageLoader({
 
   /**
    * Warm nearby presets in both directions, wrapping around the preset list.
-   * @param {import("../types").OutfitPreset} preset
-   * @param {number} [distance=2]
-   * @returns {void} Background errors are forwarded to onError.
+   * @returns Background errors are forwarded to onError.
    */
   function preloadAdjacentOutfits(preset: OutfitPreset, distance = 2) {
     const currentIndex = outfitPresets.findIndex((entry) => String(entry.id) === String(preset.id));
@@ -139,7 +127,7 @@ export function createImageLoader({
 
   /**
    * Schedule all wearable sources in idle chunks, with a timer fallback.
-   * @returns {void} Background errors are forwarded to onError.
+   * @returns Background errors are forwarded to onError.
    */
   function preloadAllOutfitsInBackground() {
     const allSources = [

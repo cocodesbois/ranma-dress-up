@@ -6,17 +6,7 @@
  */
 import type { Store } from "../core/state-store";
 
-/**
- * Bind the mobile dialog and desktop wardrobe to their shared state.
- * @param {object} options
- * @param {import("../core/state-store").Store} options.appState
- * @param {HTMLElement} options.wardrobePanel
- * @param {HTMLButtonElement} options.wardrobeToggle
- * @param {HTMLButtonElement} options.wardrobeClose
- * @param {HTMLButtonElement} options.wardrobeSize
- * @param {HTMLElement} options.wardrobeBackdrop
- * @param {MediaQueryList} options.mobileWardrobe
- */
+/** Bind the mobile dialog and desktop wardrobe to their shared state. */
 export function createWardrobePanelController({
   appState,
   wardrobePanel,
@@ -41,10 +31,7 @@ export function createWardrobePanelController({
     wardrobeSize.setAttribute("aria-label", expanded ? "Use compact wardrobe" : "Expand wardrobe");
   }
 
-  /**
-   * Apply panel state and reset mobile-open state when switching to desktop.
-   * @returns {void}
-   */
+  /** Apply panel state and reset mobile-open state when switching to desktop. */
   function syncWardrobeMode() {
     if (!mobileWardrobe.matches) {
       appState.setWardrobeOpen(false);
@@ -71,9 +58,7 @@ export function createWardrobePanelController({
 
   /**
    * Open or close on mobile, moving focus to the close button or toggle.
-   * @param {boolean} open
-   * @param {boolean} [returnFocus=true]
-   * @returns {void} No change in desktop mode.
+   * @returns No change in desktop mode.
    */
   function setWardrobeOpen(open: boolean, returnFocus = true) {
     if (!mobileWardrobe.matches) {
@@ -99,10 +84,7 @@ export function createWardrobePanelController({
     }
   }
 
-  /**
-   * Register panel, breakpoint and keyboard handlers once during bootstrap.
-   * @returns {void}
-   */
+  /** Register panel, breakpoint and keyboard handlers once during bootstrap. */
   function bindEvents() {
     wardrobeToggle.addEventListener("click", () => setWardrobeOpen(true));
     wardrobeClose.addEventListener("click", () => setWardrobeOpen(false));

@@ -9,21 +9,7 @@ import type { createStatusController } from "./ui/status-controller";
 import type { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
 import type { createCanvasRenderer } from "./render/canvas-renderer";
 
-/**
- * Prepare page lifecycle actions without starting or binding them yet.
- * @param {object} options
- * @param {HTMLCanvasElement} options.preview
- * @param {HTMLButtonElement} options.resetButton
- * @param {HTMLButtonElement} options.downloadButton
- * @param {HTMLSelectElement} options.outfitSelect
- * @param {HTMLButtonElement} options.outfitPreviousButton
- * @param {HTMLButtonElement} options.outfitNextButton
- * @param {ReturnType<import("./ui/outfit-controller").createOutfitController>} options.outfitController
- * @param {ReturnType<import("./ui/status-controller").createStatusController>} options.statusController
- * @param {ReturnType<import("./ui/wardrobe-panel-controller").createWardrobePanelController>} options.wardrobePanelController
- * @param {ReturnType<import("./render/canvas-renderer").createCanvasRenderer>} options.canvasRenderer
- * @param {(error: unknown) => void} options.onError
- */
+/** Prepare page lifecycle actions without starting or binding them yet. */
 export function createAppBootstrap({
   preview,
   resetButton,
@@ -51,7 +37,7 @@ export function createAppBootstrap({
 }) {
   /**
    * Save the current look as a PNG of fixed size, whatever the window size or pixel ratio.
-   * @returns {Promise<void>} Export errors are forwarded to onError.
+   * @returns Export errors are forwarded to onError.
    */
   async function downloadPreview() {
     downloadButton.disabled = true;
@@ -77,10 +63,7 @@ export function createAppBootstrap({
     }
   }
 
-  /**
-   * Register page and wardrobe handlers once after dependency construction.
-   * @returns {void}
-   */
+  /** Register page and wardrobe handlers once after dependency construction. */
   function bindEvents() {
     resetButton.addEventListener("click", () => outfitController.resetOutfit());
     downloadButton.addEventListener("click", downloadPreview);
@@ -94,7 +77,7 @@ export function createAppBootstrap({
 
   /**
    * Synchronize layout, observe resizing and start loading the initial look.
-   * @returns {void} Startup rejection is forwarded to onError.
+   * @returns Startup rejection is forwarded to onError.
    */
   function start() {
     wardrobePanelController.syncWardrobeMode();

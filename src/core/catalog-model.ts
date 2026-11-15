@@ -19,9 +19,6 @@ const REQUIRED_CLOTHING_CATEGORIES = [
 /**
  * List the categories that cannot be worn together with the given one, from the catalog's
  * `incompatibleCategories` pairs. Each pair applies in both directions.
- * @param {Catalog} catalog
- * @param {string} categoryId
- * @returns {string[]}
  */
 export function getExcludedCategories(catalog: Catalog, categoryId: string): string[] {
   const excluded: string[] = [];
@@ -38,9 +35,7 @@ export function getExcludedCategories(catalog: Catalog, categoryId: string): str
 /**
  * Resolve item references, fill empty categories and require hair plus clothing.
  * Outfits must also respect the catalog's incompatible category pairs.
- * @param {Catalog} catalog
- * @returns {OutfitPreset[]}
- * @throws {Error} If an outfit has invalid references or is incomplete, or the catalog
+ * @throws If an outfit has invalid references or is incomplete, or the catalog
  *   declares an incompatible pair with an unknown category.
  */
 export function createOutfitPresets(catalog: Catalog): OutfitPreset[] {
@@ -101,9 +96,7 @@ export function createOutfitPresets(catalog: Catalog): OutfitPreset[] {
 
 /**
  * Return the preferred look, or the first preset's look if it is unavailable.
- * @param {OutfitPreset[]} outfitPresets
- * @param {string} [preferredId="005"]
- * @returns {Look | undefined} No look when the preset list is empty.
+ * @returns No look when the preset list is empty.
  */
 export function getDefaultOutfitLook(
   outfitPresets: OutfitPreset[],
@@ -115,12 +108,7 @@ export function getDefaultOutfitLook(
   );
 }
 
-/**
- * Find a preset after normalizing its ID to a string.
- * @param {OutfitPreset[]} outfitPresets
- * @param {string | number} id
- * @returns {OutfitPreset | undefined}
- */
+/** Find a preset after normalizing its ID to a string. */
 export function findPresetById(
   outfitPresets: OutfitPreset[],
   id: string | number,
@@ -129,13 +117,7 @@ export function findPresetById(
   return outfitPresets.find((preset) => String(preset.id) === normalizedId);
 }
 
-/**
- * Match every catalog category, including empty selections, against a live look.
- * @param {Catalog} catalog
- * @param {OutfitPreset[]} outfitPresets
- * @param {Look} outfit
- * @returns {OutfitPreset | undefined}
- */
+/** Match every catalog category, including empty selections, against a live look. */
 export function getMatchingOutfit(
   catalog: Catalog,
   outfitPresets: OutfitPreset[],

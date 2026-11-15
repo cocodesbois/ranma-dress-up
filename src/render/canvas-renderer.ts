@@ -9,14 +9,7 @@ import type { Catalog, Layer, Look, Sprite, SpriteManifest } from "../types";
 
 /**
  * Configure the canvas geometry and fixed layer order without loading images.
- * @param {object} options
- * @param {HTMLCanvasElement} options.preview
- * @param {import("../types").Catalog} options.catalog
- * @param {import("../types").SpriteManifest} options.manifest
- * @param {(item: import("../types").Layer | {source: string}) => import("../types").Sprite | undefined} options.getSprite
- * @param {() => import("../types").Look} options.getOutfit
- * @param {() => boolean} options.isPreviewReady
- * @throws {Error} If a 2D context is unavailable.
+ * @throws If a 2D context is unavailable.
  */
 export function createCanvasRenderer({
   preview,
@@ -98,9 +91,7 @@ export function createCanvasRenderer({
   /**
    * Paint background, floor shadow, base and selected wearables in fixed order, in stage
    * units: the caller sets the context transform.
-   * @param {CanvasRenderingContext2D} context
-   * @returns {void}
-   * @throws {Error} If a selected item is unknown or its image is not loaded.
+   * @throws If a selected item is unknown or its image is not loaded.
    */
   function paintOutfit(context: CanvasRenderingContext2D) {
     // High quality filtering avoids aliasing when the sprites are scaled down to the screen.
@@ -141,8 +132,7 @@ export function createCanvasRenderer({
 
   /**
    * Draw the current look on the visible preview.
-   * @returns {void}
-   * @throws {Error} If a selected item is unknown or its image is not loaded.
+   * @throws If a selected item is unknown or its image is not loaded.
    */
   function drawOutfit() {
     paintOutfit(previewContext);
@@ -151,9 +141,9 @@ export function createCanvasRenderer({
   /**
    * Render the current look on an offscreen canvas of fixed size, independent of the window
    * and pixel ratio. The width never exceeds the decoded sprites' own resolution.
-   * @param {number} [width] Output width in pixels; defaults to 2400.
-   * @returns {Promise<Blob | null>} PNG data, or null if the browser could not encode it.
-   * @throws {Error} If a 2D context is unavailable or an image is not loaded.
+   * @param width - Output width in pixels; defaults to 2400.
+   * @returns PNG data, or null if the browser could not encode it.
+   * @throws If a 2D context is unavailable or an image is not loaded.
    */
   function exportPreview(width = exportWidth) {
     const canvas = document.createElement("canvas");
@@ -170,10 +160,7 @@ export function createCanvasRenderer({
     return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
   }
 
-  /**
-   * Fit the backing canvas to its CSS bounds and redraw only after startup.
-   * @returns {void}
-   */
+  /** Fit the backing canvas to its CSS bounds and redraw only after startup. */
   function resizePreview() {
     const bounds = preview.getBoundingClientRect();
     if (!bounds.width || !bounds.height) {
@@ -194,10 +181,7 @@ export function createCanvasRenderer({
     }
   }
 
-  /**
-   * Re-arm a one-shot resolution listener after each device-density change.
-   * @returns {void}
-   */
+  /** Re-arm a one-shot resolution listener after each device-density change. */
   function watchDevicePixelRatio() {
     const mediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
     mediaQuery.addEventListener(
