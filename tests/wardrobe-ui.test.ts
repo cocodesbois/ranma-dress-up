@@ -2,11 +2,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import catalog from "../src/data/sprite-catalog";
 import { createWardrobeUi } from "../src/ui/wardrobe-ui";
-import type { Look } from "../src/types";
+import type { CategoryId, Look } from "../src/types";
 import { required } from "./fixtures";
 
 const sprite = { image: document.createElement("img"), x: 0, y: 0, width: 1, height: 1, scale: 1 };
-const itemsOf = (category: string) => catalog.items.filter((item) => item.category === category);
+const itemsOf = (category: CategoryId) =>
+  catalog.items.filter((item) => item.category === category);
 
 /**
  * Build the wardrobe on a fresh DOM. `loadedIds` lists the items whose sprite is loaded
@@ -15,9 +16,9 @@ const itemsOf = (category: string) => catalog.items.filter((item) => item.catego
 function setup({
   activeCategory = "tops",
   loadedIds,
-  outfit = {},
+  outfit,
 }: {
-  activeCategory?: string;
+  activeCategory?: CategoryId;
   loadedIds?: string[];
   outfit?: Look;
 } = {}) {
@@ -25,6 +26,7 @@ function setup({
   const itemList = required(document.querySelector<HTMLElement>("#item-list"));
   const items = itemsOf(activeCategory);
   const loaded = new Set(loadedIds ?? items.map(({ id }) => id));
+  const liveOutfit = outfit ?? { [activeCategory]: null };
   const onCategorySelect = vi.fn();
   const onItemSelect = vi.fn();
   const ui = createWardrobeUi({
@@ -32,7 +34,7 @@ function setup({
     itemList,
     catalog,
     getActiveCategory: () => activeCategory,
-    getOutfit: () => ({ [activeCategory]: null, ...outfit }),
+    getOutfit: () => liveOutfit,
     getSprite: (item) => (loaded.has(item.id) ? sprite : undefined),
     onCategorySelect,
     onItemSelect,
@@ -114,6 +116,8 @@ describe("accessible names", () => {
 
   it("labels the None card according to whether an item is worn", () => {
     expect(required(setup().noneCard()).getAttribute("aria-label")).toBe("No item selected");
+    const omittedSelection = setup({ outfit: {} });
+    expect(required(omittedSelection.noneCard()).getAttribute("aria-pressed")).toBe("true");
     const worn = setup({ outfit: { tops: itemsOf("tops")[0].id } });
     expect(required(worn.noneCard()).getAttribute("aria-label")).toBe("Remove selected item");
   });

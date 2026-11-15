@@ -4,17 +4,17 @@ import catalog from "../src/data/sprite-catalog";
 import * as catalogModel from "../src/core/catalog-model";
 import { createStore } from "../src/core/state-store";
 import { createOutfitController } from "../src/ui/outfit-controller";
-import type { Look } from "../src/types";
+import type { CategoryId, Look } from "../src/types";
 import { item } from "./fixtures";
 
-const exclusions: Record<string, string[]> = {
+const exclusions: Partial<Record<CategoryId, CategoryId[]>> = {
   bodysuits: ["tops", "pants", "dresses"],
   tops: ["bodysuits"],
   pants: ["bodysuits", "dresses"],
   dresses: ["bodysuits", "pants"],
 };
 
-function setup(activeCategory: string) {
+function setup(activeCategory: CategoryId) {
   const defaultOutfit: Look = Object.fromEntries(
     catalog.categories.map(({ id }) => [id, `existing-${id}`]),
   );

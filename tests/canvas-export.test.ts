@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createCanvasRenderer } from "../src/render/canvas-renderer";
-import { item, manifest, placement as basePlacement } from "./fixtures";
+import { item, layer, manifest, placement as basePlacement } from "./fixtures";
 
 const placement = { ...basePlacement, scale: 0.18 };
 
@@ -78,7 +78,7 @@ function setup({
     preview,
     catalog: {
       background: { source: "background.png" },
-      base: { ...item("body", "base"), source: "body.png", placement },
+      base: { ...layer("body"), source: "body.png", placement },
       categories: [],
       outfits: [],
       items,

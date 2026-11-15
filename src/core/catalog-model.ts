@@ -4,9 +4,9 @@
  * @module core/catalog-model
  */
 
-import type { Catalog, Item, Look, OutfitPreset } from "../types";
+import type { Catalog, CategoryId, Item, Look, OutfitPreset } from "../types";
 
-const REQUIRED_CLOTHING_CATEGORIES = [
+const REQUIRED_CLOTHING_CATEGORIES: readonly CategoryId[] = [
   "bodysuits",
   "underwear",
   "slips",
@@ -20,8 +20,8 @@ const REQUIRED_CLOTHING_CATEGORIES = [
  * List the categories that cannot be worn together with the given one, from the catalog's
  * `incompatibleCategories` pairs. Each pair applies in both directions.
  */
-export function getExcludedCategories(catalog: Catalog, categoryId: string): string[] {
-  const excluded: string[] = [];
+export function getExcludedCategories(catalog: Catalog, categoryId: CategoryId): CategoryId[] {
+  const excluded: CategoryId[] = [];
   for (const [first, second] of catalog.incompatibleCategories ?? []) {
     if (first === categoryId) {
       excluded.push(second);
@@ -39,7 +39,7 @@ export function getExcludedCategories(catalog: Catalog, categoryId: string): str
  *   declares an incompatible pair with an unknown category.
  */
 export function createOutfitPresets(catalog: Catalog): OutfitPreset[] {
-  const outfitCategories = new Set(catalog.categories.map((category) => category.id));
+  const outfitCategories = new Set<string>(catalog.categories.map((category) => category.id));
 
   for (const pair of catalog.incompatibleCategories ?? []) {
     if (pair.length !== 2 || !pair.every((category) => outfitCategories.has(category))) {
@@ -124,6 +124,8 @@ export function getMatchingOutfit(
   outfit: Look,
 ): OutfitPreset | undefined {
   return outfitPresets.find((preset) =>
-    catalog.categories.every((category) => outfit[category.id] === preset.look[category.id]),
+    catalog.categories.every(
+      (category) => (outfit[category.id] ?? null) === (preset.look[category.id] ?? null),
+    ),
   );
 }

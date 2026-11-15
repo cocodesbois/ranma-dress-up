@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
 import { createCanvasRenderer } from "../src/render/canvas-renderer";
-import type { Look } from "../src/types";
-import { item, manifest } from "./fixtures";
+import type { CategoryId, Look } from "../src/types";
+import { item, layer, manifest } from "./fixtures";
 
-const expectedOrder = [
+const expectedOrder: CategoryId[] = [
   "underwear",
   "slips",
   "tights",
@@ -42,7 +42,7 @@ function setup() {
     preview,
     catalog: {
       background: { source: "background.png" },
-      base: { ...item("body", "base"), source: "body.png", placement },
+      base: { ...layer("body"), source: "body.png", placement },
       items,
       categories: [],
       outfits: [],

@@ -5,6 +5,7 @@
  * plus browser canvas/media APIs; exports createCanvasRenderer.
  * @module render/canvas-renderer
  */
+import { layerOrder } from "../data/layer-order";
 import type { Catalog, Layer, Look, Sprite, SpriteManifest } from "../types";
 
 /**
@@ -29,22 +30,6 @@ export function createCanvasRenderer({
   // Width in pixels of the image saved by the download button, whatever the screen.
   const exportWidth = 2400;
   const context = preview.getContext("2d");
-  const layerOrder = [
-    "underwear",
-    "slips",
-    "tights",
-    "bodysuits",
-    "pants",
-    "tops",
-    "shoes",
-    "dresses",
-    "hair",
-    "hats",
-    "necklace",
-    "bracelets",
-    "accessories",
-  ];
-
   if (!context) {
     throw new Error("This browser does not support the canvas preview.");
   }

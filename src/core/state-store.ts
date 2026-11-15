@@ -4,7 +4,7 @@
  * @module core/state-store
  */
 
-import type { Look } from "../types";
+import type { CategoryId, Look } from "../types";
 
 /**
  * Create an isolated store, copying the initial look rather than mutating a preset.
@@ -15,7 +15,7 @@ export function createStore({
   initialActiveCategory = "tops",
 }: {
   defaultOutfit: Look;
-  initialActiveCategory?: string;
+  initialActiveCategory?: CategoryId;
 }) {
   let outfit = { ...defaultOutfit };
   let activeCategory = initialActiveCategory;
@@ -33,11 +33,11 @@ export function createStore({
       outfit = { ...nextOutfit };
     },
     /** Set or clear one category without applying controller exclusivity rules. */
-    setOutfitItem(category: string, itemId: string | null) {
+    setOutfitItem(category: CategoryId, itemId: string | null) {
       outfit[category] = itemId;
     },
     /** @param categories - Categories whose selections become null. */
-    clearOutfitItems(categories: string[]) {
+    clearOutfitItems(categories: CategoryId[]) {
       for (const category of categories) {
         outfit[category] = null;
       }
@@ -47,7 +47,7 @@ export function createStore({
       return activeCategory;
     },
     /** @param category - Category ID to display. */
-    setActiveCategory(category: string) {
+    setActiveCategory(category: CategoryId) {
       activeCategory = category;
     },
     /** @returns Whether the mobile wardrobe is open. */

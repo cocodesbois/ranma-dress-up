@@ -11,6 +11,7 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 | `src/main.ts`                         | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                       |
 | `src/types.ts`                        | Contrats TypeScript partagés, importés uniquement comme types. Aucune valeur métier à l'exécution.                                                                      |
 | `src/data/sprite-catalog.ts`          | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                |
+| `src/data/layer-order.ts`             | Liste unique des catégories, dans l'ordre de dessin ; le type `CategoryId` en est dérivé.                                                                               |
 | `src/data/sprite-manifest.ts`         | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                                                           |
 | `src/core/catalog-model.ts`           | Valide et résout les presets, y compris les paires de catégories incompatibles ; fournit les recherches par ID, look, preset par défaut et exclusions. Sans DOM.        |
 | `src/core/state-store.ts`             | État synchrone isolé : `Look`, catégorie active, panneau mobile, disponibilité du preview et jetons de sélection. Sans DOM ni rendu.                                    |
@@ -88,7 +89,9 @@ de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
 
 Les types `Catalog`, `Item`, `Outfit` et `Look` sont définis dans `src/types.ts`,
 avec les contrats auxiliaires `Placement`, `Crop`, `Layer`, `Category`,
-`OutfitPreset`, `SpriteManifest` et `Sprite`.
+`OutfitPreset`, `SpriteManifest` et `Sprite`. Ils s'appuient sur `CategoryId`,
+dérivé de `src/data/layer-order.ts` : le compilateur refuse une catégorie inconnue
+dans un item, un outfit ou une paire incompatible.
 
 - `Outfit` est une définition de preset : ses clés omises sont des catégories vides.
 - `Look` est la sélection courante : les catégories vides sont représentées par
