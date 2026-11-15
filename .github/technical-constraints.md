@@ -54,7 +54,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 - Shared types live in `src/types.ts`: `Catalog`, `Item`, `Outfit`, `Look` and supporting geometry/preset/manifest types. Use type-only imports where appropriate.
 - `tsconfig.json` checks the application in strict, no-emit mode; `tsconfig.node.json` checks the Node catalog validator and `tsconfig.test.json` checks the tests.
 - Run `npm run typecheck` when changing data or contracts. Structural types do not replace runtime validation of IDs, required hair/clothing or catalog tests.
-- Run `npm run validate:catalog` to check catalog IDs, outfit rules, source and optimized sprite files, and thumbnails. The Pages workflow runs this check on every pull request and deployment.
+- Run `npm run validate:catalog` to check catalog IDs, that the catalog categories match `src/data/layer-order.ts`, outfit rules, source and optimized sprite files, thumbnails and their crops (whole pixels, inside the document, overlapping the sprite), and files that nothing refers to (unused source images, thumbnails or optimized images fail; an unused `background*` image only warns). The rules live in `scripts/catalog-validation.ts` and are tested in `tests/catalog-validation.test.ts`. The Pages workflow runs this check on every pull request and deployment.
 - Preserve generated documentation by editing the template in `scripts/sprite_optimize.py`, not just the manifest output. Do not put braces before the manifest object: Python readers locate the first JSON brace.
 
 ## Change checklist
