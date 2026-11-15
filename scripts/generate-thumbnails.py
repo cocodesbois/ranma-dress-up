@@ -24,6 +24,7 @@ ITEM_BLOCK_PATTERN = re.compile(
 )
 ID_PATTERN = re.compile(r'id:\s*"([^"]+)"')
 SOURCE_PATTERN = re.compile(r'source:\s*"(assets/sprites/[^"]+)"')
+THUMBNAIL_SOURCE_PATTERN = re.compile(r'thumbnailSource:\s*"([^"]+)"')
 THUMBNAIL_PATTERN = re.compile(
     r"thumbnail:\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+),\s*width:\s*(\d+),\s*height:\s*(\d+)\s*\}"
 )
@@ -40,6 +41,7 @@ def parse_catalog_items(catalog_text):
         block = block_match.group(0)
         id_match = ID_PATTERN.search(block)
         source_match = SOURCE_PATTERN.search(block)
+        thumbnail_source_match = THUMBNAIL_SOURCE_PATTERN.search(block)
         thumbnail_match = THUMBNAIL_PATTERN.search(block)
         if not id_match or not source_match or not thumbnail_match:
             continue
@@ -47,6 +49,9 @@ def parse_catalog_items(catalog_text):
             {
                 "id": id_match.group(1),
                 "source": source_match.group(1),
+                "thumbnail_source": (
+                    thumbnail_source_match.group(1) if thumbnail_source_match else None
+                ),
                 "thumbnail": (
                     int(thumbnail_match.group(1)),
                     int(thumbnail_match.group(2)),
@@ -78,7 +83,14 @@ def main():
         if not source_path.exists():
             print(f"Missing source image: {item['source']}", file=sys.stderr)
             sys.exit(1)
-        thumbnail_path = write_thumbnail(source_path, item["id"], item["thumbnail"], THUMBNAILS_DIR)
+        thumbnail_name = (
+            Path(item["thumbnail_source"]).stem
+            if item["thumbnail_source"]
+            else item["id"]
+        )
+        thumbnail_path = write_thumbnail(
+            source_path, thumbnail_name, item["thumbnail"], THUMBNAILS_DIR
+        )
         generated += 1
         print(f"{item['id']}: {thumbnail_path.relative_to(ROOT_DIR)}")
 
