@@ -95,6 +95,23 @@ describe("wardrobe items", () => {
     expect(setup({ activeCategory: "hair" }).noneCard()).toBeNull();
   });
 
+  it("offers the migrated jumpsuits with their new labels", () => {
+    const { cards, noneCard } = setup({ activeCategory: "jumpsuits" });
+    expect(cards().map((card) => card.dataset.itemId)).toEqual(["dress006", "dress016"]);
+    expect(cards().map((card) => card.getAttribute("aria-label"))).toEqual([
+      "Jumpsuit 06",
+      "Jumpsuit 16",
+    ]);
+    expect(noneCard()).not.toBeNull();
+  });
+
+  it("keeps the empty apron category optional until sprites are added", () => {
+    const { cards, noneCard, notice } = setup({ activeCategory: "aprons" });
+    expect(cards()).toHaveLength(0);
+    expect(noneCard()).not.toBeNull();
+    expect(notice()).toBeNull();
+  });
+
   it("delegates item clicks to the controller", () => {
     const { cards, items, onItemSelect } = setup();
     cards()[1].click();

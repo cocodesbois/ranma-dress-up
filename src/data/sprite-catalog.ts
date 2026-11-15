@@ -29,11 +29,13 @@ const catalog: Catalog = {
   },
   categories: [
     { id: "bodysuits", label: "Bodysuits" },
+    { id: "jumpsuits", label: "Jumpsuits" },
     { id: "underwear", label: "Underwear" },
     { id: "slips", label: "Slips" },
     { id: "tights", label: "Tights" },
     { id: "tops", label: "Tops" },
     { id: "dresses", label: "Dresses" },
+    { id: "aprons", label: "Aprons & pinafores" },
     { id: "pants", label: "Pants" },
     { id: "hair", label: "Hair" },
     { id: "hats", label: "Hats" },
@@ -50,6 +52,9 @@ const catalog: Catalog = {
     ["bodysuits", "dresses"],
     ["bodysuits", "slips"],
     ["pants", "dresses"],
+    ["jumpsuits", "pants"],
+    ["jumpsuits", "dresses"],
+    ["jumpsuits", "bodysuits"],
   ],
   items: [
     {
@@ -154,8 +159,8 @@ const catalog: Catalog = {
     },
     {
       id: "dress006",
-      category: "dresses",
-      label: "Dress 06",
+      category: "jumpsuits",
+      label: "Jumpsuit 06",
       source: "assets/sprites/dress006.png",
       thumbnail: { x: 2793, y: 1951, width: 1320, height: 2979 },
       placement: sharedSpritePlacement,
@@ -377,8 +382,8 @@ const catalog: Catalog = {
     },
     {
       id: "dress016",
-      category: "dresses",
-      label: "Dress 16",
+      category: "jumpsuits",
+      label: "Jumpsuit 16",
       source: "assets/sprites/dress016.png",
       thumbnailSource: "images/thumbnails/dress016.png",
       thumbnail: { x: 2780, y: 1854, width: 1399, height: 3309 },
@@ -557,7 +562,7 @@ const catalog: Catalog = {
       label: "Outfit 06",
       items: {
         tops: "top006",
-        dresses: "dress006",
+        jumpsuits: "dress006",
         slips: "slip006",
         hair: "hair001",
         shoes: "shoes006",
@@ -657,7 +662,7 @@ const catalog: Catalog = {
       id: "016",
       label: "Outfit 16",
       items: {
-        dresses: "dress016",
+        jumpsuits: "dress016",
         hair: "hair001",
         shoes: "shoes016",
         bracelets: "bracelets016",

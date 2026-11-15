@@ -10,7 +10,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 3. For every outfit mapping (`{ category: itemId }`), the referenced item must exist and its `item.category` must equal the mapping key category.
 4. Every outfit must include:
    - `hair` (mandatory), and
-   - at least one clothing category among: `bodysuits`, `underwear`, `slips`, `tights`, `tops`, `dresses`, `pants`.
+   - at least one clothing category among: `bodysuits`, `jumpsuits`, `underwear`, `slips`, `tights`, `tops`, `dresses`, `pants`. `aprons` is an optional overlay and does not satisfy this requirement alone.
 5. Outfit IDs and image filenames are independent. Do not infer item filenames from outfit IDs.
 6. Keep shared item IDs reused across outfits instead of duplicating catalog items.
 7. `incompatibleCategories` is a list of `[categoryA, categoryB]` pairs of category IDs that cannot be worn together. Both IDs must exist, a pair works in both directions, and no outfit may contain items from both categories of a pair (`createOutfitPresets` throws otherwise).
@@ -38,14 +38,23 @@ Use this file as the source of truth for data and behavior constraints when chan
    - Presets without hair throw during startup (`createOutfitPresets` validation).
    - The Hair category does not render a `None` button, so users cannot remove hair interactively.
 2. Mutual exclusivity rules when selecting an item manually come from `catalog.incompatibleCategories` through `getExcludedCategories` (not from controller code). The current pairs give:
-   - `bodysuits` clears `tops`, `pants`, `dresses`
+   - `bodysuits` clears `tops`, `pants`, `dresses`, `slips`, `jumpsuits`
+   - `slips` clears `bodysuits`
    - `tops` clears `bodysuits`
-   - `pants` clears `bodysuits`, `dresses`
-   - `dresses` clears `bodysuits`, `pants`
+   - `pants` clears `bodysuits`, `dresses`, `jumpsuits`
+   - `dresses` clears `bodysuits`, `pants`, `jumpsuits`
+   - `jumpsuits` clears `pants`, `dresses`, `bodysuits`, but preserves tops, underwear, slips and tights
+   - `aprons` has no exclusions and can be selected or removed independently
 3. A category whose images only partly load still shows the loaded items, plus an alert with a "Try again" button for the others. Items whose sprite is not loaded are never offered, because they could not be drawn. Only the scene, the base character and the current look are required at startup.
 4. `layerOrder` in `src/data/layer-order.ts` is the single list of categories and their draw order, and must stay coherent with visual composition:
-   `underwear → slips → tights → bodysuits → pants → tops → shoes → dresses → hair → hats → necklace → bracelets → accessories`.
-   Dresses render over shoes so their hems can hide them where appropriate. The `CategoryId` type is derived from this list, so an item, an outfit or an incompatible pair cannot use a category that is missing from it, and the renderer draws every category. To add a category: add it to `layerOrder` at its draw position, then to `categories` in the catalog (label and tab position).
+   `underwear → slips → tights → bodysuits → pants → tops → shoes → jumpsuits → dresses → aprons → hair → hats → necklace → bracelets → accessories`.
+   Dresses and jumpsuits render over shoes so their hems can hide them where appropriate. Aprons and pinafores render over clothing, below hair. The `CategoryId` type is derived from this list, so an item, an outfit or an incompatible pair cannot use a category that is missing from it, and the renderer draws every category. To add a category: add it to `layerOrder` at its draw position, then to `categories` in the catalog (label and tab position).
+
+## Garment classification and imports
+
+- `bodysuits` contains leotard-style garments; `jumpsuits` contains one-piece garments with trouser legs; `dresses` contains actual dresses; `aprons` contains optional aprons and pinafores.
+- The legacy items `dress006` and `dress016` belong to `jumpsuits`. Keep their IDs, source PNG filenames and thumbnail paths stable; presets 006 and 016 use the `jumpsuits` key.
+- `prepare-sprites.py` recognizes `jumpsuit`/`jumpsuits` and `apron`/`aprons`, normalized to `jumpsuitNNN.png` and `apronNNN.png`. Export a jumpsuit and its apron separately on the shared canvas when they must be independently selectable.
 
 ## Modules, documentation and type checking
 

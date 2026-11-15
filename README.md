@@ -86,6 +86,7 @@ python scripts/prepare-sprites.py <folder> --dry-run
 
     - The script strips prefixes before a recognized category token (`xxx_xxx-top001.png` becomes `top001.png`).
     - It normalizes known aliases (`accessoires` -> `accessories`, `pant` -> `pants`).
+    - Use `jumpsuitNNN.png` for one-piece garments with trouser legs and `apronNNN.png` for optional aprons or pinafores. Plural tokens (`jumpsuits`, `aprons`) are also accepted. Export these layers separately on the shared canvas.
     - It stops on unrecognized names, duplicate targets, or collisions with existing sprites. Resolve those first; do not overwrite files.
 
 3. If the dry run looks correct, run the same command without `--dry-run`:
@@ -140,7 +141,20 @@ Use lowercase, descriptive, stable names based on the item's category and identi
 
 Keep existing item entries, IDs, and image filenames unchanged unless there is a specific migration need. When an existing duplicate pair is explicitly identified for cleanup, keep the lower-numbered image as the canonical asset and remove the redundant higher-numbered file. Use one canonical catalog item and reference its ID from every outfit that uses it. For example, the catalog uses `pants001` in Outfits 01 and 03, and `pants004` in Outfits 04 and 05.
 
-Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-19 are available as presets, including Outfit 06 with its top, overalls, slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, Outfit 13 with its dress and shoes, Outfit 14 with its top and pants, Outfit 15 with its top, pants, and shoes, Outfit 16 with its dress, shoes, and bracelets, Outfit 17 with its top, pants, hat, and shoes, Outfit 18 with its top, pants, and shoes, and Outfit 19 with its bodysuit and shoes. Tops can be layered with dresses; bodysuits remain mutually exclusive with tops, pants, and dresses, and pants remain mutually exclusive with dresses. Empty categories such as hats and underwear remain available for future assets. Individual category selections remain available.
+Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-19 are available as presets, including Outfit 06 with its top, jumpsuit (overalls), slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, Outfit 13 with its dress and shoes, Outfit 14 with its top and pants, Outfit 15 with its top, pants, and shoes, Outfit 16 with its jumpsuit, shoes, and bracelets, Outfit 17 with its top, pants, hat, and shoes, Outfit 18 with its top, pants, and shoes, and Outfit 19 with its bodysuit and shoes. Individual category selections remain available.
+
+**Jumpsuits** contains one-piece garments with trouser legs, including the legacy
+items `dress006` and `dress016` (their IDs and asset names remain unchanged).
+**Bodysuits** contains leotard-style garments; **Dresses** contains actual dresses.
+Tops can be layered with dresses or jumpsuits. Jumpsuits exclude pants, dresses,
+and bodysuits, but preserve underwear, slips, and tights. Bodysuits exclude tops,
+pants, dresses, slips, and jumpsuits; pants also exclude dresses.
+
+**Aprons & pinafores** (`aprons`) is an optional overlay category, initially empty
+and ready for future exports. It draws above clothing and below hair, has a None
+option, and introduces no exclusions. An apron can accompany a jumpsuit, dress,
+or top/pants combination, but does not satisfy a preset's clothing requirement
+alone. Both jumpsuits and dresses draw above shoes so their hems can cover them.
 
 The GitHub Pages workflow checks lint, formatting, TypeScript types, catalog IDs/outfit rules, asset files and unused files, tests, and optimized sprites, then builds with Vite and publishes `dist/`. Pull requests run the same checks and build without deploying. Full-size exports in `assets/sprites/` are not published. Run `npm run validate:catalog` locally to check catalog data, source images, optimized images, and thumbnails.
 

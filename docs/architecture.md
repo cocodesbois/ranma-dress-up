@@ -106,7 +106,11 @@ dans un item, un outfit ou une paire incompatible.
   combine les deux catégories et le contrôleur applique les exclusions à la
   sélection manuelle. Elles et l'ordre des calques sont détaillés dans
   [les contraintes techniques](../.github/technical-constraints.md).
-  Les robes restent au-dessus des chaussures.
+  Les robes et les combinaisons (`jumpsuits`) restent au-dessus des chaussures.
+  Les tabliers et robes-tablier (`aprons`) sont des calques facultatifs au-dessus
+  des vêtements et sous les cheveux ; ils ne suffisent pas seuls à valider un
+  preset avec les cheveux. Les combinaisons excluent pantalons, robes et
+  bodysuits, mais restent compatibles avec les tops et les sous-vêtements.
 
 ## Assets et géométrie
 
