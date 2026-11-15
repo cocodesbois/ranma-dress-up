@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import catalog from "../src/data/sprite-catalog";
 import * as catalogModel from "../src/core/catalog-model";
 import { createStore } from "../src/core/state-store";
-import { createOutfitController } from "../src/ui/outfit-controller";
+import catalog from "../src/data/sprite-catalog";
 import type { CategoryId, Look } from "../src/types";
+import { createOutfitController } from "../src/ui/outfit-controller";
 import { item } from "./fixtures";
 
 const exclusions: Partial<Record<CategoryId, CategoryId[]>> = {
