@@ -88,15 +88,15 @@ describe("published catalog constraints", () => {
 
   it.each(["006", "016"])("reclassifies outfit %s without changing its wearables", (id) => {
     const preset = required(findPresetById(createOutfitPresets(catalog), id));
-    expect(preset.look.jumpsuits).toBe(`dress${id}`);
+    expect(preset.look.jumpsuits).toBe(`jumpsuit${id}`);
     expect(preset.look.dresses).toBeNull();
     const jumpsuit = required(preset.items.find((item) => item.category === "jumpsuits"));
-    expect(jumpsuit.source).toBe(`assets/sprites/dress${id}.png`);
+    expect(jumpsuit.source).toBe(`assets/sprites/jumpsuit${id}.png`);
     expect(jumpsuit.label).toBe(`Jumpsuit ${id.slice(1)}`);
     expect(preset.items.map((item) => item.id)).toEqual(
       id === "006"
-        ? ["top006", "dress006", "slip006", "hair001", "shoes006"]
-        : ["dress016", "hair001", "shoes016", "bracelets016"],
+        ? ["top006", "jumpsuit006", "slip006", "hair001", "shoes006"]
+        : ["jumpsuit016", "hair001", "shoes016", "bracelets016"],
     );
   });
 });

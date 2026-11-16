@@ -206,9 +206,9 @@ describe("catalog validation", () => {
 
     it("rejects a thumbnail that no item uses", () => {
       const fixture = createFixture();
-      fixture.paths.add("public/images/thumbnails/pant002.png");
+      fixture.paths.add("public/images/thumbnails/pants002.png");
       expect(validate(fixture).errors).toEqual([
-        "Thumbnail is not used by any item: public/images/thumbnails/pant002.png",
+        "Thumbnail is not used by any item: public/images/thumbnails/pants002.png",
       ]);
     });
 
