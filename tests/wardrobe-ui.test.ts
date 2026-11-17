@@ -98,8 +98,8 @@ describe("wardrobe items", () => {
   it("offers the migrated jumpsuits with their new labels", () => {
     const { cards, noneCard } = setup({ activeCategory: "jumpsuits" });
     expect(cards().map((card) => card.dataset.itemId)).toEqual([
-      "dress006",
-      "dress016",
+      "jumpsuit006",
+      "jumpsuit016",
       "jumpsuit021",
     ]);
     expect(cards().map((card) => card.getAttribute("aria-label"))).toEqual([

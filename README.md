@@ -143,8 +143,8 @@ Keep existing item entries, IDs, and image filenames unchanged unless there is a
 
 Pants, slips, and tights have their own categories; the Slips and Tights categories contain individual options. Outfits 01-19 are available as presets, including Outfit 06 with its top, jumpsuit (overalls), slip, and shoes, Outfit 07 with its dress and shoes, Outfit 08 with its top, slip, tights, and bracelets, Outfit 09 with its bodysuit, tights, shoes, hat, and accessories, Outfit 10 with its top, pants, and shoes, Outfit 11 with its bodysuit, shoes, and accessories, Outfit 12 with its bodysuit, shoes, and accessories, Outfit 13 with its dress and shoes, Outfit 14 with its top and pants, Outfit 15 with its top, pants, and shoes, Outfit 16 with its jumpsuit, shoes, and bracelets, Outfit 17 with its top, pants, hat, and shoes, Outfit 18 with its top, pants, and shoes, and Outfit 19 with its bodysuit and shoes. Individual category selections remain available.
 
-**Jumpsuits** contains one-piece garments with trouser legs, including the legacy
-items `dress006` and `dress016` (their IDs and asset names remain unchanged).
+**Jumpsuits** contains one-piece garments with trouser legs, including
+`jumpsuit006` and `jumpsuit016`.
 **Bodysuits** contains leotard-style garments; **Dresses** contains actual dresses.
 Tops can be layered with dresses or jumpsuits. Jumpsuits exclude pants, dresses,
 and bodysuits, but preserve underwear, slips, and tights. Bodysuits exclude tops,

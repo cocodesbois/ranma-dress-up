@@ -53,7 +53,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 ## Garment classification and imports
 
 - `bodysuits` contains leotard-style garments; `jumpsuits` contains one-piece garments with trouser legs; `dresses` contains actual dresses; `aprons` contains optional aprons and pinafores.
-- The legacy items `dress006` and `dress016` belong to `jumpsuits`. Keep their IDs, source PNG filenames and thumbnail paths stable; presets 006 and 016 use the `jumpsuits` key.
+- `jumpsuit006` and `jumpsuit016` belong to `jumpsuits`; presets 006 and 016 use the `jumpsuits` key.
 - `prepare-sprites.py` recognizes `jumpsuit`/`jumpsuits` and `apron`/`aprons`, normalized to `jumpsuitNNN.png` and `apronNNN.png`. Export a jumpsuit and its apron separately on the shared canvas when they must be independently selectable.
 
 ## Modules, documentation and type checking
