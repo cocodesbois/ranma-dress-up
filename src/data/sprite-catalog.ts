@@ -39,6 +39,7 @@ const catalog: Catalog = {
     { id: "pants", label: "Pants" },
     { id: "hair", label: "Hair" },
     { id: "hats", label: "Hats" },
+    { id: "glasses", label: "Glasses" },
     { id: "shoes", label: "Shoes" },
     { id: "necklace", label: "Necklace" },
     { id: "bracelets", label: "Bracelets" },
@@ -200,6 +201,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "apron023",
+      category: "aprons",
+      label: "Apron 23",
+      source: "assets/sprites/apron023.png",
+      thumbnailSource: "images/thumbnails/apron023.png",
+      thumbnail: { x: 2280, y: 1869, width: 1909, height: 3807 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "slip006",
       category: "slips",
       label: "Slip 06",
@@ -301,6 +311,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "pants023",
+      category: "pants",
+      label: "Pants 23",
+      source: "assets/sprites/pants023.png",
+      thumbnailSource: "images/thumbnails/pants023.png",
+      thumbnail: { x: 2794, y: 2858, width: 1421, height: 2433 },
+      placement: sharedSpritePlacement
+    },
+    {
       id: "hair001",
       category: "hair",
       label: "Hair 01",
@@ -340,6 +359,15 @@ const catalog: Catalog = {
       thumbnailSource: "images/thumbnails/shoes022.png",
       thumbnail: { x: 3130, y: 5067, width: 1202, height: 687 },
       placement: sharedSpritePlacement,
+    },
+    {
+      id: "shoes023",
+      category: "shoes",
+      label: "Shoes 23",
+      source: "assets/sprites/shoes023.png",
+      thumbnailSource: "images/thumbnails/shoes023.png",
+      thumbnail: { x: 3130, y: 5081, width: 1210, height: 692 },
+      placement: sharedSpritePlacement
     },
     {
       id: "bracelets001",
@@ -587,6 +615,15 @@ const catalog: Catalog = {
       thumbnail: { x: 2762, y: 1921, width: 955, height: 1476 },
       placement: sharedSpritePlacement,
     },
+    {
+      id: "glasses023",
+      category: "glasses",
+      label: "Glasses 23",
+      source: "assets/sprites/glasses023.png",
+      thumbnailSource: "images/thumbnails/glasses023.png",
+      thumbnail: { x: 3089, y: 1456, width: 477, height: 270 },
+      placement: sharedSpritePlacement
+    },
   ],
   outfits: [
     {
@@ -812,6 +849,17 @@ const catalog: Catalog = {
         hair: "hair001",
       },
     },
+    {
+      id: "023",
+      label: "Outfit 23",
+      items: {
+        glasses: "glasses023",
+        shoes: "shoes023",
+        pants: "pants023",
+        aprons: "apron023",
+        hair: "hair001",
+      },
+    }
   ],
 };
 
