@@ -11,6 +11,8 @@
   --sky: #85c8f6;
   --surface-soft: #edf4fa;
   --radius: 8px;
+  --workspace-max-width: 1600px;
+  --workspace-gutter: 16px;
   --rose: #c51e42;
   --rose-dark: #a31534;
 }
@@ -99,7 +101,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
   align-items: start;
-  width: min(1600px, calc(100% - 16px));
+  width: min(var(--workspace-max-width), calc(100% - var(--workspace-gutter)));
   margin: 0 auto;
   gap: 12px;
   padding: 10px 0;
@@ -194,20 +196,28 @@ button {
 }
 
 .button-secondary {
-  background: var(--surface-soft);
+  --button-surface: var(--surface-soft);
+  background: var(--button-surface);
 }
 
 .button-secondary:hover {
-  background: #dcebf7;
+  --button-surface: #dcebf7;
 }
 
 .button-primary {
-  background: var(--rose);
+  --button-surface: var(--rose);
+  background: var(--button-surface);
   color: white;
 }
 
 .button-primary:hover {
-  background: var(--rose-dark);
+  --button-surface: var(--rose-dark);
+}
+
+.button-icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
 }
 
 .wardrobe-panel {
@@ -396,6 +406,13 @@ button {
 }
 
 @media (min-width: 721px) {
+  .site-header {
+    padding-inline: max(
+      calc(var(--workspace-gutter) / 2),
+      calc((100% - var(--workspace-max-width)) / 2)
+    );
+  }
+
   .page-shell {
     display: flex;
     flex-direction: column;
@@ -436,8 +453,8 @@ button {
 }
 
 @media (max-width: 980px) {
-  .workspace {
-    width: calc(100% - 12px);
+  :root {
+    --workspace-gutter: 12px;
   }
 
   .workspace {
@@ -451,8 +468,8 @@ button {
 }
 
 @media (max-width: 560px) {
-  .workspace {
-    width: calc(100% - 8px);
+  :root {
+    --workspace-gutter: 8px;
   }
 
   .site-header {

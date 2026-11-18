@@ -53,6 +53,10 @@ l'image. La garde-robe utilise `contain: size` pour que son contenu n'agrandisse
 pas la rangée ; seule sa liste d'objets défile. Le panneau mobile conserve sa mise
 en page indépendante.
 
+Sur grand écran, l'en-tête et la zone de travail partagent les mêmes limites
+(`--workspace-max-width` et `--workspace-gutter`) pour aligner le logo à gauche et
+les actions à droite.
+
 La présentation utilise un fond bleu uni, des surfaces planes sans bordure de
 panneau ni ombre, et un rayon partagé `--radius` pour les composants. Les contours
 restent réservés à la sélection des objets et au focus clavier.
