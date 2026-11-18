@@ -22,6 +22,7 @@ export const layerOrder = [
   "aprons",
   "hair",
   "hats",
+  "glasses",
   "necklace",
   "bracelets",
   "accessories",
