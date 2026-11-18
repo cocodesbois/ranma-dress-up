@@ -47,6 +47,12 @@ utilisent encore les API globales du navigateur. Les tests injectent des doubles
 pour le DOM, les images ou le contexte canvas sans lancer de navigateur ; les tests
 de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
 
+Sur grand écran (au-delà de 720 px), le preview détermine la hauteur commune des
+deux panneaux : leurs bords supérieur et inférieur sont alignés, sans déformer
+l'image. La garde-robe utilise `contain: size` pour que son contenu n'agrandisse
+pas la rangée ; seule sa liste d'objets défile. Le panneau mobile conserve sa mise
+en page indépendante.
+
 ### Démarrage
 
 1. Le modèle transforme chaque `Outfit` en preset avec ses objets `Item` résolus et

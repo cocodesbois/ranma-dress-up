@@ -425,15 +425,13 @@ button {
   }
 
   .workspace {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: 0;
     align-items: stretch;
   }
 
   .preview-panel {
-    display: flex;
     width: min(100%, max(200px, (100dvh - 100px) * 6643 / 6507));
-    align-items: center;
     justify-self: center;
   }
 
@@ -446,6 +444,8 @@ button {
     grid-template-rows: auto auto auto minmax(0, 1fr);
     min-height: 0;
     overflow: hidden;
+    /* Let the preview determine the shared row height, not the wardrobe contents. */
+    contain: size;
   }
 
   .item-grid {
@@ -453,13 +453,6 @@ button {
     align-content: start;
     min-height: 0;
     max-height: none;
-  }
-}
-
-@media (min-width: 721px) and (min-height: 480px) {
-  .preview-panel {
-    position: sticky;
-    top: 70px;
   }
 }
 
