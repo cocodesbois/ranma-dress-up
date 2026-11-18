@@ -2,16 +2,17 @@
   color-scheme: light;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   color: #242d42;
-  background: #fbe4ed;
+  background: var(--sky);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --ink: #242d42;
-  --muted: #62526a;
+  --muted: #52657a;
   --paper: #fffdfb;
+  --sky: #85c8f6;
+  --surface-soft: #edf4fa;
+  --radius: 8px;
   --rose: #c51e42;
   --rose-dark: #a31534;
-  --line: #e8c1d0;
-  --soft-rose: #fbe0eb;
 }
 
 * {
@@ -22,11 +23,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background-color: #fff2f4;
-  background-image:
-    linear-gradient(90deg, rgba(226, 122, 164, 0.24) 50%, transparent 50%),
-    linear-gradient(rgba(226, 122, 164, 0.24) 50%, transparent 50%);
-  background-size: 32px 32px;
+  background: var(--sky);
 }
 
 button,
@@ -49,7 +46,6 @@ button {
   gap: 12px;
   min-height: 56px;
   padding: 4px 8px;
-  border-bottom: 3px solid #1759a8;
   background: white;
 }
 
@@ -115,16 +111,14 @@ button {
 }
 
 .wardrobe-panel {
-  border: 2px solid #1759a8;
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--paper);
 }
 
 .stage-frame {
   position: relative;
   overflow: hidden;
-  border: 2px solid #8ab9d8;
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: #eee2d2;
 }
 
@@ -181,16 +175,12 @@ button {
   gap: 7px;
   min-height: 39px;
   padding: 0 14px;
-  border: 1px solid transparent;
-  border-radius: 7px;
+  border: 0;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
-  transition: background 140ms ease, transform 140ms ease, border-color 140ms ease;
-}
-
-.button:hover {
-  transform: translateY(-1px);
+  transition: background 140ms ease;
 }
 
 .button:focus-visible,
@@ -204,13 +194,11 @@ button {
 }
 
 .button-secondary {
-  border-color: var(--line);
-  background: white;
+  background: var(--surface-soft);
 }
 
 .button-secondary:hover {
-  border-color: #c51e42;
-  background: #fff2f4;
+  background: #dcebf7;
 }
 
 .button-primary {
@@ -232,7 +220,6 @@ button {
   justify-content: space-between;
   margin-bottom: 8px;
   padding: 3px 4px 6px;
-  border-bottom: 3px solid #ffcf39;
 }
 
 .wardrobe-heading-actions {
@@ -252,9 +239,9 @@ button {
   min-height: 36px;
   margin-bottom: 8px;
   padding: 0 9px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #fffdfa;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface-soft);
   color: var(--ink);
   font: inherit;
   font-size: 12px;
@@ -294,29 +281,26 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--line);
 }
 
 .category-tab {
   min-height: 30px;
   padding: 5px 4px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: #f3e7ed;
-  color: #594257;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  color: var(--ink);
   cursor: pointer;
   font-size: 11px;
   font-weight: 700;
-  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .category-tab:hover {
-  border-color: #c51e42;
-  color: var(--rose-dark);
+  background: #dcebf7;
 }
 
 .category-tab.is-active {
-  border-color: #1759a8;
   background: #1759a8;
   color: white;
 }
@@ -328,7 +312,7 @@ button {
   max-height: calc(100vh - 142px);
   overflow-y: auto;
   padding: 2px 3px 4px 0;
-  scrollbar-color: #d7c4b7 transparent;
+  scrollbar-color: #9eb8ce transparent;
   scrollbar-width: thin;
 }
 
@@ -340,8 +324,7 @@ button {
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
-  border: 1px solid #e6c8c2;
-  border-radius: 9px;
+  border-radius: var(--radius);
   background: #fff7f4;
   color: var(--rose-dark);
   font-size: 12px;
@@ -355,23 +338,21 @@ button {
   align-items: center;
   gap: 7px;
   padding: 7px 5px 8px;
-  border: 1px solid #e8c1d0;
-  border-radius: 9px;
-  background: #fffafb;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
   cursor: pointer;
   text-align: center;
-  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+  transition: border-color 140ms ease, background 140ms ease;
 }
 
 .item-card:hover {
-  transform: translateY(-2px);
-  border-color: #1759a8;
+  background: var(--surface-soft);
 }
 
 .item-card.is-selected {
   border-color: var(--rose);
   background: #fff1f4;
-  box-shadow: inset 0 0 0 1px var(--rose);
 }
 
 .item-thumbnail,
@@ -381,21 +362,14 @@ button {
   max-width: 112px;
   height: auto;
   aspect-ratio: 1;
-  border-radius: 5px;
-  background-color: #fff0f3;
-  background-image:
-    linear-gradient(45deg, #f3d9e3 25%, transparent 25%),
-    linear-gradient(-45deg, #f3d9e3 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #f3d9e3 75%),
-    linear-gradient(-45deg, transparent 75%, #f3d9e3 75%);
-  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
-  background-size: 10px 10px;
+  border-radius: var(--radius);
+  background: var(--surface-soft);
 }
 
 .none-symbol {
   display: grid;
   place-items: center;
-  color: #a49a92;
+  color: var(--muted);
   font-family: Georgia, serif;
   font-size: 42px;
   font-weight: 300;
@@ -405,7 +379,7 @@ button {
 .item-label {
   overflow: hidden;
   width: 100%;
-  color: #554e49;
+  color: var(--muted);
   font-size: 10px;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -563,9 +537,9 @@ button {
     width: 34px;
     height: 34px;
     place-items: center;
-    border: 1px solid var(--line);
-    border-radius: 50%;
-    background: white;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--surface-soft);
     color: var(--muted);
     cursor: pointer;
     font-size: 24px;
@@ -606,7 +580,7 @@ button {
     margin: 0 auto;
     overflow: hidden;
     padding: 6px 10px max(6px, env(safe-area-inset-bottom));
-    border-radius: 14px 14px 0 0;
+    border-radius: var(--radius) var(--radius) 0 0;
     transform: translateY(105%);
     transition:
       transform 260ms cubic-bezier(0.2, 0.75, 0.3, 1),
@@ -666,7 +640,7 @@ button {
     overflow-x: auto;
     overscroll-behavior-x: contain;
     padding: 0 0 5px;
-    scrollbar-color: #d7c4b7 transparent;
+    scrollbar-color: #9eb8ce transparent;
     scrollbar-width: thin;
   }
 

@@ -53,6 +53,10 @@ l'image. La garde-robe utilise `contain: size` pour que son contenu n'agrandisse
 pas la rangée ; seule sa liste d'objets défile. Le panneau mobile conserve sa mise
 en page indépendante.
 
+La présentation utilise un fond bleu uni, des surfaces planes sans bordure de
+panneau ni ombre, et un rayon partagé `--radius` pour les composants. Les contours
+restent réservés à la sélection des objets et au focus clavier.
+
 ### Démarrage
 
 1. Le modèle transforme chaque `Outfit` en preset avec ses objets `Item` résolus et
