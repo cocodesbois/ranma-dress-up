@@ -349,11 +349,16 @@ button {
 }
 
 .category-tab {
+  --category-surface: var(--surface-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   min-height: 30px;
   padding: var(--gap-tight) var(--space-2);
   border: 0;
   border-radius: var(--radius);
-  background: var(--surface-soft);
+  background: var(--category-surface);
   color: var(--ink);
   cursor: pointer;
   font-size: var(--text-sm);
@@ -364,12 +369,23 @@ button {
 }
 
 .category-tab:hover {
-  background: var(--surface-hover);
+  --category-surface: var(--surface-hover);
 }
 
 .category-tab.is-active {
-  background: var(--blue);
+  --category-surface: var(--blue);
   color: var(--white);
+}
+
+.category-equipped-icon {
+  flex: 0 0 auto;
+  width: var(--text-base);
+  height: var(--text-base);
+  visibility: hidden;
+}
+
+.category-tab.has-equipped-item .category-equipped-icon {
+  visibility: visible;
 }
 
 .item-grid {

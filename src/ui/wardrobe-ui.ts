@@ -136,7 +136,7 @@ export function createWardrobeUi({
     return button;
   }
 
-  /** Create category tabs once, then synchronize their active/pressed states. */
+  /** Create category tabs once, then synchronize browsed and equipped states. */
   function renderCategories() {
     if (categoryTabs.childElementCount === 0) {
       for (const category of catalog.categories) {
@@ -144,17 +144,49 @@ export function createWardrobeUi({
         button.type = "button";
         button.className = "category-tab";
         button.dataset.category = category.id;
-        button.textContent = category.label;
+        const svgNamespace = "http://www.w3.org/2000/svg";
+        const icon = document.createElementNS(svgNamespace, "svg");
+        icon.classList.add("category-equipped-icon");
+        icon.setAttribute("viewBox", "0 0 32 32");
+        icon.setAttribute("aria-hidden", "true");
+        icon.setAttribute("focusable", "false");
+
+        const circle = document.createElementNS(svgNamespace, "circle");
+        circle.setAttribute("cx", "16");
+        circle.setAttribute("cy", "16");
+        circle.setAttribute("r", "14");
+        circle.setAttribute("fill", "currentColor");
+
+        const check = document.createElementNS(svgNamespace, "path");
+        check.setAttribute("d", "m9 16 5 5 9-10");
+        check.setAttribute("fill", "none");
+        check.setAttribute("stroke", "var(--category-surface)");
+        check.setAttribute("stroke-width", "3");
+        check.setAttribute("stroke-linecap", "round");
+        check.setAttribute("stroke-linejoin", "round");
+        icon.append(circle, check);
+        button.append(icon, document.createTextNode(category.label));
 
         button.addEventListener("click", () => onCategorySelect(category));
         categoryTabs.append(button);
       }
     }
 
-    for (const button of categoryTabs.querySelectorAll<HTMLButtonElement>(".category-tab")) {
-      const selected = button.dataset.category === getActiveCategory();
+    const outfit = getOutfit();
+    for (const category of catalog.categories) {
+      const button = categoryTabs.querySelector<HTMLButtonElement>(
+        `.category-tab[data-category="${category.id}"]`,
+      );
+      if (!button) throw new Error(`Category tab is missing: ${category.id}`);
+      const selected = category.id === getActiveCategory();
+      const equipped = outfit[category.id] != null;
       button.classList.toggle("is-active", selected);
+      button.classList.toggle("has-equipped-item", equipped);
       button.setAttribute("aria-pressed", String(selected));
+      button.setAttribute(
+        "aria-label",
+        equipped ? `${category.label}, item equipped` : category.label,
+      );
     }
   }
 
