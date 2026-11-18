@@ -29,6 +29,7 @@ function setup({
   const liveOutfit = outfit ?? { [activeCategory]: null };
   const onCategorySelect = vi.fn();
   const onItemSelect = vi.fn();
+  const onNoneSelect = vi.fn();
   const ui = createWardrobeUi({
     categoryTabs: required(document.querySelector<HTMLElement>("#category-tabs")),
     itemList,
@@ -38,7 +39,7 @@ function setup({
     getSprite: (item) => (loaded.has(item.id) ? sprite : undefined),
     onCategorySelect,
     onItemSelect,
-    onNoneSelect: vi.fn(),
+    onNoneSelect,
   });
   ui.renderItems();
   return {
@@ -46,6 +47,7 @@ function setup({
     items,
     onCategorySelect,
     onItemSelect,
+    onNoneSelect,
     cards: () => [...itemList.querySelectorAll<HTMLButtonElement>(".item-card:not(.none-card)")],
     notice: () => itemList.querySelector(".item-notice"),
     noneCard: () => itemList.querySelector(".none-card"),
@@ -121,6 +123,18 @@ describe("wardrobe items", () => {
     const { cards, items, onItemSelect } = setup();
     cards()[1].click();
     expect(onItemSelect).toHaveBeenCalledExactlyOnceWith(items[1]);
+  });
+
+  it("uses a decorative icon for None and preserves the removal action", () => {
+    const { noneCard, onNoneSelect } = setup({ outfit: { tops: itemsOf("tops")[0].id } });
+    const button = required(noneCard());
+    const symbol = required(button.querySelector(".none-symbol"));
+    expect(symbol.getAttribute("aria-hidden")).toBe("true");
+    expect(symbol.querySelector("svg")).not.toBeNull();
+    expect(button.querySelector(".item-label")?.textContent).toBe("None");
+    expect(button.getAttribute("aria-label")).toBe("Remove selected item");
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(onNoneSelect).toHaveBeenCalledExactlyOnceWith();
   });
 });
 

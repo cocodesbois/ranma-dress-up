@@ -106,7 +106,26 @@ export function createWardrobeUi({
     const symbol = document.createElement("span");
     symbol.className = "none-symbol";
     symbol.setAttribute("aria-hidden", "true");
-    symbol.textContent = "x";
+
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const icon = document.createElementNS(svgNamespace, "svg");
+    icon.setAttribute("viewBox", "0 0 32 32");
+    icon.setAttribute("focusable", "false");
+
+    const circle = document.createElementNS(svgNamespace, "circle");
+    circle.setAttribute("cx", "16");
+    circle.setAttribute("cy", "16");
+    circle.setAttribute("r", "14");
+    circle.setAttribute("fill", "currentColor");
+
+    const power = document.createElementNS(svgNamespace, "path");
+    power.setAttribute("d", "M16 8v8 M10.3 10.3a8 8 0 1 0 11.4 0");
+    power.setAttribute("fill", "none");
+    power.setAttribute("stroke", "var(--surface-soft)");
+    power.setAttribute("stroke-width", "3");
+    power.setAttribute("stroke-linecap", "round");
+    icon.append(circle, power);
+    symbol.append(icon);
     button.append(symbol);
 
     const label = document.createElement("span");
