@@ -112,7 +112,7 @@ describe("wardrobe items", () => {
 
   it("offers apron sprites while keeping the category optional", () => {
     const { cards, noneCard, notice } = setup({ activeCategory: "aprons" });
-    expect(cards().map((card) => card.dataset.itemId)).toEqual(["apron023", "apron021"]);
+    expect(cards().map((card) => card.dataset.itemId)).toEqual(["apron021", "apron023"]);
     expect(noneCard()).not.toBeNull();
     expect(notice()).toBeNull();
   });
