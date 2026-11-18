@@ -55,6 +55,7 @@ export function createOutfitController({
     );
     appState.setOutfitItem(appState.getActiveCategory(), item.id);
     updateOutfitSelection();
+    wardrobeUi.renderCategories();
     wardrobeUi.updateItemSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage(`${item.label} selected.`);
@@ -65,6 +66,7 @@ export function createOutfitController({
     appState.nextOutfitSelectionRequest();
     appState.setOutfitItem(appState.getActiveCategory(), null);
     updateOutfitSelection();
+    wardrobeUi.renderCategories();
     wardrobeUi.updateItemSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("Item removed.");

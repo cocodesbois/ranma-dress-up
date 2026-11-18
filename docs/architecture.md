@@ -61,6 +61,12 @@ La présentation utilise un fond bleu uni, des surfaces planes sans bordure de
 panneau ni ombre, et un rayon partagé `--radius` pour les composants. Les contours
 restent réservés à la sélection des objets et au focus clavier.
 
+Les boutons de catégories affichent une coche dans un disque à gauche du libellé
+quand un objet est porté dans cette catégorie, indépendamment de la catégorie
+consultée. Leur nom accessible indique aussi « item equipped » ; `aria-pressed`
+reste réservé à la catégorie consultée. Les indicateurs suivent les presets, les
+sélections manuelles, les exclusions, le retrait d'un objet et Reset.
+
 Les couleurs de l'interface, la typographie, les espacements réutilisés, les tailles
 de contrôles, le focus, les durées de transition et les niveaux de superposition
 sont définis comme propriétés personnalisées dans `:root` de `main.css`. Les

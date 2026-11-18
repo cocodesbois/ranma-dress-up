@@ -41,8 +41,14 @@ function setup({
     onItemSelect,
     onNoneSelect,
   });
+  ui.renderCategories();
   ui.renderItems();
   return {
+    ui,
+    categoryTab: (category: CategoryId) =>
+      required(
+        document.querySelector<HTMLButtonElement>(`.category-tab[data-category="${category}"]`),
+      ),
     itemList,
     items,
     onCategorySelect,
@@ -56,6 +62,49 @@ function setup({
 
 beforeEach(() => {
   document.body.innerHTML = "";
+});
+
+describe("equipped category indicators", () => {
+  it("marks equipped categories independently of the browsed category", () => {
+    const { categoryTab } = setup({
+      outfit: { hair: itemsOf("hair")[0].id, dresses: itemsOf("dresses")[0].id, tops: null },
+    });
+    for (const category of ["hair", "dresses"] as const) {
+      const tab = categoryTab(category);
+      expect(tab.classList.contains("has-equipped-item")).toBe(true);
+      expect(tab.getAttribute("aria-label")).toBe(
+        `${catalog.categories.find(({ id }) => id === category)?.label}, item equipped`,
+      );
+      expect(tab.getAttribute("aria-pressed")).toBe("false");
+      expect(tab.firstElementChild?.classList.contains("category-equipped-icon")).toBe(true);
+      expect(tab.firstElementChild?.getAttribute("aria-hidden")).toBe("true");
+    }
+    expect(categoryTab("tops").classList.contains("has-equipped-item")).toBe(false);
+    expect(categoryTab("tops").getAttribute("aria-pressed")).toBe("true");
+    expect(categoryTab("tops").getAttribute("aria-label")).toBe("Tops");
+    expect(categoryTab("hats").classList.contains("has-equipped-item")).toBe(false);
+  });
+
+  it("refreshes indicators without replacing buttons or losing focus and click handlers", () => {
+    const outfit: Look = { tops: itemsOf("tops")[0].id };
+    const { ui, categoryTab, onCategorySelect } = setup({ outfit });
+    const tops = categoryTab("tops");
+    tops.focus();
+    outfit.tops = null;
+    outfit.dresses = itemsOf("dresses")[0].id;
+    ui.renderCategories();
+
+    expect(categoryTab("tops")).toBe(tops);
+    expect(document.activeElement).toBe(tops);
+    expect(tops.classList.contains("has-equipped-item")).toBe(false);
+    expect(tops.getAttribute("aria-label")).toBe("Tops");
+    expect(categoryTab("dresses").classList.contains("has-equipped-item")).toBe(true);
+    expect(tops.querySelectorAll(".category-equipped-icon")).toHaveLength(1);
+    tops.click();
+    expect(onCategorySelect).toHaveBeenCalledExactlyOnceWith(
+      catalog.categories.find(({ id }) => id === "tops"),
+    );
+  });
 });
 
 describe("wardrobe items", () => {

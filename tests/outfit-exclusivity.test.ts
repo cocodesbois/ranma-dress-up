@@ -90,6 +90,7 @@ describe("manual selection exclusivity", () => {
     expect(appState.getOutfitSelectionRequest()).toBe(1);
     expect(defaultOutfit[category]).toBe(`existing-${category}`);
     expect(outfitSelect.value).toBe("");
+    expect(wardrobeUi.renderCategories).toHaveBeenCalledOnce();
     expect(wardrobeUi.updateItemSelection).toHaveBeenCalledOnce();
     expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Selected item selected.");
@@ -116,11 +117,13 @@ describe("manual selection exclusivity", () => {
   });
 
   it("removes only the active item without applying selection exclusions", () => {
-    const { controller, appState, defaultOutfit, statusController } = setup("bodysuits");
+    const { controller, appState, defaultOutfit, statusController, wardrobeUi } =
+      setup("bodysuits");
     controller.removeActiveCategoryItem();
     expect(appState.getOutfit()).toEqual({ ...defaultOutfit, bodysuits: null });
     expect(appState.getOutfitSelectionRequest()).toBe(1);
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Item removed.");
+    expect(wardrobeUi.renderCategories).toHaveBeenCalledOnce();
   });
 
   it("preserves a jumpsuit and its underlayers when adding or removing an apron", () => {
@@ -154,7 +157,7 @@ describe("manual selection exclusivity", () => {
     expect(appState.getOutfit()).not.toBe(defaultOutfit);
     expect(appState.getActiveCategory()).toBe("tops");
     expect(appState.getOutfitSelectionRequest()).toBe(2);
-    expect(wardrobeUi.renderCategories).toHaveBeenCalledOnce();
+    expect(wardrobeUi.renderCategories).toHaveBeenCalledTimes(2);
     expect(wardrobeUi.renderItems).toHaveBeenCalledOnce();
   });
 });
