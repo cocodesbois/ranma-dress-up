@@ -47,6 +47,28 @@ utilisent encore les API globales du navigateur. Les tests injectent des doubles
 pour le DOM, les images ou le contexte canvas sans lancer de navigateur ; les tests
 de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
 
+Sur grand écran (au-delà de 720 px), le preview détermine la hauteur commune des
+deux panneaux : leurs bords supérieur et inférieur sont alignés, sans déformer
+l'image. La garde-robe utilise `contain: size` pour que son contenu n'agrandisse
+pas la rangée ; seule sa liste d'objets défile. Le panneau mobile conserve sa mise
+en page indépendante.
+
+Sur grand écran, l'en-tête et la zone de travail partagent les mêmes limites
+(`--workspace-max-width` et `--workspace-gutter`) pour aligner le logo à gauche et
+les actions à droite.
+
+La présentation utilise un fond bleu uni, des surfaces planes sans bordure de
+panneau ni ombre, et un rayon partagé `--radius` pour les composants. Les contours
+restent réservés à la sélection des objets et au focus clavier.
+
+Les couleurs de l'interface, la typographie, les espacements réutilisés, les tailles
+de contrôles, le focus, les durées de transition et les niveaux de superposition
+sont définis comme propriétés personnalisées dans `:root` de `main.css`. Les
+variantes responsive redéfinissent ces variables si nécessaire. Les seuils des
+media queries, les proportions du document et les ajustements géométriques propres
+à un composant restent littéraux ; les propriétés personnalisées ne peuvent pas
+remplacer les seuils dans les conditions des media queries.
+
 ### Démarrage
 
 1. Le modèle transforme chaque `Outfit` en preset avec ses objets `Item` résolus et

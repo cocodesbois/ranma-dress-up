@@ -62,6 +62,19 @@ emits no files. Run the tests with `npm test`.
 See [Architecture](docs/architecture.md) for module responsibilities, data flow
 and the checked scope.
 
+### App icons
+
+The original logo is preserved in `assets/branding/app-icon.png`. Browser icons,
+the header logo, the 180px Apple touch icon, and the 192px/512px install icons all
+use this artwork, centered on the app's blue background without cropping or
+stretching. The SVG embeds the original raster artwork; it is not a vector trace.
+
+After replacing the source, regenerate the committed icons with Pillow installed:
+
+```powershell
+python scripts/generate-icons.py
+```
+
 ## Sprite assets and catalog
 
 The Photoshop exports live in `assets/sprites/` as PNGs, all with the same canvas size (the Photoshop document, currently 6643 x 6507 px). They are the source of truth and are never modified by the tooling. The app does not load them directly: it loads the optimized WebP equivalents from `images/optimized/` at runtime (generated under `public/images/optimized/`, see [Optimized sprites](#optimized-sprites-webp)), loading each wardrobe category only when it is opened. The preview shows the whole `background.png` scene, uncropped, with every sprite at its original position on it. Item cards use pre-generated thumbnail images from `images/thumbnails/` at runtime (generated under `public/images/thumbnails/`) and fall back to runtime crop rendering only when a thumbnail file is missing.
