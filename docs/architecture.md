@@ -61,6 +61,14 @@ La présentation utilise un fond bleu uni, des surfaces planes sans bordure de
 panneau ni ombre, et un rayon partagé `--radius` pour les composants. Les contours
 restent réservés à la sélection des objets et au focus clavier.
 
+Les couleurs de l'interface, la typographie, les espacements réutilisés, les tailles
+de contrôles, le focus, les durées de transition et les niveaux de superposition
+sont définis comme propriétés personnalisées dans `:root` de `main.css`. Les
+variantes responsive redéfinissent ces variables si nécessaire. Les seuils des
+media queries, les proportions du document et les ajustements géométriques propres
+à un composant restent littéraux ; les propriétés personnalisées ne peuvent pas
+remplacer les seuils dans les conditions des media queries.
+
 ### Démarrage
 
 1. Le modèle transforme chaque `Outfit` en preset avec ses objets `Item` résolus et
