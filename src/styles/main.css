@@ -417,9 +417,42 @@ button {
 }
 
 @media (min-width: 721px) {
+  .page-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .workspace {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+  }
+
   .preview-panel {
+    display: flex;
     width: min(100%, max(200px, (100dvh - 100px) * 6643 / 6507));
+    align-items: center;
     justify-self: center;
+  }
+
+  .stage-frame {
+    width: 100%;
+  }
+
+  .wardrobe-panel {
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .item-grid {
+    grid-auto-rows: max-content;
+    align-content: start;
+    min-height: 0;
+    max-height: none;
   }
 }
 
