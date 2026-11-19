@@ -152,11 +152,13 @@ describe("wardrobe items", () => {
       "jumpsuit006",
       "jumpsuit016",
       "jumpsuit021",
+      "jumpsuit025",
     ]);
     expect(cards().map((card) => card.getAttribute("aria-label"))).toEqual([
       "Jumpsuit 06",
       "Jumpsuit 16",
       "Jumpsuit 21",
+      "Jumpsuit 25",
     ]);
     expect(noneCard()).not.toBeNull();
   });

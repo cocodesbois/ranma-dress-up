@@ -11,6 +11,7 @@ const expectedOrder: CategoryId[] = [
   "bodysuits",
   "pants",
   "tops",
+  "gloves",
   "shoes",
   "jumpsuits",
   "dresses",

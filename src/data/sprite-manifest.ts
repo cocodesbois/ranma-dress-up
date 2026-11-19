@@ -51,6 +51,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 869,
       "sourceHash": "a7a8ee135db899f75601b42352df2085f2af88d1"
     },
+    "assets/sprites/accessories025.png": {
+      "file": "images/optimized/accessories025.webp",
+      "x": 729,
+      "y": 2238,
+      "width": 1868,
+      "height": 3429,
+      "sourceHash": "b59ce29873e40c278909b3f9605200364ea2a3c6"
+    },
     "assets/sprites/apron021.png": {
       "file": "images/optimized/apron021.webp",
       "x": 2762,
@@ -203,6 +211,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 270,
       "sourceHash": "9b5bf1b7c275b2dc201662d89dad4069de0afa53"
     },
+    "assets/sprites/gloves025.png": {
+      "file": "images/optimized/gloves025.webp",
+      "x": 2119,
+      "y": 2731,
+      "width": 2113,
+      "height": 622,
+      "sourceHash": "e466ded7a3ac0720b207499035432a4d0b783592"
+    },
     "assets/sprites/hair001.png": {
       "file": "images/optimized/hair001.webp",
       "x": 2142,
@@ -274,6 +290,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1229,
       "height": 2970,
       "sourceHash": "aea04626a7e99b92db1574e2af14a211fd5ecf20"
+    },
+    "assets/sprites/jumpsuit025.png": {
+      "file": "images/optimized/jumpsuit025.webp",
+      "x": 2780,
+      "y": 1965,
+      "width": 1338,
+      "height": 3200,
+      "sourceHash": "6292d6574d87f2a2276a3f78be479aa4d3a4a8aa"
     },
     "assets/sprites/necklace024.png": {
       "file": "images/optimized/necklace024.webp",
@@ -475,6 +499,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 688,
       "sourceHash": "6abf4e7032ed5531e5a31c8b3b97e53d7958c55d"
     },
+    "assets/sprites/shoes025.png": {
+      "file": "images/optimized/shoes025.webp",
+      "x": 3062,
+      "y": 4713,
+      "width": 1286,
+      "height": 1076,
+      "sourceHash": "da4dbc063a16bf03e9fade1e43498e4206800d1e"
+    },
     "assets/sprites/slip006.png": {
       "file": "images/optimized/slip006.webp",
       "x": 2861,
@@ -626,6 +658,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1363,
       "height": 1383,
       "sourceHash": "e0e000a7ca7d56e2f5b3376244d08969dd2109b4"
+    },
+    "assets/sprites/top025.png": {
+      "file": "images/optimized/top025.webp",
+      "x": 2454,
+      "y": 1844,
+      "width": 1514,
+      "height": 1213,
+      "sourceHash": "4f620ed5f4f64957c4508a0245cac6cc1b72894b"
     }
   }
 };

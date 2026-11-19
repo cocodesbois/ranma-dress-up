@@ -16,6 +16,7 @@ export const layerOrder = [
   "bodysuits",
   "pants",
   "tops",
+  "gloves",
   "shoes",
   "jumpsuits",
   "dresses",
