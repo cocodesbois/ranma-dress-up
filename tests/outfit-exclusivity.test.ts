@@ -14,6 +14,8 @@ const exclusions: Partial<Record<CategoryId, CategoryId[]>> = {
   pants: ["bodysuits", "dresses", "jumpsuits"],
   dresses: ["bodysuits", "pants", "jumpsuits"],
   jumpsuits: ["pants", "dresses", "bodysuits"],
+  gloves: ["bracelets"],
+  bracelets: ["gloves"],
 };
 
 function setup(activeCategory: CategoryId) {
