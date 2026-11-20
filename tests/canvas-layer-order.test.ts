@@ -11,8 +11,9 @@ const expectedOrder: CategoryId[] = [
   "bodysuits",
   "pants",
   "tops",
-  "shoes",
+  "gloves",
   "jumpsuits",
+  "shoes",
   "dresses",
   "aprons",
   "hair",
@@ -112,7 +113,7 @@ describe("canvas layer order", () => {
     expect(drawnImages()).toEqual(["background.png", "body.png"]);
   });
 
-  it("draws jumpsuit hems over shoes and an optional apron over the jumpsuit", () => {
+  it("draws shoes over jumpsuits and an optional apron over both", () => {
     const { renderer, context, outfit, drawnImages } = setup();
     for (const category of expectedOrder) {
       if (!["shoes", "jumpsuits", "aprons", "hair"].includes(category)) {
@@ -123,8 +124,8 @@ describe("canvas layer order", () => {
     expect(drawnImages()).toEqual([
       "background.png",
       "body.png",
-      "shoes.png",
       "jumpsuits.png",
+      "shoes.png",
       "aprons.png",
       "hair.png",
     ]);
@@ -134,8 +135,8 @@ describe("canvas layer order", () => {
     expect(drawnImages()).toEqual([
       "background.png",
       "body.png",
-      "shoes.png",
       "jumpsuits.png",
+      "shoes.png",
       "hair.png",
     ]);
   });

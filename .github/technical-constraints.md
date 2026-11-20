@@ -44,6 +44,7 @@ Use this file as the source of truth for data and behavior constraints when chan
    - `pants` clears `bodysuits`, `dresses`, `jumpsuits`
    - `dresses` clears `bodysuits`, `pants`, `jumpsuits`
    - `jumpsuits` clears `pants`, `dresses`, `bodysuits`, but preserves tops, underwear, slips and tights
+   - `gloves` and `bracelets` clear each other
    - `aprons` has no exclusions and can be selected or removed independently
 3. A category whose images only partly load still shows the loaded items, plus an alert with a "Try again" button for the others. Items whose sprite is not loaded are never offered, because they could not be drawn. Only the scene, the base character and the current look are required at startup.
 4. `layerOrder` in `src/data/layer-order.ts` is the single list of categories and their draw order, and must stay coherent with visual composition:

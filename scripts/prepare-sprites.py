@@ -33,6 +33,8 @@ CATEGORIES = {
     "tights": ("tights", "tights", "Tights"),
     "top": ("top", "tops", "Top"),
     "tops": ("top", "tops", "Top"),
+    "glove": ("gloves", "gloves", "Gloves"),
+    "gloves": ("gloves", "gloves", "Gloves"),
     "dress": ("dress", "dresses", "Dress"),
     "dresses": ("dress", "dresses", "Dress"),
     "pant": ("pants", "pants", "Pants"),

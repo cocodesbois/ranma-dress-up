@@ -138,7 +138,8 @@ dans un item, un outfit ou une paire incompatible.
   Les tabliers et robes-tablier (`aprons`) sont des calques facultatifs au-dessus
   des vêtements et sous les cheveux ; ils ne suffisent pas seuls à valider un
   preset avec les cheveux. Les combinaisons excluent pantalons, robes et
-  bodysuits, mais restent compatibles avec les tops et les sous-vêtements.
+  bodysuits, mais restent compatibles avec les tops et les sous-vêtements. Les
+  gants et les bracelets ne peuvent pas être portés ensemble.
 
 ## Assets et géométrie
 

@@ -25,7 +25,9 @@ function createCatalog(): Catalog {
   return {
     background: { source: "background.png" },
     base: layer("body"),
-    categories: (["hair", ...clothingCategories, "hats", "aprons"] as CategoryId[]).map((id) => ({
+    categories: (
+      ["hair", ...clothingCategories, "hats", "aprons", "gloves", "bracelets"] as CategoryId[]
+    ).map((id) => ({
       id,
       label: id,
     })),
@@ -34,6 +36,8 @@ function createCatalog(): Catalog {
       ...clothingCategories.map((category) => item(`${category}-item`, category)),
       item("hat", "hats"),
       item("apron", "aprons"),
+      item("gloves-item", "gloves"),
+      item("bracelets-item", "bracelets"),
     ],
     outfits: [
       { id: "005", label: "Default", items: { hair: "shared-hair", tops: "tops-item" } },
@@ -246,6 +250,8 @@ describe("incompatible categories", () => {
       pants: ["bodysuits", "dresses", "jumpsuits"],
       dresses: ["bodysuits", "pants", "jumpsuits"],
       jumpsuits: ["pants", "dresses", "bodysuits"],
+      gloves: ["bracelets"],
+      bracelets: ["gloves"],
     };
     for (const { id } of catalog.categories) {
       expect(getExcludedCategories(catalog, id).sort(), id).toEqual(
@@ -260,6 +266,13 @@ describe("incompatible categories", () => {
     expect(() => createOutfitPresets(input)).toThrow(
       'Outfit "005" combines tops and pants, which are mutually exclusive.',
     );
+  });
+
+  it("rejects an outfit that combines gloves and bracelets", () => {
+    const input = structuredClone(catalog);
+    const outfit = required(input.outfits.find(({ id }) => id === "025"));
+    outfit.items.bracelets = "bracelets001";
+    expect(() => createOutfitPresets(input)).toThrow("which are mutually exclusive");
   });
 
   it.each(["pants", "dresses", "bodysuits"] as const)(
