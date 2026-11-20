@@ -379,6 +379,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 2433,
       "sourceHash": "c7242c68a0619e4926f819a9d120390d2c345bd8"
     },
+    "assets/sprites/pants026.png": {
+      "file": "images/optimized/pants026.webp",
+      "x": 2782,
+      "y": 2752,
+      "width": 808,
+      "height": 604,
+      "sourceHash": "161d56eb48d0ad230c49e3a6b2583b0a40970247"
+    },
     "assets/sprites/shoes001.png": {
       "file": "images/optimized/shoes001.webp",
       "x": 3130,

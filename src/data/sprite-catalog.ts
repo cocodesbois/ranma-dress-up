@@ -435,6 +435,15 @@ const catalog: Catalog = {
       placement: sharedSpritePlacement,
     },
     {
+      id: "pants026",
+      category: "pants",
+      label: "Pants 26",
+      source: "assets/sprites/pants026.png",
+      thumbnailSource: "images/thumbnails/pants026.png",
+      thumbnail: { x: 2782, y: 2752, width: 808, height: 604 },
+      placement: sharedSpritePlacement,
+    },
+    {
       id: "hair001",
       category: "hair",
       label: "Hair 01",
@@ -983,6 +992,14 @@ const catalog: Catalog = {
         gloves: "gloves025",
         shoes: "shoes025",
         accessories: "accessories025",
+        hair: "hair001",
+      },
+    },
+    {
+      id: "026",
+      label: "Outfit 26",
+      items: {
+        pants: "pants026",
         hair: "hair001",
       },
     },
