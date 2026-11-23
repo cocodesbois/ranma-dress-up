@@ -43,6 +43,8 @@ CATEGORIES = {
     "hat": ("hat", "hats", "Hat"),
     "hats": ("hat", "hats", "Hat"),
     "glasses": ("glasses", "glasses", "Glasses"),
+    "sock": ("socks", "socks", "Socks"),
+    "socks": ("socks", "socks", "Socks"),
     "shoes": ("shoes", "shoes", "Shoes"),
     "necklace": ("necklace", "necklace", "Necklace"),
     "bracelets": ("bracelets", "bracelets", "Bracelets"),
