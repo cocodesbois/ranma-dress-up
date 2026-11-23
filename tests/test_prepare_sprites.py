@@ -18,6 +18,8 @@ class PrepareSpritesTest(unittest.TestCase):
             ("jumpsuits", "jumpsuit", "jumpsuits", "Jumpsuit"),
             ("apron", "apron", "aprons", "Apron"),
             ("aprons", "apron", "aprons", "Apron"),
+            ("sock", "tights", "tights", "Tights"),
+            ("socks", "tights", "tights", "Tights"),
         ]
         for word, prefix, category, label in aliases:
             with self.subTest(word=word), tempfile.TemporaryDirectory() as directory:

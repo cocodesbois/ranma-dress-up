@@ -116,7 +116,7 @@ describe("canvas layer order", () => {
   it("draws shoes over jumpsuits and an optional apron over both", () => {
     const { renderer, context, outfit, drawnImages } = setup();
     for (const category of expectedOrder) {
-      if (!["shoes", "jumpsuits", "aprons", "hair"].includes(category)) {
+      if (!["jumpsuits", "shoes", "aprons", "hair"].includes(category)) {
         outfit[category] = null;
       }
     }

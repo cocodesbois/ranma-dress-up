@@ -267,6 +267,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 629,
       "sourceHash": "383e93950d6c0a2b87929d06c2d86aa8740cbb14"
     },
+    "assets/sprites/hat027.png": {
+      "file": "images/optimized/hat027.webp",
+      "x": 3060,
+      "y": 1185,
+      "width": 470,
+      "height": 282,
+      "sourceHash": "0611d6e2b8590296fab3680c15be855cc2869da3"
+    },
     "assets/sprites/jumpsuit006.png": {
       "file": "images/optimized/jumpsuit006.webp",
       "x": 2793,
@@ -515,6 +523,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 1076,
       "sourceHash": "da4dbc063a16bf03e9fade1e43498e4206800d1e"
     },
+    "assets/sprites/shoes027.png": {
+      "file": "images/optimized/shoes027.webp",
+      "x": 3127,
+      "y": 5046,
+      "width": 1207,
+      "height": 709,
+      "sourceHash": "1efb5224447fccca2e2a83b8e70f649a3ee3d61c"
+    },
     "assets/sprites/slip006.png": {
       "file": "images/optimized/slip006.webp",
       "x": 2861,
@@ -539,6 +555,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 412,
       "sourceHash": "39ae92516e744c6be0ad83ebbe0ccd9c1981a1df"
     },
+    "assets/sprites/slip027.png": {
+      "file": "images/optimized/slip027.webp",
+      "x": 2922,
+      "y": 2865,
+      "width": 603,
+      "height": 450,
+      "sourceHash": "48aa86ace0e7ae0f2d0bf2ca6b4da1fb8d89e742"
+    },
     "assets/sprites/tights008.png": {
       "file": "images/optimized/tights008.webp",
       "x": 2817,
@@ -562,6 +586,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1519,
       "height": 3036,
       "sourceHash": "9c985f127d92c238c8642bf8fa0968b24dcdcbaa"
+    },
+    "assets/sprites/tights027.png": {
+      "file": "images/optimized/tights027.webp",
+      "x": 3135,
+      "y": 4809,
+      "width": 1193,
+      "height": 929,
+      "sourceHash": "3e1916a780452efe004da048eaefd7f956e29081"
     },
     "assets/sprites/top001.png": {
       "file": "images/optimized/top001.webp",
@@ -674,6 +706,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1514,
       "height": 1213,
       "sourceHash": "4f620ed5f4f64957c4508a0245cac6cc1b72894b"
+    },
+    "assets/sprites/top027.png": {
+      "file": "images/optimized/top027.webp",
+      "x": 2383,
+      "y": 1931,
+      "width": 1758,
+      "height": 1326,
+      "sourceHash": "9e4a2659adb5c97fc25866537433732fb31f57f1"
     }
   }
 };
