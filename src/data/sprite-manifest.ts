@@ -563,14 +563,6 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 450,
       "sourceHash": "48aa86ace0e7ae0f2d0bf2ca6b4da1fb8d89e742"
     },
-    "assets/sprites/socks027.png": {
-      "file": "images/optimized/socks027.webp",
-      "x": 3135,
-      "y": 4809,
-      "width": 1193,
-      "height": 929,
-      "sourceHash": "3e1916a780452efe004da048eaefd7f956e29081"
-    },
     "assets/sprites/tights008.png": {
       "file": "images/optimized/tights008.webp",
       "x": 2817,
@@ -594,6 +586,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1519,
       "height": 3036,
       "sourceHash": "9c985f127d92c238c8642bf8fa0968b24dcdcbaa"
+    },
+    "assets/sprites/tights027.png": {
+      "file": "images/optimized/tights027.webp",
+      "x": 3135,
+      "y": 4809,
+      "width": 1193,
+      "height": 929,
+      "sourceHash": "3e1916a780452efe004da048eaefd7f956e29081"
     },
     "assets/sprites/top001.png": {
       "file": "images/optimized/top001.webp",
