@@ -351,11 +351,12 @@ button {
 .category-tab {
   --category-surface: var(--surface-soft);
   display: inline-flex;
+  position: relative;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
   min-height: 30px;
-  padding: var(--gap-tight) var(--space-2);
+  padding: var(--gap-tight) var(--space-2) var(--gap-tight)
+    calc(var(--space-2) + var(--text-base) + var(--space-2));
   border: 0;
   border-radius: var(--radius);
   background: var(--category-surface);
@@ -378,6 +379,8 @@ button {
 }
 
 .category-equipped-icon {
+  position: absolute;
+  left: var(--space-2);
   flex: 0 0 auto;
   width: var(--text-base);
   height: var(--text-base);

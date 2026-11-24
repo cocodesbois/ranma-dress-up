@@ -203,6 +203,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 2022,
       "sourceHash": "162d3b71c11a8c3d41fadcc8854dd53701817301"
     },
+    "assets/sprites/dress028.png": {
+      "file": "images/optimized/dress028.webp",
+      "x": 2399,
+      "y": 1932,
+      "width": 1657,
+      "height": 2491,
+      "sourceHash": "4a27d28aed3adafa995d1da6d313bef87e6096a8"
+    },
     "assets/sprites/glasses023.png": {
       "file": "images/optimized/glasses023.webp",
       "x": 3089,
@@ -210,6 +218,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 477,
       "height": 270,
       "sourceHash": "9b5bf1b7c275b2dc201662d89dad4069de0afa53"
+    },
+    "assets/sprites/glasses028.png": {
+      "file": "images/optimized/glasses028.webp",
+      "x": 3092,
+      "y": 1458,
+      "width": 464,
+      "height": 257,
+      "sourceHash": "e00a023bbd6c82fdf27a82e88ca030b42029f854"
     },
     "assets/sprites/gloves025.png": {
       "file": "images/optimized/gloves025.webp",
@@ -531,6 +547,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 709,
       "sourceHash": "1efb5224447fccca2e2a83b8e70f649a3ee3d61c"
     },
+    "assets/sprites/shoes028.png": {
+      "file": "images/optimized/shoes028.webp",
+      "x": 3134,
+      "y": 5076,
+      "width": 1199,
+      "height": 678,
+      "sourceHash": "70f3955ca84e3191870b05375902104c47562a91"
+    },
     "assets/sprites/slip006.png": {
       "file": "images/optimized/slip006.webp",
       "x": 2861,
@@ -594,6 +618,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1193,
       "height": 929,
       "sourceHash": "3e1916a780452efe004da048eaefd7f956e29081"
+    },
+    "assets/sprites/tights028.png": {
+      "file": "images/optimized/tights028.webp",
+      "x": 3102,
+      "y": 4705,
+      "width": 1224,
+      "height": 1036,
+      "sourceHash": "4164d9d74c8e987f1ae293c516b6143e33f00ce7"
     },
     "assets/sprites/top001.png": {
       "file": "images/optimized/top001.webp",
