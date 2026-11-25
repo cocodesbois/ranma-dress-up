@@ -96,6 +96,28 @@ export function validateCatalog({
       errors.push(`Item "${item.id}" uses unknown category "${item.category}".`);
     }
   }
+  const categoryOrder = new Map(catalog.categories.map(({ id }, index) => [id, index]));
+  let previousCategoryIndex = -1;
+  const lastItemByCategory = new Map<string, string>();
+  for (const item of catalog.items) {
+    const itemCategoryIndex = categoryOrder.get(item.category);
+    if (itemCategoryIndex === undefined) {
+      continue;
+    }
+    if (itemCategoryIndex < previousCategoryIndex) {
+      errors.push(
+        `Items must follow category declaration order; "${item.id}" (${item.category}) is out of order.`,
+      );
+    }
+    const previousItemId = lastItemByCategory.get(item.category);
+    if (previousItemId && item.id <= previousItemId) {
+      errors.push(
+        `Items in category "${item.category}" must be sorted by id; "${item.id}" comes after "${previousItemId}".`,
+      );
+    }
+    previousCategoryIndex = itemCategoryIndex;
+    lastItemByCategory.set(item.category, item.id);
+  }
 
   try {
     createOutfitPresets(catalog);

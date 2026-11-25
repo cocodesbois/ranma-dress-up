@@ -35,7 +35,7 @@ function createFixture() {
     background: { source: "assets/sprites/background.png" },
     base: { ...layer("body"), source: "assets/sprites/body.png" },
     categories: layerOrder.map((id) => ({ id, label: id })),
-    items: [hair, top],
+    items: [top, hair],
     outfits: [{ id: "005", label: "Default", items: { hair: hair.id, tops: top.id } }],
   };
   const testManifest: SpriteManifest = {
@@ -102,6 +102,27 @@ describe("catalog validation", () => {
   });
 
   describe("existing rules", () => {
+    it("rejects items that do not follow the category declaration order", () => {
+      const fixture = createFixture();
+      fixture.catalog.items = [fixture.hair, fixture.top];
+      expect(validate(fixture).errors).toContain(
+        'Items must follow category declaration order; "top001" (tops) is out of order.',
+      );
+    });
+
+    it("rejects items that are not sorted by id inside the same category", () => {
+      const fixture = createFixture();
+      const top010 = sourceItem("top010", "tops");
+      fixture.catalog.items = [top010, fixture.top, fixture.hair];
+      fixture.manifest.sprites["assets/sprites/top010.png"] = sprite("top010");
+      fixture.paths.add("assets/sprites/top010.png");
+      fixture.paths.add("public/images/optimized/top010.webp");
+      fixture.paths.add("public/images/thumbnails/top010.png");
+      expect(validate(fixture).errors).toContain(
+        'Items in category "tops" must be sorted by id; "top001" comes after "top010".',
+      );
+    });
+
     it("rejects duplicated item IDs", () => {
       const fixture = createFixture();
       fixture.catalog.items.push({ ...fixture.top });

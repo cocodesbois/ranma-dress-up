@@ -59,3 +59,80 @@ class PrepareSpritesTest(unittest.TestCase):
                 self.assertFalse((root / "sprites").exists())
                 optimizer.optimize_all.assert_not_called()
                 thumbnails.write_thumbnail.assert_not_called()
+
+    def test_update_catalog_items_sorts_by_category_then_id(self):
+        catalog_text = """const catalog: Catalog = {
+  categories: [
+    { id: "tops", label: "Tops" },
+    { id: "pants", label: "Pants" },
+  ],
+  // Categories that cannot be worn together.
+  items: [
+    {
+      id: "top010",
+      category: "tops",
+      label: "Top 10",
+      source: "assets/sprites/top010.png",
+      thumbnailSource: "images/thumbnails/top010.png",
+      thumbnail: { x: 1, y: 1, width: 1, height: 1 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "pants005",
+      category: "pants",
+      label: "Pants 05",
+      source: "assets/sprites/pants005.png",
+      thumbnailSource: "images/thumbnails/pants005.png",
+      thumbnail: { x: 2, y: 2, width: 2, height: 2 },
+      placement: sharedSpritePlacement
+    }
+  ],
+  outfits: [],
+};"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            optimizer = types.ModuleType("sprite_optimize")
+            optimizer.optimize_all = Mock()
+            thumbnails = types.ModuleType("thumbnail_utils")
+            thumbnails.THUMBNAILS_DIR = root / "thumbnails"
+            thumbnails.compute_alpha_bbox = Mock(return_value=(0, 0, 4, 4))
+            thumbnails.write_thumbnail = Mock()
+            spec = importlib.util.spec_from_file_location(
+                "prepare_sprites", SCRIPTS_DIR / "prepare-sprites.py"
+            )
+            module = importlib.util.module_from_spec(spec)
+            with patch.dict(sys.modules, {
+                "sprite_optimize": optimizer,
+                "thumbnail_utils": thumbnails,
+            }):
+                spec.loader.exec_module(module)
+
+            catalog_path = root / "sprite-catalog.ts"
+            catalog_path.write_text(catalog_text, encoding="utf-8")
+
+            module.update_catalog_items(
+                catalog_path,
+                [
+                    module.CatalogItemEntry(
+                        id="top001",
+                        category="tops",
+                        label="Top 01",
+                        source="assets/sprites/top001.png",
+                        thumbnail_source="images/thumbnails/top001.png",
+                        thumbnail=(0, 0, 5, 5),
+                    ),
+                    module.CatalogItemEntry(
+                        id="pants001",
+                        category="pants",
+                        label="Pants 01",
+                        source="assets/sprites/pants001.png",
+                        thumbnail_source="images/thumbnails/pants001.png",
+                        thumbnail=(0, 0, 6, 6),
+                    ),
+                ],
+            )
+
+            updated = catalog_path.read_text(encoding="utf-8")
+            self.assertLess(updated.index('id: "top001"'), updated.index('id: "top010"'))
+            self.assertLess(updated.index('id: "top010"'), updated.index('id: "pants001"'))
+            self.assertLess(updated.index('id: "pants001"'), updated.index('id: "pants005"'))

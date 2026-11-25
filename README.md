@@ -102,10 +102,10 @@ python scripts/prepare-sprites.py <folder> --dry-run
     - Use `jumpsuitNNN.png` for one-piece garments with trouser legs and `apronNNN.png` for optional aprons or pinafores. Plural tokens (`jumpsuits`, `aprons`) are also accepted. Export these layers separately on the shared canvas.
     - It stops on unrecognized names, duplicate targets, or collisions with existing sprites. Resolve those first; do not overwrite files.
 
-3. If the dry run looks correct, run the same command without `--dry-run`:
+3. If the dry run looks correct, run the same command with `--update-catalog`:
 
 ```powershell
-python scripts/prepare-sprites.py <folder>
+python scripts/prepare-sprites.py <folder> --update-catalog
 ```
 
     This command:
@@ -113,9 +113,21 @@ python scripts/prepare-sprites.py <folder>
     - generates `public/images/thumbnails/<item-id>.png`
     - generates/updates `public/images/optimized/<name>.webp`
     - updates `src/data/sprite-manifest.ts`
+    - inserts new entries in `items` in `src/data/sprite-catalog.ts`
+      respecting the `categories` declaration order and sorting by item ID inside each category
     - prints catalog item snippets that include `thumbnailSource` and `thumbnail` crop data
 
-4. Paste each printed snippet into `items` in `src/data/sprite-catalog.ts`, near items of the same category. - Keep `source` as `assets/sprites/<name>.png`. - Keep `thumbnailSource` as `images/thumbnails/<item-id>.png` (no `public/` prefix). - Verify labels before saving. 5. Add a preset in `outfits` with the next free `id` and label. - Map category IDs to item IDs (not filenames). - Include `hair` and at least one clothing category. - Reuse existing items where appropriate (for example `hair001`). - Do not modify the live `Look` state or controllers to force a new preset. 6. If you edited or replaced any existing PNG (not just adding new files), run:
+4. Verify inserted catalog labels before saving.
+
+- Keep `source` as `assets/sprites/<name>.png`.
+- Keep `thumbnailSource` as `images/thumbnails/<item-id>.png` (no `public/` prefix).
+
+5. Add a preset in `outfits` with the next free `id` and label.
+   - Map category IDs to item IDs (not filenames).
+   - Include `hair` and at least one clothing category.
+   - Reuse existing items where appropriate (for example `hair001`).
+   - Do not modify the live `Look` state or controllers to force a new preset.
+6. If you edited or replaced any existing PNG (not just adding new files), run:
 
 ```powershell
 python scripts/optimize-sprites.py
@@ -170,6 +182,7 @@ or top/pants combination, but does not satisfy a preset's clothing requirement
 alone. Both jumpsuits and dresses draw above shoes so their hems can cover them.
 
 The GitHub Pages workflow checks lint, formatting, TypeScript types, catalog IDs/outfit rules, asset files and unused files, tests, and optimized sprites, then builds with Vite and publishes `dist/`. Pull requests run the same checks and build without deploying. Full-size exports in `assets/sprites/` are not published. Run `npm run validate:catalog` locally to check catalog data, source images, optimized images, and thumbnails.
+`npm run validate:catalog` also enforces that `items` in `src/data/sprite-catalog.ts` stay ordered by catalog category and item ID.
 
 ### Optimized sprites (WebP)
 
