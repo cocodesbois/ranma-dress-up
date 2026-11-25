@@ -60,11 +60,13 @@ class PrepareSpritesTest(unittest.TestCase):
                 optimizer.optimize_all.assert_not_called()
                 thumbnails.write_thumbnail.assert_not_called()
 
-    def test_update_catalog_items_sorts_by_category_then_id(self):
+    def test_update_catalog_items_sorts_items_and_adds_matching_outfit(self):
         catalog_text = """const catalog: Catalog = {
   categories: [
     { id: "tops", label: "Tops" },
     { id: "pants", label: "Pants" },
+    { id: "dresses", label: "Dresses" },
+    { id: "hair", label: "Hair" },
   ],
   // Categories that cannot be worn together.
   items: [
@@ -84,6 +86,15 @@ class PrepareSpritesTest(unittest.TestCase):
       source: "assets/sprites/pants005.png",
       thumbnailSource: "images/thumbnails/pants005.png",
       thumbnail: { x: 2, y: 2, width: 2, height: 2 },
+      placement: sharedSpritePlacement
+    },
+    {
+      id: "hair001",
+      category: "hair",
+      label: "Hair 1",
+      source: "assets/sprites/hair001.png",
+      thumbnailSource: "images/thumbnails/hair001.png",
+      thumbnail: { x: 0, y: 0, width: 1, height: 1 },
       placement: sharedSpritePlacement
     }
   ],
@@ -136,3 +147,36 @@ class PrepareSpritesTest(unittest.TestCase):
             self.assertLess(updated.index('id: "top001"'), updated.index('id: "top010"'))
             self.assertLess(updated.index('id: "top010"'), updated.index('id: "pants001"'))
             self.assertLess(updated.index('id: "pants001"'), updated.index('id: "pants005"'))
+            outfit = updated.split('outfits: [', 1)[1]
+            self.assertIn('id: "001"', outfit)
+            self.assertIn('label: "Outfit 01"', outfit)
+            self.assertIn('tops: "top001"', outfit)
+            self.assertIn('pants: "pants001"', outfit)
+            self.assertIn('hair: "hair001"', outfit)
+
+            module.update_catalog_items(
+                catalog_path,
+                [
+                    module.CatalogItemEntry(
+                        id="dress002",
+                        category="dresses",
+                        label="Dress 02",
+                        source="assets/sprites/dress002.png",
+                        thumbnail_source="images/thumbnails/dress002.png",
+                        thumbnail=(0, 0, 5, 5),
+                    ),
+                    module.CatalogItemEntry(
+                        id="hair002",
+                        category="hair",
+                        label="Hair 02",
+                        source="assets/sprites/hair002.png",
+                        thumbnail_source="images/thumbnails/hair002.png",
+                        thumbnail=(0, 0, 5, 5),
+                    ),
+                ],
+            )
+            updated = catalog_path.read_text(encoding="utf-8")
+            outfit = updated.split('id: "002"', 1)[1].split('    },', 1)[0]
+            self.assertIn('dresses: "dress002"', outfit)
+            self.assertIn('hair: "hair002"', outfit)
+            self.assertNotIn('hair: "hair001"', outfit)

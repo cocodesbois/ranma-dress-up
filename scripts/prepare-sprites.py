@@ -61,6 +61,10 @@ ITEMS_SECTION_PATTERN = re.compile(
     r"items:\s*\[(?P<body>[\s\S]*?)\],\s*outfits:",
     re.MULTILINE,
 )
+OUTFITS_SECTION_PATTERN = re.compile(
+    r"outfits:\s*\[(?P<body>[\s\S]*?)\],",
+    re.MULTILINE,
+)
 ITEM_BLOCK_PATTERN = re.compile(
     r"\{[\s\S]*?placement:\s*sharedSpritePlacement\s*,?\s*\},?", re.MULTILINE
 )
@@ -137,6 +141,72 @@ def _parse_existing_items(items_body: str) -> list[ExistingCatalogItem]:
     return parsed
 
 
+def _format_catalog_outfit(outfit_id: str, items: dict[str, str]) -> str:
+    item_lines = ",\n".join(
+        f'        {category}: "{item_id}"' for category, item_id in items.items()
+    )
+    return (
+        "    {\n"
+        f'      id: "{outfit_id}",\n'
+        f'      label: "Outfit {int(outfit_id):02d}",\n'
+        "      items: {\n"
+        f"{item_lines}\n"
+        "      },\n"
+        "    }"
+    )
+
+
+def _new_catalog_outfits(
+    catalog_text: str,
+    new_items: list[CatalogItemEntry],
+    category_order: list[str],
+    available_item_ids: set[str],
+) -> list[tuple[str, str]]:
+    outfits_match = OUTFITS_SECTION_PATTERN.search(catalog_text)
+    if not outfits_match:
+        raise RuntimeError("Could not find the outfits section in sprite-catalog.ts.")
+
+    existing_ids = set(ID_PATTERN.findall(outfits_match.group("body")))
+
+    grouped: dict[str, dict[str, str]] = {}
+    for item in new_items:
+        number_match = re.search(r"(\d+)$", item.id)
+        if not number_match:
+            raise RuntimeError(f'Could not determine outfit ID from catalog item "{item.id}".')
+        outfit_id = number_match.group(1)
+        category_items = grouped.setdefault(outfit_id, {})
+        if item.category in category_items:
+            raise RuntimeError(
+                f'Cannot create outfit "{outfit_id}": multiple new items use category "{item.category}".'
+            )
+        category_items[item.category] = item.id
+
+    clothing_categories = {
+        "bodysuits", "jumpsuits", "underwear", "slips", "tights",
+        "tops", "dresses", "pants",
+    }
+    new_outfits = []
+    for outfit_id in sorted(grouped, key=int):
+        outfit_items = grouped[outfit_id]
+        if not clothing_categories.intersection(outfit_items):
+            continue
+        if outfit_id in existing_ids:
+            raise RuntimeError(f'Outfit "{outfit_id}" already exists in sprite-catalog.ts.')
+        if "hair" not in outfit_items:
+            if "hair001" not in available_item_ids:
+                raise RuntimeError(
+                    f'Cannot create outfit "{outfit_id}": default hair item "hair001" is missing.'
+                )
+            outfit_items["hair"] = "hair001"
+        ordered_items = {
+            category: outfit_items[category]
+            for category in category_order
+            if category in outfit_items
+        }
+        new_outfits.append((outfit_id, _format_catalog_outfit(outfit_id, ordered_items)))
+    return new_outfits
+
+
 def update_catalog_items(catalog_path: Path, new_items: list[CatalogItemEntry]) -> None:
     catalog_text = catalog_path.read_text(encoding="utf-8")
     items_section_match = ITEMS_SECTION_PATTERN.search(catalog_text)
@@ -155,6 +225,7 @@ def update_catalog_items(catalog_path: Path, new_items: list[CatalogItemEntry]) 
             raise RuntimeError(f'Unknown catalog category "{item.category}" for item "{item.id}".')
         all_ids.add(item.id)
 
+    new_outfits = _new_catalog_outfits(catalog_text, new_items, category_order, all_ids)
     merged = existing_items + [
         ExistingCatalogItem(
             id=item.id,
@@ -171,6 +242,23 @@ def update_catalog_items(catalog_path: Path, new_items: list[CatalogItemEntry]) 
         + items_body
         + catalog_text[items_section_match.end("body") :]
     )
+    if new_outfits:
+        outfits_section_match = OUTFITS_SECTION_PATTERN.search(updated_text)
+        if not outfits_section_match:
+            raise RuntimeError("Could not find the outfits section in sprite-catalog.ts.")
+        existing_outfits = outfits_section_match.group("body").rstrip()
+        appended_outfits = ",\n".join(outfit for _, outfit in new_outfits)
+        outfits_body = (
+            existing_outfits
+            + (",\n" if existing_outfits else "\n")
+            + appended_outfits
+            + "\n  "
+        )
+        updated_text = (
+            updated_text[: outfits_section_match.start("body")]
+            + outfits_body
+            + updated_text[outfits_section_match.end("body") :]
+        )
     catalog_path.write_text(updated_text, encoding="utf-8")
 
 
