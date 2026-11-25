@@ -92,6 +92,8 @@ class ExistingCatalogItem:
 
 def _normalize_block(block: str) -> str:
     lines = [line.rstrip() for line in block.strip().splitlines()]
+    if lines and lines[-1].endswith(","):
+        lines[-1] = lines[-1][:-1]
     return "\n".join(f"    {line.lstrip()}" for line in lines)
 
 
