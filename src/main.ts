@@ -47,7 +47,7 @@ if (!spriteManifest) {
 }
 
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
-const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "005");
+const defaultOutfit = catalogModel.getDefaultOutfitLook(outfitPresets, "001");
 
 if (!defaultOutfit) {
   throw new Error("No complete outfits with a hairstyle are available.");

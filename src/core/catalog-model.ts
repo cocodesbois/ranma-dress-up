@@ -101,7 +101,7 @@ export function createOutfitPresets(catalog: Catalog): OutfitPreset[] {
  */
 export function getDefaultOutfitLook(
   outfitPresets: OutfitPreset[],
-  preferredId = "005",
+  preferredId = "001",
 ): Look | undefined {
   return (
     outfitPresets.find((preset) => String(preset.id) === String(preferredId))?.look ??
