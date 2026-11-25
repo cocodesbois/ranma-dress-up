@@ -1125,6 +1125,15 @@ const catalog: Catalog = {
         hair: "hair001",
       },
     },
+    {
+      id: "029",
+      label: "Outfit 29",
+      items: {
+        tops: "top029",
+        pants: "pants029",
+        hair: "hair001",
+      },
+    }
   ],
 };
 
