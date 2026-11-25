@@ -115,14 +115,18 @@ python scripts/prepare-sprites.py <folder> --update-catalog
     - updates `src/data/sprite-manifest.ts`
     - inserts new entries in `items` in `src/data/sprite-catalog.ts`
       respecting the `categories` declaration order and sorting by item ID inside each category
+    - creates an outfit for each numeric item suffix that includes clothing,
+      using that suffix as the outfit ID and all imported items with that suffix;
+      it uses `hair001` if no matching hair item was imported
     - prints catalog item snippets that include `thumbnailSource` and `thumbnail` crop data
 
-4. Verify inserted catalog labels before saving.
+4. Verify inserted catalog labels and automatically created outfits before saving.
 
 - Keep `source` as `assets/sprites/<name>.png`.
 - Keep `thumbnailSource` as `images/thumbnails/<item-id>.png` (no `public/` prefix).
 
-5. Add a preset in `outfits` with the next free `id` and label.
+5. If an outfit was not created automatically, add a preset in `outfits` with a
+   unique `id` and label.
    - Map category IDs to item IDs (not filenames).
    - Include `hair` and at least one clothing category.
    - Reuse existing items where appropriate (for example `hair001`).
