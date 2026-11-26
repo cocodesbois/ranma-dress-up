@@ -475,6 +475,14 @@ const spriteManifest: Types.SpriteManifest = {
       "height": 559,
       "sourceHash": "2795aefd93d46344563825f3b25415b5b2b61369"
     },
+    "assets/sprites/pants034.png": {
+      "file": "images/optimized/pants034.webp",
+      "x": 2797,
+      "y": 2885,
+      "width": 1448,
+      "height": 2444,
+      "sourceHash": "ab49acd72b64cdbd43ff8acedf6a425fb7eeeea9"
+    },
     "assets/sprites/shoes001.png": {
       "file": "images/optimized/shoes001.webp",
       "x": 3130,
@@ -642,6 +650,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1197,
       "height": 687,
       "sourceHash": "db8d14b09b61f1b147f2205e23c7f7727b529e97"
+    },
+    "assets/sprites/shoes034.png": {
+      "file": "images/optimized/shoes034.webp",
+      "x": 3137,
+      "y": 5080,
+      "width": 1201,
+      "height": 664,
+      "sourceHash": "88eeda6fa4588c0f84ef75fc73ed8bff6667bd0c"
     },
     "assets/sprites/slip006.png": {
       "file": "images/optimized/slip006.webp",
@@ -874,6 +890,14 @@ const spriteManifest: Types.SpriteManifest = {
       "width": 1654,
       "height": 1440,
       "sourceHash": "40a1230f290e85d36f250700b50dafd85c9a9857"
+    },
+    "assets/sprites/top034.png": {
+      "file": "images/optimized/top034.webp",
+      "x": 2305,
+      "y": 1861,
+      "width": 1853,
+      "height": 1366,
+      "sourceHash": "4d66c561440923fcc02280416c6759b8bead9fa5"
     }
   }
 };
