@@ -10,7 +10,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 3. For every outfit mapping (`{ category: itemId }`), the referenced item must exist and its `item.category` must equal the mapping key category.
 4. Every outfit must include:
    - `hair` (mandatory), and
-   - at least one clothing category among: `bodysuits`, `jumpsuits`, `underwear`, `slips`, `tights`, `tops`, `dresses`, `pants`. `aprons` is an optional overlay and does not satisfy this requirement alone.
+   - at least one clothing category among: `bodysuits`, `jumpsuits`, `bras`, `slips`, `tights`, `tops`, `dresses`, `pants`. `aprons` is an optional overlay and does not satisfy this requirement alone.
 5. Outfit IDs and image filenames are independent. Do not infer item filenames from outfit IDs.
 6. Keep shared item IDs reused across outfits instead of duplicating catalog items.
 7. `incompatibleCategories` is a list of `[categoryA, categoryB]` pairs of category IDs that cannot be worn together. Both IDs must exist, a pair works in both directions, and no outfit may contain items from both categories of a pair (`createOutfitPresets` throws otherwise).
@@ -43,12 +43,12 @@ Use this file as the source of truth for data and behavior constraints when chan
    - `tops` clears `bodysuits`
    - `pants` clears `bodysuits`, `dresses`, `jumpsuits`
    - `dresses` clears `bodysuits`, `pants`, `jumpsuits`
-   - `jumpsuits` clears `pants`, `dresses`, `bodysuits`, but preserves tops, underwear, slips and tights
+   - `jumpsuits` clears `pants`, `dresses`, `bodysuits`, but preserves tops, bras, slips and tights
    - `gloves` and `bracelets` clear each other
    - `aprons` has no exclusions and can be selected or removed independently
 3. A category whose images only partly load still shows the loaded items, plus an alert with a "Try again" button for the others. Items whose sprite is not loaded are never offered, because they could not be drawn. Only the scene, the base character and the current look are required at startup.
 4. `layerOrder` in `src/data/layer-order.ts` is the single list of categories and their draw order, and must stay coherent with visual composition:
-   `underwear → slips → tights → bodysuits → pants → tops → shoes → jumpsuits → dresses → aprons → hair → hats → necklace → bracelets → accessories`.
+   `bras → slips → tights → bodysuits → pants → tops → shoes → jumpsuits → dresses → aprons → hair → hats → necklace → bracelets → accessories`.
    Dresses and jumpsuits render over shoes so their hems can hide them where appropriate. Aprons and pinafores render over clothing, below hair. The `CategoryId` type is derived from this list, so an item, an outfit or an incompatible pair cannot use a category that is missing from it, and the renderer draws every category. To add a category: add it to `layerOrder` at its draw position, then to `categories` in the catalog (label and tab position).
 
 ## Garment classification and imports

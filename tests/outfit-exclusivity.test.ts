@@ -136,7 +136,7 @@ describe("manual selection exclusivity", () => {
       tops: "existing-tops",
       slips: "existing-slips",
       tights: "existing-tights",
-      underwear: "existing-underwear",
+      bras: "existing-bras",
       aprons: "existing-aprons",
       pants: null,
       dresses: null,

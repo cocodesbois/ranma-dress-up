@@ -10,7 +10,7 @@
  * renderer cannot forget to draw it.
  */
 export const layerOrder = [
-  "underwear",
+  "bras",
   "slips",
   "tights",
   "bodysuits",
