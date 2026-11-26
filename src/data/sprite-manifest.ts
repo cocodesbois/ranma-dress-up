@@ -105,7 +105,7 @@ const spriteManifest: Types.SpriteManifest = {
       "y": 1070,
       "width": 2190,
       "height": 4670,
-      "sourceHash": "55fe9895656ae4313c8905ce92c5d5e07bc12835"
+      "sourceHash": "98b6c4366af9e956573cf1bf666feaa5985a3256"
     },
     "assets/sprites/bodysuit009.png": {
       "file": "images/optimized/bodysuit009.webp",
