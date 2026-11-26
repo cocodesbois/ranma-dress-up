@@ -80,7 +80,7 @@ remplacer les seuils dans les conditions des media queries.
 1. Le modèle transforme chaque `Outfit` en preset avec ses objets `Item` résolus et
    son `Look` complet (catégorie → ID ou `null`). Il vérifie les références,
    les catégories, la présence de cheveux et d'au moins un vêtement.
-2. `main.ts` choisit le preset `005`, ou le premier disponible, et copie son look
+2. `main.ts` choisit le preset `001`, ou le premier disponible, et copie son look
    dans un nouveau store.
 3. Le bootstrap branche les contrôles et les observateurs de taille/densité, puis
    appelle `startApp()`.

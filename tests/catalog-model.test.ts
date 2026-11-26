@@ -81,7 +81,7 @@ describe("published catalog constraints", () => {
   it("creates every published preset and resolves the default look", () => {
     const presets = createOutfitPresets(catalog);
     expect(presets).toHaveLength(catalog.outfits.length);
-    expect(getDefaultOutfitLook(presets)).toBe(required(findPresetById(presets, "005")).look);
+    expect(getDefaultOutfitLook(presets)).toBe(required(findPresetById(presets, "001")).look);
     for (const preset of presets) {
       expect(Object.keys(preset.look).sort()).toEqual(
         catalog.categories.map(({ id }) => id).sort(),

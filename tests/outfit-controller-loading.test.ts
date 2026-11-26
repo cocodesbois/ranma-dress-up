@@ -7,7 +7,7 @@ import { createOutfitController } from "../src/ui/outfit-controller";
 import { required } from "./fixtures";
 
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
-const defaultOutfit = required(catalogModel.getDefaultOutfitLook(outfitPresets, "005"));
+const defaultOutfit = required(catalogModel.getDefaultOutfitLook(outfitPresets, "001"));
 const topsCategory = required(catalog.categories.find(({ id }) => id === "tops"));
 const dressesCategory = required(catalog.categories.find(({ id }) => id === "dresses"));
 const topItems = catalog.items.filter(({ category }) => category === "tops");
