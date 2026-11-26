@@ -396,6 +396,15 @@ const catalog: Catalog = {
     placement: sharedSpritePlacement
     },
     {
+      id: "top034",
+      category: "tops",
+      label: "Top 34",
+      source: "assets/sprites/top034.png",
+      thumbnailSource: "images/thumbnails/top034.png",
+      thumbnail: { x: 2305, y: 1861, width: 1853, height: 1366 },
+      placement: sharedSpritePlacement
+    },
+    {
     id: "gloves025",
     category: "gloves",
     label: "Gloves 25",
@@ -570,12 +579,21 @@ const catalog: Catalog = {
     placement: sharedSpritePlacement
     },
     {
-      id: "pants033",
+    id: "pants033",
+    category: "pants",
+    label: "Pants 33",
+    source: "assets/sprites/pants033.png",
+    thumbnailSource: "images/thumbnails/pants033.png",
+    thumbnail: { x: 2692, y: 2962, width: 968, height: 559 },
+    placement: sharedSpritePlacement
+    },
+    {
+      id: "pants034",
       category: "pants",
-      label: "Pants 33",
-      source: "assets/sprites/pants033.png",
-      thumbnailSource: "images/thumbnails/pants033.png",
-      thumbnail: { x: 2692, y: 2962, width: 968, height: 559 },
+      label: "Pants 34",
+      source: "assets/sprites/pants034.png",
+      thumbnailSource: "images/thumbnails/pants034.png",
+      thumbnail: { x: 2797, y: 2885, width: 1448, height: 2444 },
       placement: sharedSpritePlacement
     },
     {
@@ -847,6 +865,15 @@ const catalog: Catalog = {
     thumbnailSource: "images/thumbnails/shoes032.png",
     thumbnail: { x: 3135, y: 5074, width: 1197, height: 687 },
     placement: sharedSpritePlacement
+    },
+    {
+      id: "shoes034",
+      category: "shoes",
+      label: "Shoes 34",
+      source: "assets/sprites/shoes034.png",
+      thumbnailSource: "images/thumbnails/shoes034.png",
+      thumbnail: { x: 3137, y: 5080, width: 1201, height: 664 },
+      placement: sharedSpritePlacement
     },
     {
     id: "necklace024",
@@ -1300,6 +1327,16 @@ const catalog: Catalog = {
       items: {
         pants: "pants033",
         hair: "hair001"
+      },
+    },
+    {
+      id: "034",
+      label: "Outfit 34",
+      items: {
+        tops: "top034",
+        pants: "pants034",
+        hair: "hair001",
+        shoes: "shoes034"
       },
     }
   ],
