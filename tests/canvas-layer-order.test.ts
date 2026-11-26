@@ -5,7 +5,7 @@ import type { CategoryId, Look } from "../src/types";
 import { item, layer, manifest } from "./fixtures";
 
 const expectedOrder: CategoryId[] = [
-  "underwear",
+  "bras",
   "slips",
   "tights",
   "bodysuits",

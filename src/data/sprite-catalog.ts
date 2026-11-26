@@ -30,7 +30,7 @@ const catalog: Catalog = {
   categories: [
     { id: "bodysuits", label: "Bodysuits" },
     { id: "jumpsuits", label: "Jumpsuits" },
-    { id: "underwear", label: "Underwear" },
+    { id: "bras", label: "Bras" },
     { id: "slips", label: "Slips" },
     { id: "tights", label: "Tights & socks" },
     { id: "tops", label: "Tops" },
@@ -138,6 +138,15 @@ const catalog: Catalog = {
     placement: sharedSpritePlacement,
     },
     {
+      id: "bras032",
+      category: "bras",
+      label: "Bras 32",
+      source: "assets/sprites/bras032.png",
+      thumbnailSource: "images/thumbnails/bras032.png",
+      thumbnail: { x: 2909, y: 1986, width: 673, height: 528 },
+      placement: sharedSpritePlacement
+    },
+    {
     id: "slip006",
     category: "slips",
     label: "Slip 06",
@@ -179,6 +188,15 @@ const catalog: Catalog = {
     thumbnailSource: "images/thumbnails/slip030.png",
     thumbnail: { x: 3018, y: 2807, width: 512, height: 518 },
     placement: sharedSpritePlacement
+    },
+    {
+      id: "slip032",
+      category: "slips",
+      label: "Slip 32",
+      source: "assets/sprites/slip032.png",
+      thumbnailSource: "images/thumbnails/slip032.png",
+      thumbnail: { x: 2964, y: 2908, width: 564, height: 425 },
+      placement: sharedSpritePlacement
     },
     {
     id: "tights008",
@@ -369,13 +387,13 @@ const catalog: Catalog = {
     placement: sharedSpritePlacement
     },
     {
-      id: "top031",
-      category: "tops",
-      label: "Top 31",
-      source: "assets/sprites/top031.png",
-      thumbnailSource: "images/thumbnails/top031.png",
-      thumbnail: { x: 2419, y: 1868, width: 1654, height: 1440 },
-      placement: sharedSpritePlacement
+    id: "top031",
+    category: "tops",
+    label: "Top 31",
+    source: "assets/sprites/top031.png",
+    thumbnailSource: "images/thumbnails/top031.png",
+    thumbnail: { x: 2419, y: 1868, width: 1654, height: 1440 },
+    placement: sharedSpritePlacement
     },
     {
     id: "gloves025",
@@ -419,6 +437,15 @@ const catalog: Catalog = {
     thumbnailSource: "images/thumbnails/dress028.png",
     thumbnail: { x: 2399, y: 1932, width: 1657, height: 2491 },
     placement: sharedSpritePlacement,
+    },
+    {
+      id: "dress032",
+      category: "dresses",
+      label: "Dress 32",
+      source: "assets/sprites/dress032.png",
+      thumbnailSource: "images/thumbnails/dress032.png",
+      thumbnail: { x: 2290, y: 1957, width: 2181, height: 3235 },
+      placement: sharedSpritePlacement
     },
     {
     id: "apron021",
@@ -534,13 +561,13 @@ const catalog: Catalog = {
     placement: sharedSpritePlacement
     },
     {
-      id: "pants031",
-      category: "pants",
-      label: "Pants 31",
-      source: "assets/sprites/pants031.png",
-      thumbnailSource: "images/thumbnails/pants031.png",
-      thumbnail: { x: 2796, y: 2805, width: 1456, height: 2608 },
-      placement: sharedSpritePlacement
+    id: "pants031",
+    category: "pants",
+    label: "Pants 31",
+    source: "assets/sprites/pants031.png",
+    thumbnailSource: "images/thumbnails/pants031.png",
+    thumbnail: { x: 2796, y: 2805, width: 1456, height: 2608 },
+    placement: sharedSpritePlacement
     },
     {
     id: "hair001",
@@ -602,6 +629,15 @@ const catalog: Catalog = {
     thumbnailSource: "images/thumbnails/hat027.png",
     thumbnail: { x: 3060, y: 1185, width: 470, height: 282 },
     placement: sharedSpritePlacement,
+    },
+    {
+      id: "hat032",
+      category: "hats",
+      label: "Hat 32",
+      source: "assets/sprites/hat032.png",
+      thumbnailSource: "images/thumbnails/hat032.png",
+      thumbnail: { x: 2929, y: 1172, width: 622, height: 364 },
+      placement: sharedSpritePlacement
     },
     {
     id: "glasses023",
@@ -786,12 +822,21 @@ const catalog: Catalog = {
     placement: sharedSpritePlacement
     },
     {
-      id: "shoes031",
+    id: "shoes031",
+    category: "shoes",
+    label: "Shoes 31",
+    source: "assets/sprites/shoes031.png",
+    thumbnailSource: "images/thumbnails/shoes031.png",
+    thumbnail: { x: 3134, y: 5259, width: 1206, height: 497 },
+    placement: sharedSpritePlacement
+    },
+    {
+      id: "shoes032",
       category: "shoes",
-      label: "Shoes 31",
-      source: "assets/sprites/shoes031.png",
-      thumbnailSource: "images/thumbnails/shoes031.png",
-      thumbnail: { x: 3134, y: 5259, width: 1206, height: 497 },
+      label: "Shoes 32",
+      source: "assets/sprites/shoes032.png",
+      thumbnailSource: "images/thumbnails/shoes032.png",
+      thumbnail: { x: 3135, y: 5074, width: 1197, height: 687 },
       placement: sharedSpritePlacement
     },
     {
@@ -802,6 +847,15 @@ const catalog: Catalog = {
     thumbnailSource: "images/thumbnails/necklace024.png",
     thumbnail: { x: 3064, y: 1878, width: 296, height: 236 },
     placement: sharedSpritePlacement,
+    },
+    {
+      id: "necklace032",
+      category: "necklace",
+      label: "Necklace 32",
+      source: "assets/sprites/necklace032.png",
+      thumbnailSource: "images/thumbnails/necklace032.png",
+      thumbnail: { x: 3071, y: 1974, width: 254, height: 214 },
+      placement: sharedSpritePlacement
     },
     {
     id: "bracelets001",
@@ -886,6 +940,15 @@ const catalog: Catalog = {
     thumbnailSource: "images/thumbnails/accessories025.png",
     thumbnail: { x: 729, y: 2238, width: 1868, height: 3429 },
     placement: sharedSpritePlacement,
+    },
+    {
+      id: "accessories032",
+      category: "accessories",
+      label: "Accessories 32",
+      source: "assets/sprites/accessories032.png",
+      thumbnailSource: "images/thumbnails/accessories032.png",
+      thumbnail: { x: 3316, y: 3457, width: 381, height: 222 },
+      placement: sharedSpritePlacement
     }
   ],
   outfits: [
@@ -1206,6 +1269,20 @@ const catalog: Catalog = {
         pants: "pants031",
         hair: "hair001",
         shoes: "shoes031"
+      },
+    },
+    {
+      id: "032",
+      label: "Outfit 32",
+      items: {
+        bras: "bras032",
+        slips: "slip032",
+        dresses: "dress032",
+        hair: "hair001",
+        hats: "hat032",
+        shoes: "shoes032",
+        necklace: "necklace032",
+        accessories: "accessories032"
       },
     }
   ],

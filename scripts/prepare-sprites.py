@@ -28,7 +28,8 @@ CATEGORIES = {
     "jumpsuits": ("jumpsuit", "jumpsuits", "Jumpsuit"),
     "apron": ("apron", "aprons", "Apron"),
     "aprons": ("apron", "aprons", "Apron"),
-    "underwear": ("underwear", "underwear", "Underwear"),
+    "bra": ("bras", "bras", "Bras"),
+    "bras": ("bras", "bras", "Bras"),
     "slip": ("slip", "slips", "Slip"),
     "slips": ("slip", "slips", "Slip"),
     "tights": ("tights", "tights", "Tights"),
@@ -182,7 +183,7 @@ def _new_catalog_outfits(
         category_items[item.category] = item.id
 
     clothing_categories = {
-        "bodysuits", "jumpsuits", "underwear", "slips", "tights",
+        "bodysuits", "jumpsuits", "bras", "slips", "tights",
         "tops", "dresses", "pants",
     }
     new_outfits = []
@@ -207,7 +208,9 @@ def _new_catalog_outfits(
     return new_outfits
 
 
-def update_catalog_items(catalog_path: Path, new_items: list[CatalogItemEntry]) -> None:
+def update_catalog_items(
+    catalog_path: Path, new_items: list[CatalogItemEntry], write: bool = True
+) -> str:
     catalog_text = catalog_path.read_text(encoding="utf-8")
     items_section_match = ITEMS_SECTION_PATTERN.search(catalog_text)
     if not items_section_match:
@@ -259,7 +262,9 @@ def update_catalog_items(catalog_path: Path, new_items: list[CatalogItemEntry]) 
             + outfits_body
             + updated_text[outfits_section_match.end("body") :]
         )
-    catalog_path.write_text(updated_text, encoding="utf-8")
+    if write:
+        catalog_path.write_text(updated_text, encoding="utf-8")
+    return updated_text
 
 
 def main():
@@ -273,6 +278,16 @@ def main():
     )
     args = parser.parse_args()
 
+    existing_catalog_item_ids: set[str] = set()
+    if args.update_catalog:
+        catalog_text = CATALOG_PATH.read_text(encoding="utf-8")
+        items_section_match = ITEMS_SECTION_PATTERN.search(catalog_text)
+        if not items_section_match:
+            raise RuntimeError("Could not find the items section in sprite-catalog.ts.")
+        existing_catalog_item_ids = {
+            item.id for item in _parse_existing_items(items_section_match.group("body"))
+        }
+
     plan, errors = [], []
     for file in sorted(args.source.glob("*.png")):
         match = NAME_PATTERN.match(file.name)
@@ -282,10 +297,17 @@ def main():
         word, number = match.group(1).lower(), match.group(2).zfill(3)
         prefix, category, label_word = CATEGORIES[word]
         target = SPRITES_DIR / f"{prefix}{number}.png"
+        if args.update_catalog and target.stem in existing_catalog_item_ids:
+            continue
         if target.exists() and target.resolve() != file.resolve():
+            if args.update_catalog:
+                # Recovery path: a previous run may have already moved the sprite file.
+                plan.append((target, target, category, f"{label_word} {number[1:]}", False, file.name))
+                continue
             errors.append(f"Target already exists: {target.name} (from {file.name})")
             continue
-        plan.append((file, target, category, f"{label_word} {number[1:]}"))
+        needs_move = target.resolve() != file.resolve()
+        plan.append((file, target, category, f"{label_word} {number[1:]}", needs_move, file.name))
 
     names = [p[1].name for p in plan]
     for name in sorted({n for n in names if names.count(n) > 1}):
@@ -294,20 +316,15 @@ def main():
         print("\n".join(errors), file=sys.stderr)
         sys.exit(1)
 
+    pending_thumbnail_writes: list[tuple[Path, str, tuple[int, int, int, int]]] = []
     new_catalog_items: list[CatalogItemEntry] = []
-    for file, target, category, label in plan:
-        print(f"{file.name} -> {target.name}")
-        if not args.dry_run and file.resolve() != target.resolve():
-            shutil.move(str(file), str(target))
-        source_path = file if args.dry_run else target
+    for source_path, target, category, label, _, original_name in plan:
+        print(f"{original_name} -> {target.name}")
         crop = compute_alpha_bbox(source_path)
         if crop is None:
             print(f"  WARNING: {target.name} is fully transparent", file=sys.stderr)
             continue
         x, y, width, height = crop
-        if not args.dry_run:
-            thumbnail_path = write_thumbnail(source_path, target.stem, crop, THUMBNAILS_DIR)
-            print(f"  thumbnail -> {thumbnail_path.name}")
         entry = CatalogItemEntry(
             id=target.stem,
             category=category,
@@ -317,6 +334,7 @@ def main():
             thumbnail=(x, y, width, height),
         )
         new_catalog_items.append(entry)
+        pending_thumbnail_writes.append((target, target.stem, crop))
         print(
             "    {\n"
             + _format_catalog_item(entry).split("\n", 1)[1]
@@ -324,7 +342,20 @@ def main():
         )
 
     if args.update_catalog and new_catalog_items and not args.dry_run:
-        update_catalog_items(CATALOG_PATH, new_catalog_items)
+        # Preflight validation before moving any file.
+        update_catalog_items(CATALOG_PATH, new_catalog_items, write=False)
+
+    for source_path, target, _, _, needs_move, _ in plan:
+        if not args.dry_run and needs_move:
+            shutil.move(str(source_path), str(target))
+
+    if not args.dry_run:
+        for target, stem, crop in pending_thumbnail_writes:
+            thumbnail_path = write_thumbnail(target, stem, crop, THUMBNAILS_DIR)
+            print(f"  thumbnail -> {thumbnail_path.name}")
+
+    if args.update_catalog and new_catalog_items and not args.dry_run:
+        update_catalog_items(CATALOG_PATH, new_catalog_items, write=True)
         print("\nCatalog updated: src/data/sprite-catalog.ts")
 
     if plan and not args.dry_run:

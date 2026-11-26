@@ -9,7 +9,7 @@ import type { Catalog, CategoryId, Item, Look, OutfitPreset } from "../types";
 const REQUIRED_CLOTHING_CATEGORIES: readonly CategoryId[] = [
   "bodysuits",
   "jumpsuits",
-  "underwear",
+  "bras",
   "slips",
   "tights",
   "tops",

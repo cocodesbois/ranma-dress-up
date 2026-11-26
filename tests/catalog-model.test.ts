@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import catalog from "../src/data/sprite-catalog";
 import {
   createOutfitPresets,
   findPresetById,
@@ -7,13 +6,14 @@ import {
   getExcludedCategories,
   getMatchingOutfit,
 } from "../src/core/catalog-model";
+import catalog from "../src/data/sprite-catalog";
 import type { Catalog, CategoryId } from "../src/types";
 import { item, layer, required } from "./fixtures";
 
 const clothingCategories: CategoryId[] = [
   "bodysuits",
   "jumpsuits",
-  "underwear",
+  "bras",
   "slips",
   "tights",
   "tops",

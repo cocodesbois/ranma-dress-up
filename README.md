@@ -101,6 +101,7 @@ python scripts/prepare-sprites.py <folder> --dry-run
     - It normalizes known aliases (`accessoires` -> `accessories`, `pant` -> `pants`).
     - Use `jumpsuitNNN.png` for one-piece garments with trouser legs and `apronNNN.png` for optional aprons or pinafores. Plural tokens (`jumpsuits`, `aprons`) are also accepted. Export these layers separately on the shared canvas.
     - It stops on unrecognized names, duplicate targets, or collisions with existing sprites. Resolve those first; do not overwrite files.
+    - Recovery rerun: with `--update-catalog`, if a sprite file already exists in `assets/sprites/` but the item is still missing from the catalog (for example after a previous failed run), the script reuses that existing file and only adds the missing catalog/thumbnails entries.
 
 3. If the dry run looks correct, run the same command with `--update-catalog`:
 
@@ -176,7 +177,7 @@ Pants, slips, and tights have their own categories; the Slips and Tights categor
 `jumpsuit006` and `jumpsuit016`.
 **Bodysuits** contains leotard-style garments; **Dresses** contains actual dresses.
 Tops can be layered with dresses or jumpsuits. Jumpsuits exclude pants, dresses,
-and bodysuits, but preserve underwear, slips, and tights. Bodysuits exclude tops,
+and bodysuits, but preserve bras, slips, and tights. Bodysuits exclude tops,
 pants, dresses, slips, and jumpsuits; pants also exclude dresses.
 
 **Aprons & pinafores** (`aprons`) is an optional overlay category, initially empty
