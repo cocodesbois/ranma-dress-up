@@ -95,12 +95,70 @@ function setup({
     getOutfit: () => ({ tops: "top-item", hair: "hair-item" }),
     isPreviewReady: () => true,
   });
-  return { renderer, previewContext, exports, createElement };
+  return { renderer, preview, previewContext, exports, createElement };
 }
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("fixed-size export", () => {
+  it("does not redraw when a resize notification leaves the backing size unchanged", () => {
+    const { renderer, preview, previewContext } = setup();
+    vi.spyOn(preview, "getBoundingClientRect").mockReturnValue({
+      width: 390,
+      height: 382,
+    } as DOMRect);
+
+    renderer.resizePreview();
+    renderer.resizePreview();
+
+    expect(previewContext.clearRect).toHaveBeenCalledOnce();
+    expect(previewContext.setTransform).toHaveBeenCalledOnce();
+  });
+
+  it("re-arms the density listener and removes the active listener on disposal", () => {
+    const { renderer } = setup();
+    const queries: Array<{
+      addEventListener: ReturnType<typeof vi.fn>;
+      removeEventListener: ReturnType<typeof vi.fn>;
+      dispatch: () => void;
+    }> = [];
+    const previous = Object.getOwnPropertyDescriptor(window, "matchMedia");
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: vi.fn(() => {
+        let listener: (() => void) | undefined;
+        const query = {
+          addEventListener: vi.fn((_type: string, callback: () => void) => {
+            listener = callback;
+          }),
+          removeEventListener: vi.fn(() => {
+            listener = undefined;
+          }),
+          dispatch: () => listener?.(),
+        };
+        queries.push(query);
+        return query as unknown as MediaQueryList;
+      }),
+    });
+
+    try {
+      const dispose = renderer.watchDevicePixelRatio();
+      expect(queries).toHaveLength(1);
+      queries[0].dispatch();
+      expect(queries).toHaveLength(2);
+      dispose();
+      expect(queries[1].removeEventListener).toHaveBeenCalledOnce();
+      queries[1].dispatch();
+      expect(queries).toHaveLength(2);
+    } finally {
+      if (previous) {
+        Object.defineProperty(window, "matchMedia", previous);
+      } else {
+        Reflect.deleteProperty(window, "matchMedia");
+      }
+    }
+  });
+
   it("uses a fixed width and the document aspect ratio, whatever the preview size", async () => {
     const { renderer, exports } = setup();
     await renderer.exportPreview();

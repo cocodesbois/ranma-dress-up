@@ -49,6 +49,10 @@ export function createCanvasRenderer({
   const shadow = { x: 3700, y: 5587, radiusX: 806, radiusY: 104 };
 
   const itemsById = new Map(catalog.items.map((item) => [item.id, item]));
+  let lastPreviewSize: { width: number; height: number; pixelRatio: number } | undefined;
+  let watchingDevicePixelRatio = false;
+  let watchedMediaQuery: MediaQueryList | undefined;
+  let devicePixelRatioListener: (() => void) | undefined;
 
   preview.style.aspectRatio = `${documentWidth} / ${documentHeight}`;
 
@@ -155,6 +159,15 @@ export function createCanvasRenderer({
     const pixelRatio = window.devicePixelRatio || 1;
     const width = Math.max(1, Math.round(bounds.width * pixelRatio));
     const height = Math.max(1, Math.round(bounds.height * pixelRatio));
+    if (
+      lastPreviewSize?.width === width &&
+      lastPreviewSize.height === height &&
+      lastPreviewSize.pixelRatio === pixelRatio
+    ) {
+      return;
+    }
+
+    lastPreviewSize = { width, height, pixelRatio };
     if (preview.width !== width || preview.height !== height) {
       preview.width = width;
       preview.height = height;
@@ -166,17 +179,39 @@ export function createCanvasRenderer({
     }
   }
 
-  /** Re-arm a one-shot resolution listener after each device-density change. */
+  /** Re-arm a one-shot resolution listener and return a disposer for the active chain. */
   function watchDevicePixelRatio() {
-    const mediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
-    mediaQuery.addEventListener(
-      "change",
-      () => {
-        resizePreview();
-        watchDevicePixelRatio();
-      },
-      { once: true },
-    );
+    if (watchingDevicePixelRatio) {
+      return stopWatchingDevicePixelRatio;
+    }
+
+    watchingDevicePixelRatio = true;
+    armDevicePixelRatioListener();
+    return stopWatchingDevicePixelRatio;
+  }
+
+  function armDevicePixelRatioListener() {
+    if (!watchingDevicePixelRatio) return;
+    watchedMediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+    const listener = () => {
+      watchedMediaQuery?.removeEventListener("change", listener);
+      watchedMediaQuery = undefined;
+      devicePixelRatioListener = undefined;
+      if (!watchingDevicePixelRatio) return;
+      resizePreview();
+      armDevicePixelRatioListener();
+    };
+    devicePixelRatioListener = listener;
+    watchedMediaQuery.addEventListener("change", listener, { once: true });
+  }
+
+  function stopWatchingDevicePixelRatio() {
+    watchingDevicePixelRatio = false;
+    if (watchedMediaQuery && devicePixelRatioListener) {
+      watchedMediaQuery.removeEventListener("change", devicePixelRatioListener);
+    }
+    watchedMediaQuery = undefined;
+    devicePixelRatioListener = undefined;
   }
 
   return {

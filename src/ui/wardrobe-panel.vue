@@ -16,11 +16,13 @@ const props = defineProps<{
   store: Store;
   mobileWardrobe: MediaQueryList;
   getSprite: (item: Item) => Sprite | undefined;
-  onCategorySelect: (category: Category) => void;
-  onItemSelect: (item: Item) => void;
-  onNoneSelect: () => void;
-  onPresetSelect: (id: string) => void;
-  onAdjacentSelect: (step: number) => void;
+}>();
+const emit = defineEmits<{
+  categorySelect: [category: Category];
+  itemSelect: [item: Item];
+  noneSelect: [];
+  presetSelect: [id: string];
+  adjacentSelect: [step: number];
 }>();
 
 const panel = ref<HTMLElement | null>(null);
@@ -31,7 +33,7 @@ const selectedPreset = computed({
     props.store.state.pendingPresetId ??
     getMatchingOutfit(props.catalog, props.presets, props.store.state.outfit)?.id ??
     "",
-  set: (id: string) => props.onPresetSelect(id),
+  set: (id: string) => emit("presetSelect", id),
 });
 
 function syncMode() {
@@ -155,7 +157,7 @@ onUnmounted(() => {
         type="button"
         aria-label="Select previous outfit"
         :disabled="store.state.outfitControlsDisabled"
-        @click="onAdjacentSelect(-1)"
+        @click="emit('adjacentSelect', -1)"
       >
         Prev
       </button>
@@ -181,7 +183,7 @@ onUnmounted(() => {
         type="button"
         aria-label="Select next outfit"
         :disabled="store.state.outfitControlsDisabled"
-        @click="onAdjacentSelect(1)"
+        @click="emit('adjacentSelect', 1)"
       >
         Next
       </button>
@@ -194,9 +196,9 @@ onUnmounted(() => {
         :catalog="catalog"
         :store="store"
         :get-sprite="getSprite"
-        :on-category-select="onCategorySelect"
-        :on-item-select="onItemSelect"
-        :on-none-select="onNoneSelect"
+        @category-select="emit('categorySelect', $event)"
+        @item-select="emit('itemSelect', $event)"
+        @none-select="emit('noneSelect')"
       />
     </div>
   </aside>

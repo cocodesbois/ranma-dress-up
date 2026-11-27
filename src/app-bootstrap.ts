@@ -1,34 +1,41 @@
 /**
- * Binds page events, PNG download and preview resize/startup observation.
- * Depends on injected controls/controllers and browser document/window APIs;
- * exports createAppBootstrap, leaving dependency construction to main.
+ * Owns preview resize observation and download side effects for the mounted app.
+ * Depends on injected canvas/controllers and browser APIs; exports createAppBootstrap.
  * @module app-bootstrap
  */
 import type { createStatusController } from "./ui/status-controller";
 import type { createCanvasRenderer } from "./render/canvas-renderer";
 
-/** Prepare page lifecycle actions without starting or binding them yet. */
+/** Prepare lifecycle actions after the Vue-owned preview canvas has mounted. */
 export function createAppBootstrap({
   preview,
-  downloadButton,
   outfitController,
   statusController,
   canvasRenderer,
   onError,
+  isDownloadPending,
+  setDownloadPending,
 }: {
   preview: HTMLCanvasElement;
-  downloadButton: HTMLButtonElement;
   outfitController: { startApp: () => Promise<void> };
   statusController: ReturnType<typeof createStatusController>;
   canvasRenderer: ReturnType<typeof createCanvasRenderer>;
   onError: (error: unknown) => void;
+  isDownloadPending: () => boolean;
+  setDownloadPending: (pending: boolean) => void;
 }) {
+  let started = false;
+  let disposed = false;
+  let resizeObserver: ResizeObserver | undefined;
+  let watchingDevicePixelRatio: (() => void) | undefined;
+
   /**
-   * Save the current look as a PNG of fixed size, whatever the window size or pixel ratio.
+   * Save the current look as a fixed-size PNG, independent of screen size and pixel ratio.
    * @returns Export errors are forwarded to onError.
    */
   async function downloadPreview() {
-    downloadButton.disabled = true;
+    if (isDownloadPending()) return;
+    setDownloadPending(true);
     try {
       statusController.setStatusMessage("Preparing your look...", { loading: true });
       const blob = await canvasRenderer.exportPreview();
@@ -47,35 +54,40 @@ export function createAppBootstrap({
     } catch (error) {
       onError(error);
     } finally {
-      downloadButton.disabled = false;
+      setDownloadPending(false);
     }
   }
 
-  /** Register page and wardrobe handlers once after dependency construction. */
-  function bindEvents() {
-    downloadButton.addEventListener("click", downloadPreview);
-  }
-
-  /**
-   * Synchronize layout, observe resizing and start loading the initial look.
-   * @returns Startup rejection is forwarded to onError.
-   */
+  /** Observe size and density changes and begin loading the initial look once. */
   function start() {
+    if (started || disposed) return;
+    started = true;
     if (typeof ResizeObserver !== "undefined") {
-      new ResizeObserver(canvasRenderer.resizePreview).observe(preview);
+      resizeObserver = new ResizeObserver(canvasRenderer.resizePreview);
+      resizeObserver.observe(preview);
     } else {
       window.addEventListener("resize", canvasRenderer.resizePreview);
     }
 
-    canvasRenderer.watchDevicePixelRatio();
+    watchingDevicePixelRatio = canvasRenderer.watchDevicePixelRatio();
     canvasRenderer.resizePreview();
-    outfitController.startApp().catch((error) => {
-      onError(error);
-    });
+    outfitController.startApp().catch(onError);
+  }
+
+  /** Release every observer and listener registered for this mounted canvas. */
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    resizeObserver?.disconnect();
+    resizeObserver = undefined;
+    window.removeEventListener("resize", canvasRenderer.resizePreview);
+    watchingDevicePixelRatio?.();
+    watchingDevicePixelRatio = undefined;
   }
 
   return {
-    bindEvents,
     start,
+    dispose,
+    downloadPreview,
   };
 }

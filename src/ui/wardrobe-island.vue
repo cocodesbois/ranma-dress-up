@@ -15,9 +15,11 @@ const props = defineProps<{
   catalog: Catalog;
   store: Store;
   getSprite: (item: Item) => Sprite | undefined;
-  onCategorySelect: (category: Category) => void;
-  onItemSelect: (item: Item) => void;
-  onNoneSelect: () => void;
+}>();
+const emit = defineEmits<{
+  categorySelect: [category: Category];
+  itemSelect: [item: Item];
+  noneSelect: [];
 }>();
 
 const fallbackItemIds = ref(new Set<string>());
@@ -90,7 +92,7 @@ function retryCategoryLoad() {
   if (!category) {
     throw new Error(`Unknown category: ${activeCategory.value}`);
   }
-  props.onCategorySelect(category);
+  emit("categorySelect", category);
 }
 </script>
 
@@ -113,7 +115,7 @@ function retryCategoryLoad() {
         }"
         :aria-pressed="category.id === activeCategory"
         :aria-label="isEquipped(category.id) ? `${category.label}, item equipped` : category.label"
-        @click="onCategorySelect(category)"
+        @click="emit('categorySelect', category)"
       >
         <svg
           class="category-equipped-icon"
@@ -180,7 +182,7 @@ function retryCategoryLoad() {
               ? 'No item selected'
               : 'Remove selected item'
           "
-          @click="onNoneSelect()"
+          @click="emit('noneSelect')"
         >
           <span
             class="none-symbol"
@@ -217,7 +219,7 @@ function retryCategoryLoad() {
           :class="{ 'is-selected': isSelected(item) }"
           :aria-pressed="isSelected(item)"
           :aria-label="isSelected(item) ? `${item.label}, selected` : item.label"
-          @click="onItemSelect(item)"
+          @click="emit('itemSelect', item)"
         >
           <img
             v-if="!fallbackItemIds.has(item.id)"

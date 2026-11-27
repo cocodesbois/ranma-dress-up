@@ -3,7 +3,7 @@
  * Presents the reset action, delegating changes to the outfit controller.
  * @module ui/reset-view
  */
-defineProps<{ onReset: () => void }>();
+const emit = defineEmits<{ reset: [] }>();
 </script>
 
 <template>
@@ -11,7 +11,7 @@ defineProps<{ onReset: () => void }>();
     id="reset-look"
     class="button button-secondary"
     type="button"
-    @click="onReset()"
+    @click="emit('reset')"
   >
     <svg
       class="button-icon"

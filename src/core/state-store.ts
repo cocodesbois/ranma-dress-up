@@ -34,6 +34,8 @@ export function createStore({
     pendingPresetId: null as string | null,
     outfitControlsDisabled: false,
     status: { text: "Loading the wardrobe...", loading: false, isError: false },
+    offlineStatus: { text: "", isError: false },
+    downloadPending: false,
     previewReady: false,
   });
 
@@ -126,6 +128,14 @@ export function createStore({
     /** Publish status text and its presentation state. */
     setStatus(text: string, loading: boolean, isError: boolean) {
       state.status = { text, loading, isError };
+    },
+    /** Publish the offline preparation state. */
+    setOfflineStatus(text: string, isError = false) {
+      state.offlineStatus = { text, isError };
+    },
+    /** Disable repeated exports while a download is being prepared. */
+    setDownloadPending(pending: boolean) {
+      state.downloadPending = pending;
     },
     /** @returns A new token invalidating pending preset selections. */
     nextOutfitSelectionRequest() {

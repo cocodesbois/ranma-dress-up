@@ -11,8 +11,6 @@ function deferred() {
 }
 
 function setup(exportPreview: () => Promise<Blob | null>) {
-  const button = () => document.createElement("button");
-  const downloadButton = button();
   const statusController = {
     setStatusMessage:
       vi.fn<(text: string, options?: { loading?: boolean; isError?: boolean }) => void>(),
@@ -23,23 +21,26 @@ function setup(exportPreview: () => Promise<Blob | null>) {
     exportPreview: vi.fn(exportPreview),
     drawOutfit: vi.fn(),
     resizePreview: vi.fn(),
-    watchDevicePixelRatio: vi.fn(),
+    watchDevicePixelRatio: vi.fn(() => vi.fn()),
   };
+  let downloadPending = false;
+  const setDownloadPending = vi.fn((pending: boolean) => {
+    downloadPending = pending;
+  });
   const bootstrap = createAppBootstrap({
     preview: document.createElement("canvas"),
-    downloadButton,
     outfitController: { startApp: vi.fn(async () => {}) },
     statusController,
     canvasRenderer,
     onError,
+    isDownloadPending: () => downloadPending,
+    setDownloadPending,
   });
-  bootstrap.bindEvents();
-  return { downloadButton, statusController, canvasRenderer, onError };
+  return { bootstrap, statusController, canvasRenderer, onError, setDownloadPending };
 }
 
 const messages = (statusController: ReturnType<typeof setup>["statusController"]) =>
   statusController.setStatusMessage.mock.calls.map(([text]) => text);
-const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 let clickedLinks: HTMLAnchorElement[];
 beforeEach(() => {
@@ -52,14 +53,18 @@ beforeEach(() => {
     clickedLinks.push(this);
   });
 });
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
-describe("download button", () => {
+describe("download action", () => {
   it("saves the fixed-size export as ranma-dress-up.png", async () => {
     const blob = new Blob(["png"], { type: "image/png" });
-    const { downloadButton, statusController, canvasRenderer, onError } = setup(async () => blob);
-    downloadButton.click();
-    await settle();
+    const { bootstrap, statusController, canvasRenderer, onError, setDownloadPending } = setup(
+      async () => blob,
+    );
+    await bootstrap.downloadPreview();
 
     expect(canvasRenderer.exportPreview).toHaveBeenCalledOnce();
     expect(URL.createObjectURL).toHaveBeenCalledWith(blob);
@@ -71,25 +76,45 @@ describe("download button", () => {
       "Your look has been downloaded.",
     ]);
     expect(onError).not.toHaveBeenCalled();
+    expect(setDownloadPending.mock.calls.map(([pending]) => pending)).toEqual([true, false]);
   });
 
-  it("is disabled while the image is prepared, then enabled again", async () => {
+  it("starts once and disconnects its resize observer and density listener on disposal", () => {
+    const disconnect = vi.fn();
+    const observe = vi.fn();
+    class TestResizeObserver {
+      constructor(_callback: ResizeObserverCallback) {}
+      observe = observe;
+      disconnect = disconnect;
+      unobserve = vi.fn();
+    }
+    vi.stubGlobal("ResizeObserver", TestResizeObserver);
+    const { bootstrap, canvasRenderer } = setup(async () => null);
+    bootstrap.start();
+    bootstrap.start();
+    expect(observe).toHaveBeenCalledOnce();
+    expect(canvasRenderer.watchDevicePixelRatio).toHaveBeenCalledOnce();
+    bootstrap.dispose();
+    bootstrap.dispose();
+    expect(disconnect).toHaveBeenCalledOnce();
+    expect(canvasRenderer.watchDevicePixelRatio.mock.results[0].value).toHaveBeenCalledOnce();
+  });
+
+  it("ignores duplicate requests while the export is pending", async () => {
     const pending = deferred();
-    const { downloadButton, canvasRenderer } = setup(() => pending.promise);
-    downloadButton.click();
-    expect(downloadButton.disabled).toBe(true);
-    downloadButton.click();
+    const { bootstrap, canvasRenderer, setDownloadPending } = setup(() => pending.promise);
+    const firstDownload = bootstrap.downloadPreview();
+    await bootstrap.downloadPreview();
     expect(canvasRenderer.exportPreview).toHaveBeenCalledOnce();
 
     pending.resolve(new Blob(["png"]));
-    await settle();
-    expect(downloadButton.disabled).toBe(false);
+    await firstDownload;
+    expect(setDownloadPending.mock.calls.map(([isPending]) => isPending)).toEqual([true, false]);
   });
 
   it("reports an image the browser could not encode", async () => {
-    const { downloadButton, statusController } = setup(async () => null);
-    downloadButton.click();
-    await settle();
+    const { bootstrap, statusController } = setup(async () => null);
+    await bootstrap.downloadPreview();
 
     expect(clickedLinks).toHaveLength(0);
     expect(URL.createObjectURL).not.toHaveBeenCalled();
@@ -97,17 +122,15 @@ describe("download button", () => {
       "The preview could not be saved.",
       { isError: true },
     );
-    expect(downloadButton.disabled).toBe(false);
   });
 
   it("forwards an export failure to onError and stays usable", async () => {
     const failure = new Error("This browser cannot export the preview.");
-    const { downloadButton, onError } = setup(() => Promise.reject(failure));
-    downloadButton.click();
-    await settle();
+    const { bootstrap, onError, setDownloadPending } = setup(() => Promise.reject(failure));
+    await bootstrap.downloadPreview();
 
     expect(onError).toHaveBeenCalledExactlyOnceWith(failure);
     expect(clickedLinks).toHaveLength(0);
-    expect(downloadButton.disabled).toBe(false);
+    expect(setDownloadPending.mock.calls.map(([pending]) => pending)).toEqual([true, false]);
   });
 });
