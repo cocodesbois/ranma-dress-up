@@ -7,9 +7,9 @@
  */
 
 import { computed, ref, watch } from "vue";
-import type { ComponentPublicInstance } from "vue";
 import type { Catalog, Category, Item, Sprite } from "../types";
 import type { Store } from "../core/state-store";
+import ItemThumbnail from "./item-thumbnail.vue";
 
 const props = defineProps<{
   catalog: Catalog;
@@ -22,7 +22,6 @@ const emit = defineEmits<{
   noneSelect: [];
 }>();
 
-const fallbackItemIds = ref(new Set<string>());
 const itemList = ref<HTMLDivElement | null>(null);
 const activeCategory = computed(() => props.store.state.activeCategory);
 const categoryLoad = computed(() => props.store.state.categoryLoad);
@@ -57,38 +56,6 @@ watch(
   },
   { flush: "post" },
 );
-
-function markThumbnailMissing(itemId: string) {
-  fallbackItemIds.value = new Set(fallbackItemIds.value).add(itemId);
-}
-
-function drawThumbnail(element: Element | ComponentPublicInstance | null, item: Item) {
-  if (!(element instanceof HTMLCanvasElement)) return;
-  const context = element.getContext("2d");
-  if (!context) {
-    throw new Error("This browser cannot create item thumbnails.");
-  }
-  const sprite = props.getSprite(item);
-  if (!sprite) {
-    throw new Error(`Image is not loaded: ${item.source}`);
-  }
-
-  const { x, y, width: sourceWidth, height: sourceHeight } = item.thumbnail;
-  const scale = Math.min(88 / sourceWidth, 88 / sourceHeight);
-  const width = sourceWidth * scale;
-  const height = sourceHeight * scale;
-  context.drawImage(
-    sprite.image,
-    (x - sprite.x) * sprite.scale,
-    (y - sprite.y) * sprite.scale,
-    sourceWidth * sprite.scale,
-    sourceHeight * sprite.scale,
-    (112 - width) / 2,
-    (112 - height) / 2,
-    width,
-    height,
-  );
-}
 
 function retryCategoryLoad() {
   const category = activeCategoryDetails.value;
@@ -224,21 +191,9 @@ function retryCategoryLoad() {
           :aria-label="isSelected(item) ? `${item.label}, selected` : item.label"
           @click="emit('itemSelect', item)"
         >
-          <img
-            v-if="!fallbackItemIds.has(item.id)"
-            class="item-thumbnail"
-            :src="item.thumbnailSource ?? `images/thumbnails/${item.id}.png`"
-            alt=""
-            loading="lazy"
-            decoding="async"
-            @error="markThumbnailMissing(item.id)"
-          />
-          <canvas
-            v-else
-            :ref="(element) => drawThumbnail(element, item)"
-            class="item-thumbnail"
-            width="112"
-            height="112"
+          <ItemThumbnail
+            :item="item"
+            :get-sprite="getSprite"
           />
           <span class="item-label">{{ item.label }}</span>
         </button>
