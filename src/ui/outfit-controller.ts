@@ -1,7 +1,7 @@
 /**
  * Coordinates look changes, exclusivity, async asset loads and UI redraws.
- * Depends on the catalog model, store, image loader, renderer, wardrobe/status UI
- * and preset select; exports createOutfitController.
+ * Depends on the catalog model, store, image loader, renderer, status UI and
+ * preset select; exports createOutfitController.
  * @module ui/outfit-controller
  */
 import type { Catalog, Category, Item, Look, OutfitPreset } from "../types";
@@ -10,7 +10,6 @@ import type * as CatalogModel from "../core/catalog-model";
 import type { createStatusController } from "./status-controller";
 import type { createImageLoader } from "../render/image-loader";
 import type { createCanvasRenderer } from "../render/canvas-renderer";
-import type { createWardrobeUi } from "./wardrobe-ui";
 
 /** Connect state and presentation without binding browser events. */
 export function createOutfitController({
@@ -23,7 +22,6 @@ export function createOutfitController({
   statusController,
   imageLoader,
   canvasRenderer,
-  wardrobeUi,
   onError,
 }: {
   catalog: Catalog;
@@ -35,7 +33,6 @@ export function createOutfitController({
   statusController: ReturnType<typeof createStatusController>;
   imageLoader: ReturnType<typeof createImageLoader>;
   canvasRenderer: ReturnType<typeof createCanvasRenderer>;
-  wardrobeUi: ReturnType<typeof createWardrobeUi>;
   onError: (error: unknown) => void;
 }) {
   function updateOutfitSelection() {
@@ -55,8 +52,6 @@ export function createOutfitController({
     );
     appState.setOutfitItem(appState.getActiveCategory(), item.id);
     updateOutfitSelection();
-    wardrobeUi.renderCategories();
-    wardrobeUi.updateItemSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage(`${item.label} selected.`);
   }
@@ -66,8 +61,6 @@ export function createOutfitController({
     appState.nextOutfitSelectionRequest();
     appState.setOutfitItem(appState.getActiveCategory(), null);
     updateOutfitSelection();
-    wardrobeUi.renderCategories();
-    wardrobeUi.updateItemSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("Item removed.");
   }
@@ -85,15 +78,12 @@ export function createOutfitController({
   }
 
   /**
-   * Load category images, then render only if that category is still active. Images that
-   * fail to load do not empty the grid: the loaded items are shown, and the wardrobe offers
-   * a retry for the others.
+   * Load category images, then publish the result only if that request is still current.
+   * The reactive wardrobe shows loaded items and offers a retry for failed images.
    * @returns Load errors are forwarded to onError.
    */
   async function selectCategory(category: Category) {
-    appState.setActiveCategory(category.id);
-    wardrobeUi.renderCategories();
-    wardrobeUi.clearItems();
+    const request = appState.startCategoryLoad(category.id);
     statusController.setStatusMessage(`Loading ${category.label.toLowerCase()}...`, {
       loading: true,
     });
@@ -103,12 +93,12 @@ export function createOutfitController({
       const results = await Promise.allSettled(
         items.map((item) => imageLoader.loadImage(item.source)),
       );
-      if (appState.getActiveCategory() !== category.id) {
+      const failedCount = results.filter((result) => result.status === "rejected").length;
+      if (!appState.finishCategoryLoad(request, failedCount)) {
         return;
       }
 
-      wardrobeUi.renderItems();
-      const failedCount = logRejections(results);
+      logRejections(results);
       if (failedCount) {
         onError(
           new Error(
@@ -142,8 +132,13 @@ export function createOutfitController({
 
       appState.setOutfit(preset.look);
       updateOutfitSelection();
-      wardrobeUi.renderCategories();
-      wardrobeUi.renderItems();
+      appState.setCategoryLoadResult(
+        appState.getActiveCategory(),
+        catalog.items.filter(
+          (item) =>
+            item.category === appState.getActiveCategory() && !imageLoader.getSprite(item.source),
+        ).length,
+      );
       canvasRenderer.drawOutfit();
       statusController.setStatusMessage(`${preset.label} selected.`);
       imageLoader.preloadAdjacentOutfits(preset);
@@ -204,10 +199,13 @@ export function createOutfitController({
   function resetOutfit() {
     appState.nextOutfitSelectionRequest();
     appState.setOutfit(defaultOutfit);
-    appState.setActiveCategory("tops");
+    appState.setCategoryLoadResult(
+      "tops",
+      catalog.items.filter(
+        (item) => item.category === "tops" && !imageLoader.getSprite(item.source),
+      ).length,
+    );
     updateOutfitSelection();
-    wardrobeUi.renderCategories();
-    wardrobeUi.renderItems();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("The original look has been restored.");
   }
@@ -219,6 +217,7 @@ export function createOutfitController({
    */
   async function startApp() {
     statusController.setStatusMessage("Loading the wardrobe...", { loading: true });
+    const categoryRequest = appState.startCategoryLoad(appState.getActiveCategory());
     const requiredSources = new Set([
       catalog.background.source,
       catalog.base.source,
@@ -232,9 +231,14 @@ export function createOutfitController({
       .filter((source) => !requiredSources.has(source));
 
     await Promise.all([...requiredSources].map((source) => imageLoader.loadImage(source)));
-    logRejections(
-      await Promise.allSettled(optionalSources.map((source) => imageLoader.loadImage(source))),
+    const optionalResults = await Promise.allSettled(
+      optionalSources.map((source) => imageLoader.loadImage(source)),
     );
+    const failedOptionalCount = optionalResults.filter(
+      (result) => result.status === "rejected",
+    ).length;
+    appState.finishCategoryLoad(categoryRequest, failedOptionalCount);
+    logRejections(optionalResults);
     for (const preset of outfitPresets) {
       const option = document.createElement("option");
       option.value = String(preset.id);
@@ -242,8 +246,6 @@ export function createOutfitController({
       outfitSelect.append(option);
     }
     updateOutfitSelection();
-    wardrobeUi.renderCategories();
-    wardrobeUi.renderItems();
     appState.setPreviewReady(true);
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("Choose an item to style the character.");

@@ -12,10 +12,10 @@ import * as catalogModel from "./core/catalog-model";
 import { createStore } from "./core/state-store";
 import { createImageLoader } from "./render/image-loader";
 import { createCanvasRenderer } from "./render/canvas-renderer";
-import { createWardrobeUi } from "./ui/wardrobe-ui";
 import { createStatusController } from "./ui/status-controller";
 import { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
 import { createOutfitController } from "./ui/outfit-controller";
+import { mountWardrobeIsland } from "./ui/mount-wardrobe-island";
 import VueStoreSummary from "./ui/vue-store-summary.vue";
 import { createAppBootstrap } from "./app-bootstrap";
 import type { Sprite } from "./types";
@@ -29,8 +29,6 @@ function requireElement<T extends HTMLElement>(selector: string, type: { new ():
 }
 
 const preview = requireElement("#outfit-preview", HTMLCanvasElement);
-const categoryTabs = requireElement("#category-tabs", HTMLElement);
-const itemList = requireElement("#item-list", HTMLElement);
 const outfitSelect = requireElement("#outfit-select", HTMLSelectElement);
 const outfitPreviousButton = requireElement("#outfit-previous", HTMLButtonElement);
 const outfitNextButton = requireElement("#outfit-next", HTMLButtonElement);
@@ -103,23 +101,6 @@ const wardrobePanelController = createWardrobePanelController({
 });
 
 let outfitController: ReturnType<typeof createOutfitController>;
-const wardrobeUi = createWardrobeUi({
-  categoryTabs,
-  itemList,
-  catalog,
-  getActiveCategory: () => appState.getActiveCategory(),
-  getOutfit: () => appState.getOutfit(),
-  getSprite,
-  onCategorySelect: (category) => {
-    outfitController.selectCategory(category);
-  },
-  onItemSelect: (item) => {
-    outfitController.selectItem(item);
-  },
-  onNoneSelect: () => {
-    outfitController.removeActiveCategoryItem();
-  },
-});
 
 /** Report controller/startup failures both to developers and in the status area. */
 function showError(error: unknown) {
@@ -139,8 +120,16 @@ outfitController = createOutfitController({
   statusController,
   imageLoader,
   canvasRenderer,
-  wardrobeUi,
   onError: showError,
+});
+mountWardrobeIsland({
+  container: requireElement("#wardrobe-island", HTMLElement),
+  catalog,
+  store: appState,
+  getSprite,
+  onCategorySelect: (category) => outfitController.selectCategory(category),
+  onItemSelect: (item) => outfitController.selectItem(item),
+  onNoneSelect: () => outfitController.removeActiveCategoryItem(),
 });
 const appBootstrap = createAppBootstrap({
   preview,

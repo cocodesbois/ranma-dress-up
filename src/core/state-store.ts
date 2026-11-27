@@ -21,6 +21,12 @@ export function createStore({
   const state = reactive({
     outfit: { ...defaultOutfit },
     activeCategory: initialActiveCategory,
+    categoryLoad: {
+      categoryId: initialActiveCategory,
+      status: "idle" as "idle" | "loading" | "ready",
+      failedCount: 0,
+      request: 0,
+    },
     wardrobeOpen: false,
     outfitSelectionRequest: 0,
     previewReady: false,
@@ -54,6 +60,42 @@ export function createStore({
     /** @param category - Category ID to display. */
     setActiveCategory(category: CategoryId) {
       state.activeCategory = category;
+    },
+    /** Start loading one category and return its stale-result token. */
+    startCategoryLoad(category: CategoryId) {
+      state.activeCategory = category;
+      state.categoryLoad = {
+        categoryId: category,
+        status: "loading",
+        failedCount: 0,
+        request: state.categoryLoad.request + 1,
+      };
+      return state.categoryLoad.request;
+    },
+    /** Commit a category load only while its category and request remain current. */
+    finishCategoryLoad(request: number, failedCount: number) {
+      if (
+        request !== state.categoryLoad.request ||
+        state.activeCategory !== state.categoryLoad.categoryId
+      ) {
+        return false;
+      }
+      state.categoryLoad = {
+        ...state.categoryLoad,
+        status: "ready",
+        failedCount,
+      };
+      return true;
+    },
+    /** Show the current category immediately and invalidate any pending category load. */
+    setCategoryLoadResult(category: CategoryId, failedCount: number) {
+      state.activeCategory = category;
+      state.categoryLoad = {
+        categoryId: category,
+        status: "ready",
+        failedCount,
+        request: state.categoryLoad.request + 1,
+      };
     },
     /** @returns Whether the mobile wardrobe is open. */
     isWardrobeOpen() {

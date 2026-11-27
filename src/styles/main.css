@@ -347,6 +347,10 @@ button {
   display: none;
 }
 
+.wardrobe-island {
+  display: contents;
+}
+
 .category-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
