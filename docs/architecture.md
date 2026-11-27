@@ -24,7 +24,6 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 | `src/ui/status-controller.ts`              | Publie les messages de statut dans le store.                                                                                                                                                                                                           |
 | `src/ui/wardrobe-panel.vue`                | Présente les presets et le panneau responsive non modal, gère les attributs de dialogue, le focus et Échap, et contient la garde-robe Vue.                                                                                                             |
 | `src/ui/status-view.vue`, `reset-view.vue` | Présentent le statut réactif et l'action Reset déléguée au contrôleur.                                                                                                                                                                                 |
-| `src/ui/vue-store-summary.vue`             | Région Vue isolée qui lit le même store réactif.                                                                                                                                                                                                       |
 | `src/ui/app-view.vue`                      | Possède le canvas stable, initialise le rendu après montage, observe taille et densité, et déclenche le téléchargement PNG à taille fixe. Nettoie les observateurs au démontage.                                                                       |
 | `src/styles/main.css`                      | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                                                                                                   |
 
@@ -47,10 +46,11 @@ DOM ──→ application Vue ──→ outfit-controller ──→ state-store
 ```
 
 Le câblage se fait dans `main.ts`, sans globales applicatives `window.RanmaDressUp*`.
-Les factories reçoivent leurs collaborateurs ; les modules de présentation
-utilisent encore les API globales du navigateur. Les tests injectent des doubles
-pour le DOM, les images ou le contexte canvas sans lancer de navigateur ; les tests
-de présentation (garde-robe, téléchargement) s'exécutent dans jsdom.
+Vue possède le DOM persistant de l'interface ; les contrôleurs orchestrent les
+actions et publient l'état via le store sans écrire directement dans les nœuds de
+présentation. Les factories reçoivent leurs collaborateurs et les tests injectent
+des doubles pour les API du navigateur, les images ou le contexte canvas sans
+lancer de navigateur ; les tests de présentation s'exécutent dans jsdom.
 
 Sur grand écran (au-delà de 720 px), le preview détermine la hauteur commune des
 deux panneaux : leurs bords supérieur et inférieur sont alignés, sans déformer

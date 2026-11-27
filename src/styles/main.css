@@ -199,12 +199,6 @@ button {
   overflow-wrap: anywhere;
 }
 
-.vue-store-summary {
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-
 .status-message.is-loading::before {
   content: "";
   width: 11px;
@@ -606,8 +600,7 @@ button {
 
 @media (max-width: 720px) {
   .status-message,
-  .offline-status,
-  .vue-store-summary {
+  .offline-status {
     order: 1;
     flex-basis: 100%;
   }

@@ -32,7 +32,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 4. `imageSmoothingQuality` is set to `"high"` in `paintOutfit` because the context state is reset whenever the canvas is resized.
 5. The download button saves `exportPreview()`, not the visible canvas: the look is painted again on an offscreen canvas of fixed width (2400 px, capped at the decoded sprites' resolution, `manifest.document` aspect ratio). The saved PNG therefore does not depend on the window size or the device pixel ratio. Painting goes through `paintOutfit` for both, so the composition cannot differ.
 
-## Runtime/UI constraints (`src/ui/outfit-controller.ts`, `src/ui/wardrobe-ui.ts`)
+## Runtime/UI constraints (`src/ui/outfit-controller.ts`, `src/ui/wardrobe-island.vue`)
 
 1. Hair is mandatory in presets and user flows:
    - Presets without hair throw during startup (`createOutfitPresets` validation).
@@ -75,4 +75,4 @@ Use this file as the source of truth for data and behavior constraints when chan
 - When changing exclusivity (`incompatibleCategories`) or draw order, update this document and the tests, and verify behavior in the browser.
 - When changing catalog data or assets, run `npm run validate:catalog`.
 - Run `npm run lint`, `npm run format:check`, `npm run typecheck` and `npm test` before submitting changes. CI also checks optimized sprites and builds with Vite; visual/browser validation remains the maintainer's responsibility during this migration.
-- Vue-owned regions must read the same reactive store without taking ownership of DOM still updated by legacy controllers. Keep canvas contexts, decoded images and image caches outside Vue reactivity; canvas redraws remain explicit.
+- Vue owns the persistent application UI; controllers orchestrate actions and update the shared Vue-reactive store instead of writing to presentation nodes. Keep canvas contexts, decoded images and image caches outside Vue reactivity; canvas redraws remain explicit.
