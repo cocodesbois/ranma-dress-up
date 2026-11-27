@@ -40,9 +40,9 @@ Use this file as the source of truth for data and behavior constraints when chan
 2. Mutual exclusivity rules when selecting an item manually come from `catalog.incompatibleCategories` through `getExcludedCategories` (not from controller code). The current pairs give:
    - `bodysuits` clears `tops`, `pants`, `dresses`, `slips`, `jumpsuits`
    - `slips` clears `bodysuits`
-   - `tops` clears `bodysuits`
+   - `tops` clears `bodysuits`, `dresses`
    - `pants` clears `bodysuits`, `dresses`, `jumpsuits`
-   - `dresses` clears `bodysuits`, `pants`, `jumpsuits`
+   - `dresses` clears `bodysuits`, `pants`, `tops`, `jumpsuits`
    - `jumpsuits` clears `pants`, `dresses`, `bodysuits`, but preserves tops, bras, slips and tights
    - `gloves` and `bracelets` clear each other
    - `aprons` has no exclusions and can be selected or removed independently

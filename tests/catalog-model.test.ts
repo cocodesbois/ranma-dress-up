@@ -246,9 +246,9 @@ describe("incompatible categories", () => {
     const expected: Record<string, string[]> = {
       bodysuits: ["tops", "pants", "dresses", "slips", "jumpsuits"],
       slips: ["bodysuits"],
-      tops: ["bodysuits"],
+      tops: ["bodysuits", "dresses"],
       pants: ["bodysuits", "dresses", "jumpsuits"],
-      dresses: ["bodysuits", "pants", "jumpsuits"],
+      dresses: ["bodysuits", "pants", "tops", "jumpsuits"],
       jumpsuits: ["pants", "dresses", "bodysuits"],
       gloves: ["bracelets"],
       bracelets: ["gloves"],
@@ -273,6 +273,15 @@ describe("incompatible categories", () => {
     const outfit = required(input.outfits.find(({ id }) => id === "025"));
     outfit.items.bracelets = "bracelets001";
     expect(() => createOutfitPresets(input)).toThrow("which are mutually exclusive");
+  });
+
+  it("rejects an outfit that combines tops and dresses", () => {
+    const input = createCatalog();
+    input.incompatibleCategories = catalog.incompatibleCategories;
+    input.outfits[0].items = { hair: "shared-hair", tops: "tops-item", dresses: "dresses-item" };
+    expect(() => createOutfitPresets(input)).toThrow(
+      'Outfit "005" combines tops and dresses, which are mutually exclusive.',
+    );
   });
 
   it.each(["pants", "dresses", "bodysuits"] as const)(
