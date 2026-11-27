@@ -45,14 +45,16 @@ function setup({
   });
   const onError = vi.fn();
   const app = createApp(AppView, {
-    catalog,
-    presets,
-    store,
-    mobileWardrobe,
-    getSprite: () => undefined,
-    createPreview,
-    statusController: createStatusController(store),
-    onError,
+    services: {
+      catalog,
+      presets,
+      store,
+      mobileWardrobe,
+      getSprite: () => undefined,
+      createPreview,
+      statusController: createStatusController(store),
+      onError,
+    },
   });
   app.mount("#app");
   return { app, store, renderer, controller, createPreview, onError, stopWatchingDevicePixelRatio };
@@ -89,6 +91,9 @@ describe("Vue application shell", () => {
     view.store.setPreviewReady(true);
     await nextTick();
     expect(document.querySelector("#outfit-preview")).toBe(preview);
+    expect(view.createPreview).toHaveBeenCalledOnce();
+    expect(observe).toHaveBeenCalledOnce();
+    expect(view.renderer.watchDevicePixelRatio).toHaveBeenCalledOnce();
     expect(view.renderer.resizePreview).toHaveBeenCalledOnce();
     expect(document.querySelector(".offline-status")?.textContent).toContain(
       "Ready to use offline.",
@@ -128,6 +133,10 @@ describe("Vue application shell", () => {
     expect(view.onError).toHaveBeenCalledExactlyOnceWith(failure);
     required(document.querySelector<HTMLButtonElement>("#reset-look")).click();
     expect(view.onError).toHaveBeenLastCalledWith(new Error("The outfit preview is not ready."));
+    required(document.querySelector<HTMLButtonElement>("#download-look")).click();
+    expect(view.onError).toHaveBeenLastCalledWith(
+      new Error("The outfit preview is not ready to save."),
+    );
     view.app.unmount();
   });
 
