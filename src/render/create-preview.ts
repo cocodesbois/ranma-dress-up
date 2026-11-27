@@ -56,3 +56,10 @@ export function createPreview({
   });
   return { renderer, controller };
 }
+
+/** Bind shared dependencies to a factory called when Vue mounts the canvas. */
+export function createPreviewFactory(
+  dependencies: Omit<Parameters<typeof createPreview>[0], "preview">,
+) {
+  return (preview: HTMLCanvasElement) => createPreview({ ...dependencies, preview });
+}

@@ -9,12 +9,11 @@ import spriteManifest from "./data/sprite-manifest";
 import { createApp } from "vue";
 import * as catalogModel from "./core/catalog-model";
 import { createStore } from "./core/state-store";
-import { createImageLoader } from "./render/image-loader";
-import { createPreview } from "./render/create-preview";
-import { createStatusController } from "./ui/status-controller";
+import { createImageLoader, createSpriteLookup } from "./render/image-loader";
+import { createPreviewFactory } from "./render/create-preview";
+import { createErrorReporter, createStatusController } from "./ui/status-controller";
 import { registerOfflineSupport } from "./pwa/register-offline-support";
 import AppView from "./ui/app-view.vue";
-import type { Sprite } from "./types";
 
 const appRoot = document.querySelector("#app");
 if (!(appRoot instanceof HTMLElement)) {
@@ -26,14 +25,7 @@ if (!spriteManifest) {
 }
 
 const outfitPresets = catalogModel.createOutfitPresets(catalog);
-function getDefaultOutfit() {
-  const defaultLook = catalogModel.getDefaultOutfitLook(outfitPresets, "001");
-  if (!defaultLook) {
-    throw new Error("No complete outfits with a hairstyle are available.");
-  }
-  return defaultLook;
-}
-const defaultOutfit = getDefaultOutfit();
+const defaultOutfit = catalogModel.requireDefaultOutfitLook(outfitPresets, "001");
 
 const appState = createStore({
   defaultOutfit,
@@ -44,23 +36,9 @@ const statusController = createStatusController(appState);
 const imageLoader = createImageLoader({
   outfitPresets,
   manifest: spriteManifest,
-  onError: (error) => {
-    console.error(error);
-  },
 });
-
-/** Adapt a catalog layer to the loader's stable PNG source key. */
-function getSprite(item: { source: string }): Sprite | undefined {
-  return imageLoader.getSprite(item.source);
-}
-
-/** Report controller/startup failures both to developers and in the status area. */
-function showError(error: unknown) {
-  console.error(error);
-  statusController.setStatusMessage(error instanceof Error ? error.message : String(error), {
-    isError: true,
-  });
-}
+const getSprite = createSpriteLookup(imageLoader);
+const showError = createErrorReporter(statusController);
 
 const app = createApp(AppView, {
   catalog,
@@ -68,19 +46,17 @@ const app = createApp(AppView, {
   presets: outfitPresets,
   mobileWardrobe,
   getSprite,
-  createPreview: (preview: HTMLCanvasElement) =>
-    createPreview({
-      preview,
-      catalog,
-      manifest: spriteManifest,
-      outfitPresets,
-      defaultOutfit,
-      appState,
-      statusController,
-      imageLoader,
-      getSprite,
-      onError: showError,
-    }),
+  createPreview: createPreviewFactory({
+    catalog,
+    manifest: spriteManifest,
+    outfitPresets,
+    defaultOutfit,
+    appState,
+    statusController,
+    imageLoader,
+    getSprite,
+    onError: showError,
+  }),
   statusController,
   onError: showError,
 });

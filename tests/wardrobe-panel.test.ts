@@ -7,7 +7,7 @@ import { createStore } from "../src/core/state-store";
 import WardrobePanel from "../src/ui/wardrobe-panel.vue";
 import StatusView from "../src/ui/status-view.vue";
 import ResetView from "../src/ui/reset-view.vue";
-import { createStatusController } from "../src/ui/status-controller";
+import { createErrorReporter, createStatusController } from "../src/ui/status-controller";
 import { required } from "./fixtures";
 
 const presets = catalogModel.createOutfitPresets(catalog);
@@ -162,6 +162,22 @@ describe("Vue wardrobe controls", () => {
     expect(view.element("#status-message").textContent).toBe("Failed");
     expect(view.element("#status-message").classList.contains("is-error")).toBe(true);
     expect(view.element("#status-message").getAttribute("aria-live")).toBe("polite");
+    view.unmount();
+  });
+
+  it("reports errors to the console and status", async () => {
+    const view = setup();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const reportError = createErrorReporter(createStatusController(view.store));
+    const failure = new Error("Preview failed");
+    reportError(failure);
+    await nextTick();
+    expect(consoleError).toHaveBeenCalledExactlyOnceWith(failure);
+    expect(view.element("#status-message").textContent).toBe("Preview failed");
+    expect(view.element("#status-message").classList.contains("is-error")).toBe(true);
+    reportError("Other failure");
+    expect(view.store.state.status.text).toBe("Other failure");
+    consoleError.mockRestore();
     view.unmount();
   });
 });

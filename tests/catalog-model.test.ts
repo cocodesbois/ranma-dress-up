@@ -5,6 +5,7 @@ import {
   getDefaultOutfitLook,
   getExcludedCategories,
   getMatchingOutfit,
+  requireDefaultOutfitLook,
 } from "../src/core/catalog-model";
 import catalog from "../src/data/sprite-catalog";
 import type { Catalog, CategoryId } from "../src/types";
@@ -200,6 +201,14 @@ describe("preset lookup", () => {
     const numericPreset = { ...presets[0], id: 5 };
     expect(Reflect.apply(getDefaultOutfitLook, undefined, [[numericPreset], "5"])).toBe(
       presets[0].look,
+    );
+  });
+
+  it("requires a default look while preserving preferred and fallback selection", () => {
+    expect(requireDefaultOutfitLook(presets, "alternate")).toBe(presets[1].look);
+    expect(requireDefaultOutfitLook(presets, "missing")).toBe(presets[0].look);
+    expect(() => requireDefaultOutfitLook([])).toThrow(
+      "No complete outfits with a hairstyle are available.",
     );
   });
 

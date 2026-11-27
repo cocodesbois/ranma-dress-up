@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
 import { createStore } from "../src/core/state-store";
-import { createPreview } from "../src/render/create-preview";
+import { createPreviewFactory } from "../src/render/create-preview";
 import { createStatusController } from "../src/ui/status-controller";
 import { item, layer, manifest } from "./fixtures";
 
@@ -40,8 +40,7 @@ describe("preview construction", () => {
       height: 200,
       scale: 1,
     }));
-    const { controller } = createPreview({
-      preview,
+    const createPreview = createPreviewFactory({
       catalog,
       manifest: manifest(),
       outfitPresets: [],
@@ -52,6 +51,7 @@ describe("preview construction", () => {
       getSprite,
       onError: vi.fn(),
     });
+    const { controller } = createPreview(preview);
 
     controller.selectItem(top);
 
