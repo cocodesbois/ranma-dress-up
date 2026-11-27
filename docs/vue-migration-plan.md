@@ -74,7 +74,9 @@ Vue or change behavior.
 **Accept:** The baseline and conditions are available in the repository or PR
 handoff for comparison in Step 6. Automated tests pass. If maintainer-owned
 browser measurements cannot be collected, explicitly request and record them
-before the final performance comparison; do not treat them as complete.
+before the final performance comparison; do not treat them as complete. See
+[the Step 1 baseline](vue-migration-baseline.md) for the recorded bundle size,
+measurement protocol, and pending browser results.
 
 ## Step 2 — Vue tooling and reactive store
 
