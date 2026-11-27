@@ -37,12 +37,6 @@ function setup({ failing = new Set<string>() } = {}) {
     preloadAllOutfitsInBackground: vi.fn(),
   };
   const appState = createStore({ defaultOutfit, initialActiveCategory: "tops" });
-  const wardrobeUi = {
-    renderCategories: vi.fn(),
-    renderItems: vi.fn(),
-    clearItems: vi.fn(),
-    updateItemSelection: vi.fn(),
-  };
   const statusController = {
     setStatusMessage:
       vi.fn<(text: string, options?: { loading?: boolean; isError?: boolean }) => void>(),
@@ -65,14 +59,12 @@ function setup({ failing = new Set<string>() } = {}) {
     statusController,
     imageLoader,
     canvasRenderer,
-    wardrobeUi,
     onError,
   });
   return {
     controller,
     imageLoader,
     appState,
-    wardrobeUi,
     statusController,
     canvasRenderer,
     onError,
@@ -91,20 +83,28 @@ afterEach(() => {
 });
 
 describe("selecting a category", () => {
-  it("renders the grid and confirms the selection when every image loads", async () => {
-    const { controller, wardrobeUi, statusController, onError } = setup();
+  it("publishes a successful category load and confirms the selection", async () => {
+    const { controller, appState, statusController, onError } = setup();
     await controller.selectCategory(topsCategory);
-    expect(wardrobeUi.renderItems).toHaveBeenCalledOnce();
+    expect(appState.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 0,
+    });
     expect(messages(statusController).at(-1)).toBe("Tops selected.");
     expect(onError).not.toHaveBeenCalled();
   });
 
-  it("still renders the grid when some images fail, and reports how many", async () => {
+  it("publishes partial failures and reports how many", async () => {
     const failing = new Set(topItems.slice(0, 2).map(({ source }) => source));
-    const { controller, wardrobeUi, statusController, onError } = setup({ failing });
+    const { controller, appState, statusController, onError } = setup({ failing });
     await controller.selectCategory(topsCategory);
 
-    expect(wardrobeUi.renderItems).toHaveBeenCalledOnce();
+    expect(appState.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 2,
+    });
     expect(onError).toHaveBeenCalledOnce();
     expect(onError.mock.calls[0][0]).toEqual(
       new Error(`2 of ${topItems.length} tops could not be loaded.`),
@@ -115,7 +115,7 @@ describe("selecting a category", () => {
 
   it("loads every image of the category again when the category is selected again", async () => {
     const failing = new Set([topItems[0].source]);
-    const { controller, imageLoader, wardrobeUi, onError } = setup({ failing });
+    const { controller, imageLoader, appState, onError } = setup({ failing });
     await controller.selectCategory(topsCategory);
     expect(onError).toHaveBeenCalledOnce();
 
@@ -124,21 +124,47 @@ describe("selecting a category", () => {
     await controller.selectCategory(topsCategory);
     expect(imageLoader.loadImage).toHaveBeenCalledTimes(topItems.length);
     expect(imageLoader.loadImage).toHaveBeenCalledWith(topItems[0].source);
-    expect(wardrobeUi.renderItems).toHaveBeenCalledTimes(2);
+    expect(appState.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 0,
+    });
     expect(onError).toHaveBeenCalledOnce();
   });
 
   it("ignores a response that arrives after another category was selected", async () => {
-    const { controller, imageLoader, wardrobeUi, appState, onError } = setup();
+    const { controller, imageLoader, appState, onError } = setup();
     const slow = deferred();
-    imageLoader.loadImage.mockImplementation(() => slow.promise);
+    imageLoader.loadImage.mockImplementationOnce(() => slow.promise);
 
     const pending = controller.selectCategory(topsCategory);
-    appState.setActiveCategory(dressesCategory.id);
+    await controller.selectCategory(dressesCategory);
     slow.reject(new Error("late failure"));
     await pending;
 
-    expect(wardrobeUi.renderItems).not.toHaveBeenCalled();
+    expect(appState.state.categoryLoad).toMatchObject({
+      categoryId: "dresses",
+      status: "ready",
+      failedCount: 0,
+    });
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it("ignores an earlier load when the same category is retried", async () => {
+    const { controller, imageLoader, appState, onError } = setup();
+    const slow = deferred();
+    imageLoader.loadImage.mockImplementationOnce(() => slow.promise);
+
+    const stale = controller.selectCategory(topsCategory);
+    await controller.selectCategory(topsCategory);
+    slow.reject(new Error("late failure"));
+    await stale;
+
+    expect(appState.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 0,
+    });
     expect(onError).not.toHaveBeenCalled();
   });
 });
@@ -146,11 +172,15 @@ describe("selecting a category", () => {
 describe("starting the app", () => {
   it("survives the failure of an optional image of the initial category", async () => {
     const failing = new Set([otherTops[0].source]);
-    const { controller, appState, canvasRenderer, wardrobeUi, imageLoader } = setup({ failing });
+    const { controller, appState, canvasRenderer, imageLoader } = setup({ failing });
     await expect(controller.startApp()).resolves.toBeUndefined();
 
     expect(appState.isPreviewReady()).toBe(true);
-    expect(wardrobeUi.renderItems).toHaveBeenCalledOnce();
+    expect(appState.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 1,
+    });
     expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
     expect(imageLoader.preloadAllOutfitsInBackground).toHaveBeenCalledOnce();
     expect(console.error).toHaveBeenCalledOnce();

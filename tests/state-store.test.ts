@@ -67,6 +67,39 @@ describe("state store", () => {
     expect(store.isCurrentOutfitSelectionRequest(second + 1)).toBe(false);
   });
 
+  it("tracks category loading results and ignores stale completions", () => {
+    const store = createStore({ defaultOutfit: {}, initialActiveCategory: "tops" });
+    const first = store.startCategoryLoad("tops");
+    const retry = store.startCategoryLoad("tops");
+
+    expect(store.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "loading",
+      failedCount: 0,
+    });
+    expect(store.finishCategoryLoad(first, 2)).toBe(false);
+    expect(store.finishCategoryLoad(retry, 1)).toBe(true);
+    expect(store.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 1,
+    });
+  });
+
+  it("invalidates category loads when a non-loading result is published", () => {
+    const store = createStore({ defaultOutfit: {}, initialActiveCategory: "tops" });
+    const request = store.startCategoryLoad("dresses");
+    store.setCategoryLoadResult("tops", 0);
+
+    expect(store.getActiveCategory()).toBe("tops");
+    expect(store.finishCategoryLoad(request, 3)).toBe(false);
+    expect(store.state.categoryLoad).toMatchObject({
+      categoryId: "tops",
+      status: "ready",
+      failedCount: 0,
+    });
+  });
+
   it("keeps store instances isolated", () => {
     const defaultOutfit = { hair: "hair", tops: "top" };
     const first = createStore({ defaultOutfit });
