@@ -15,14 +15,16 @@ function setup({
   exportPreview = vi.fn<() => Promise<Blob | null>>().mockResolvedValue(null),
   startApp = vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
   initializationError,
+  mobile = false,
 }: {
   exportPreview?: () => Promise<Blob | null>;
   startApp?: () => Promise<void>;
   initializationError?: Error;
+  mobile?: boolean;
 } = {}) {
   document.body.innerHTML = '<div id="app"></div>';
   const store = createStore({ defaultOutfit });
-  const mobileWardrobe = Object.assign(new EventTarget(), { matches: false }) as MediaQueryList;
+  const mobileWardrobe = Object.assign(new EventTarget(), { matches: mobile }) as MediaQueryList;
   const stopWatchingDevicePixelRatio = vi.fn();
   const renderer = {
     drawOutfit: vi.fn(),
@@ -57,7 +59,16 @@ function setup({
     },
   });
   app.mount("#app");
-  return { app, store, renderer, controller, createPreview, onError, stopWatchingDevicePixelRatio };
+  return {
+    app,
+    store,
+    mobileWardrobe,
+    renderer,
+    controller,
+    createPreview,
+    onError,
+    stopWatchingDevicePixelRatio,
+  };
 }
 
 afterEach(() => {
@@ -69,6 +80,39 @@ afterEach(() => {
 });
 
 describe("Vue application shell", () => {
+  it("synchronizes layout classes and clears them on unmount in either media mode", async () => {
+    const view = setup({ mobile: true });
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-toggle")).click();
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-size")).click();
+    expect(document.body.classList.contains("wardrobe-open")).toBe(true);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(true);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(document.body.classList.contains("wardrobe-open")).toBe(false);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(false);
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-toggle")).click();
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-size")).click();
+
+    Object.defineProperty(view.mobileWardrobe, "matches", { value: false });
+    view.mobileWardrobe.dispatchEvent(new Event("change"));
+    expect(document.body.classList.contains("wardrobe-open")).toBe(false);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(false);
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-size")).click();
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(true);
+    view.app.unmount();
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(false);
+    view.store.setWardrobeOpen(true);
+    expect(document.body.classList.contains("wardrobe-open")).toBe(false);
+
+    const mobileView = setup({ mobile: true });
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-toggle")).click();
+    required(document.querySelector<HTMLButtonElement>("#wardrobe-size")).click();
+    await nextTick();
+    mobileView.app.unmount();
+    expect(document.body.classList.contains("wardrobe-open")).toBe(false);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(false);
+  });
+
   it("initializes one stable canvas, forwards actions and cleans up its observer", async () => {
     const observe = vi.fn();
     const disconnect = vi.fn();

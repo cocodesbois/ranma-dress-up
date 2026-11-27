@@ -4,7 +4,7 @@
  * look changes to the outfit controller and item presentation to the island.
  * @module ui/wardrobe-panel
  */
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { getMatchingOutfit } from "../core/catalog-model";
 import type { Store } from "../core/state-store";
 import type { Catalog, Category, Item, OutfitPreset, Sprite } from "../types";
@@ -67,15 +67,6 @@ function onKeydown(event: KeyboardEvent) {
   if (event.key === "Escape" && props.store.state.wardrobeOpen) void setOpen(false);
 }
 
-watch(
-  () => [props.store.state.wardrobeOpen, props.store.state.wardrobeExpanded] as const,
-  ([open, expanded]) => {
-    document.body.classList.toggle("wardrobe-open", open);
-    document.body.classList.toggle("wardrobe-expanded", expanded);
-  },
-  { immediate: true, flush: "sync" },
-);
-
 onMounted(() => {
   syncMode();
   props.mobileWardrobe.addEventListener("change", syncMode);
@@ -84,7 +75,6 @@ onMounted(() => {
 onUnmounted(() => {
   props.mobileWardrobe.removeEventListener("change", syncMode);
   document.removeEventListener("keydown", onKeydown);
-  document.body.classList.remove("wardrobe-open", "wardrobe-expanded");
 });
 </script>
 
