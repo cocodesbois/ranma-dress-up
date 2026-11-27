@@ -25,13 +25,22 @@ function deferred() {
 }
 
 function setup({ failing = new Set<string>() } = {}) {
+  const loaded = new Set<string>();
+  const sprite = {
+    image: document.createElement("img"),
+    x: 0,
+    y: 0,
+    width: 1,
+    height: 1,
+    scale: 1,
+  };
   const imageLoader = {
-    loadImage: vi.fn((source: string) =>
-      failing.has(source)
-        ? Promise.reject(new Error(`Could not load image asset: ${source}`))
-        : Promise.resolve(document.createElement("img")),
-    ),
-    getSprite: vi.fn(() => undefined),
+    loadImage: vi.fn(async (source: string) => {
+      if (failing.has(source)) throw new Error(`Could not load image asset: ${source}`);
+      loaded.add(source);
+      return document.createElement("img");
+    }),
+    getSprite: vi.fn((source: string) => (loaded.has(source) ? sprite : undefined)),
     getMissingSourcesForPreset: vi.fn((): string[] => []),
     preloadAdjacentOutfits: vi.fn(),
     preloadAllOutfitsInBackground: vi.fn(),
@@ -67,6 +76,7 @@ function setup({ failing = new Set<string>() } = {}) {
     statusController,
     canvasRenderer,
     onError,
+    loaded,
   };
 }
 
@@ -89,6 +99,7 @@ describe("selecting a category", () => {
       categoryId: "tops",
       status: "ready",
       failedCount: 0,
+      availableItemIds: topItems.map(({ id }) => id),
     });
     expect(messages(statusController).at(-1)).toBe("Tops selected.");
     expect(onError).not.toHaveBeenCalled();
@@ -103,6 +114,7 @@ describe("selecting a category", () => {
       categoryId: "tops",
       status: "ready",
       failedCount: 2,
+      availableItemIds: topItems.slice(2).map(({ id }) => id),
     });
     expect(onError).toHaveBeenCalledOnce();
     expect(onError.mock.calls[0][0]).toEqual(
@@ -127,6 +139,7 @@ describe("selecting a category", () => {
       categoryId: "tops",
       status: "ready",
       failedCount: 0,
+      availableItemIds: topItems.map(({ id }) => id),
     });
     expect(onError).toHaveBeenCalledOnce();
   });
@@ -138,6 +151,7 @@ describe("selecting a category", () => {
 
     const pending = controller.selectCategory(topsCategory);
     await controller.selectCategory(dressesCategory);
+    const result = appState.state.categoryLoad;
     slow.reject(new Error("late failure"));
     await pending;
 
@@ -147,6 +161,25 @@ describe("selecting a category", () => {
       failedCount: 0,
     });
     expect(onError).not.toHaveBeenCalled();
+    expect(appState.state.categoryLoad).toEqual(result);
+  });
+
+  it("does not publish a stale successful load after Reset restores tops", async () => {
+    const { controller, imageLoader, appState, loaded } = setup();
+    const slow = deferred();
+    imageLoader.loadImage.mockImplementationOnce(() => slow.promise);
+    const pending = controller.selectCategory(dressesCategory);
+    loaded.add(topItems[0].source);
+    controller.resetOutfit();
+    const result = appState.state.categoryLoad;
+
+    slow.resolve(document.createElement("img"));
+    await pending;
+
+    expect(appState.state.categoryLoad).toEqual(result);
+    expect(result.categoryId).toBe("tops");
+    expect(result.availableItemIds).toEqual([topItems[0].id]);
+    expect(result.failedCount).toBe(topItems.length - 1);
   });
 
   it("ignores an earlier load when the same category is retried", async () => {
@@ -210,6 +243,23 @@ describe("starting the app", () => {
 });
 
 describe("preset selection and redraws", () => {
+  it("publishes newly loaded active-category items when a preset completes", async () => {
+    const preset = required(
+      outfitPresets.find((entry) => entry.items.some((item) => item.category === "tops")),
+    );
+    const top = required(preset.items.find((item) => item.category === "tops"));
+    const failing = new Set([top.source]);
+    const { controller, imageLoader, appState } = setup({ failing });
+    await controller.selectCategory(topsCategory);
+    expect(appState.state.categoryLoad.availableItemIds).not.toContain(top.id);
+    failing.clear();
+    imageLoader.getMissingSourcesForPreset.mockReturnValue([top.source]);
+    controller.selectOutfitById(preset.id);
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(appState.state.categoryLoad.availableItemIds).toEqual(topItems.map(({ id }) => id));
+    expect(appState.state.categoryLoad.failedCount).toBe(0);
+  });
+
   it("draws once after a preset finishes loading", async () => {
     const preset = required(outfitPresets.find(({ id }) => String(id) !== "001"));
     const source = required(preset.items[0]).source;

@@ -31,14 +31,14 @@ function setup({
     defaultOutfit: outfit ?? { [activeCategory]: null },
     initialActiveCategory: activeCategory,
   });
+  const categoryItems = itemsOf(activeCategory);
+  const loaded = new Set(loadedIds ?? categoryItems.map(({ id }) => id));
   store.setPreviewReady(true);
   if (loading) {
     store.startCategoryLoad(activeCategory);
   } else {
-    store.setCategoryLoadResult(activeCategory, failedCount);
+    store.setCategoryLoadResult(activeCategory, failedCount, [...loaded]);
   }
-  const categoryItems = itemsOf(activeCategory);
-  const loaded = new Set(loadedIds ?? categoryItems.map(({ id }) => id));
   const onCategorySelect = vi.fn();
   const onItemSelect = vi.fn<(item: Item) => void>();
   const onNoneSelect = vi.fn();
@@ -56,6 +56,7 @@ function setup({
     app,
     container,
     store,
+    loaded,
     categoryItems,
     onCategorySelect,
     onItemSelect,
@@ -111,7 +112,7 @@ describe("wardrobe categories", () => {
     expect(view.itemList().getAttribute("aria-busy")).toBe("true");
     expect(view.cards()).toHaveLength(0);
 
-    view.store.finishCategoryLoad(view.store.state.categoryLoad.request, 0);
+    view.store.finishCategoryLoad(view.store.state.categoryLoad.request, 0, [...view.loaded]);
     await nextTick();
 
     expect(view.itemList().getAttribute("aria-busy")).toBe("false");
@@ -122,6 +123,63 @@ describe("wardrobe categories", () => {
 });
 
 describe("wardrobe items", () => {
+  it("shows a newly loaded item after retrying the active category", async () => {
+    const items = itemsOf("tops");
+    const missing = items[0];
+    const view = setup({ loadedIds: items.slice(1).map(({ id }) => id), failedCount: 1 });
+    expect(view.cards()).toHaveLength(items.length - 1);
+
+    const request = view.store.startCategoryLoad("tops");
+    await nextTick();
+    view.loaded.add(missing.id);
+    view.store.finishCategoryLoad(request, 0, [...view.loaded]);
+    await nextTick();
+
+    expect(view.container.querySelector(`#item-${missing.id}`)).not.toBeNull();
+    expect(view.notice()).toBeNull();
+    view.app.unmount();
+  });
+
+  it("updates the active list when a preset publishes a newly loaded item", async () => {
+    const items = itemsOf("tops");
+    const missing = items[0];
+    const view = setup({ loadedIds: items.slice(1).map(({ id }) => id), failedCount: 1 });
+    expect(view.container.querySelector(`#item-${missing.id}`)).toBeNull();
+
+    view.loaded.add(missing.id);
+    view.store.setCategoryLoadResult("tops", 0, [...view.loaded]);
+    await nextTick();
+
+    expect(view.container.querySelector(`#item-${missing.id}`)).not.toBeNull();
+    expect(view.notice()).toBeNull();
+    view.app.unmount();
+  });
+
+  it("does not show stale results after switching categories", async () => {
+    const view = setup();
+    const stale = view.store.startCategoryLoad("tops");
+    const dresses = itemsOf("dresses");
+    const current = view.store.startCategoryLoad("dresses");
+    view.store.finishCategoryLoad(
+      current,
+      1,
+      dresses.slice(1).map(({ id }) => id),
+    );
+    await nextTick();
+
+    view.store.finishCategoryLoad(
+      stale,
+      0,
+      dresses.map(({ id }) => id),
+    );
+    await nextTick();
+    expect(view.cards().map((card) => card.id.replace("item-", ""))).toEqual(
+      dresses.slice(1).map(({ id }) => id),
+    );
+    expect(view.notice()?.textContent).toContain("1 item could not be loaded.");
+    view.app.unmount();
+  });
+
   it("shows only loaded items and the matching partial-failure retry notice", () => {
     const items = itemsOf("tops");
     const view = setup({

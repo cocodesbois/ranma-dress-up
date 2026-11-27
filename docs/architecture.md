@@ -75,8 +75,9 @@ sélections manuelles, les exclusions, le retrait d'un objet et Reset.
 La région `wardrobe-island.vue` lit la catégorie, le look et le résultat de
 chargement du store réactif. Le contrôleur ne modifie pas les nœuds de cette
 région ; il signale au store le début et le résultat d'un chargement, puis le
-composant affiche les cartes, l'avis partiel ou le bouton de reprise. Les images
-et leurs caches restent dans `image-loader`, hors de la réactivité Vue.
+composant affiche les cartes à partir des IDs disponibles publiés avec ce résultat,
+l'avis partiel ou le bouton de reprise. Les images et leurs caches restent dans
+`image-loader`, hors de la réactivité Vue.
 
 Les couleurs de l'interface, la typographie, les espacements réutilisés, les tailles
 de contrôles, le focus, les durées de transition et les niveaux de superposition

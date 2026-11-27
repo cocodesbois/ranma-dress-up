@@ -66,6 +66,13 @@ export function createOutfitController({
     return failures.length;
   }
 
+  /** Snapshot decoded item IDs without placing sprites or images in reactive state. */
+  function getAvailableItemIds(category: Category["id"]) {
+    return catalog.items
+      .filter((item) => item.category === category && imageLoader.getSprite(item.source))
+      .map((item) => item.id);
+  }
+
   /**
    * Load category images, then publish the result only if that request is still current.
    * The reactive wardrobe shows loaded items and offers a retry for failed images.
@@ -83,7 +90,7 @@ export function createOutfitController({
         items.map((item) => imageLoader.loadImage(item.source)),
       );
       const failedCount = results.filter((result) => result.status === "rejected").length;
-      if (!appState.finishCategoryLoad(request, failedCount)) {
+      if (!appState.finishCategoryLoad(request, failedCount, getAvailableItemIds(category.id))) {
         return;
       }
 
@@ -120,12 +127,13 @@ export function createOutfitController({
       }
 
       appState.setOutfit(preset.look);
+      const activeCategory = appState.getActiveCategory();
+      const availableItemIds = getAvailableItemIds(activeCategory);
       appState.setCategoryLoadResult(
-        appState.getActiveCategory(),
-        catalog.items.filter(
-          (item) =>
-            item.category === appState.getActiveCategory() && !imageLoader.getSprite(item.source),
-        ).length,
+        activeCategory,
+        catalog.items.filter((item) => item.category === activeCategory).length -
+          availableItemIds.length,
+        availableItemIds,
       );
       canvasRenderer.drawOutfit();
       statusController.setStatusMessage(`${preset.label} selected.`);
@@ -190,11 +198,11 @@ export function createOutfitController({
     appState.nextOutfitSelectionRequest();
     appState.setPendingPreset(null);
     appState.setOutfit(defaultOutfit);
+    const availableItemIds = getAvailableItemIds("tops");
     appState.setCategoryLoadResult(
       "tops",
-      catalog.items.filter(
-        (item) => item.category === "tops" && !imageLoader.getSprite(item.source),
-      ).length,
+      catalog.items.filter((item) => item.category === "tops").length - availableItemIds.length,
+      availableItemIds,
     );
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("The original look has been restored.");
@@ -207,7 +215,8 @@ export function createOutfitController({
    */
   async function startApp() {
     statusController.setStatusMessage("Loading the wardrobe...", { loading: true });
-    const categoryRequest = appState.startCategoryLoad(appState.getActiveCategory());
+    const initialCategory = appState.getActiveCategory();
+    const categoryRequest = appState.startCategoryLoad(initialCategory);
     const requiredSources = new Set([
       catalog.background.source,
       catalog.base.source,
@@ -216,7 +225,7 @@ export function createOutfitController({
         .map((item) => item.source),
     ]);
     const optionalSources = catalog.items
-      .filter((item) => item.category === appState.getActiveCategory())
+      .filter((item) => item.category === initialCategory)
       .map((item) => item.source)
       .filter((source) => !requiredSources.has(source));
 
@@ -227,7 +236,11 @@ export function createOutfitController({
     const failedOptionalCount = optionalResults.filter(
       (result) => result.status === "rejected",
     ).length;
-    appState.finishCategoryLoad(categoryRequest, failedOptionalCount);
+    appState.finishCategoryLoad(
+      categoryRequest,
+      failedOptionalCount,
+      getAvailableItemIds(initialCategory),
+    );
     logRejections(optionalResults);
     appState.setPreviewReady(true);
     canvasRenderer.drawOutfit();
