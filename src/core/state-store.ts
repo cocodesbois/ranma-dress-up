@@ -66,10 +66,6 @@ export function createStore({
     getActiveCategory() {
       return state.activeCategory;
     },
-    /** @param category - Category ID to display. */
-    setActiveCategory(category: CategoryId) {
-      state.activeCategory = category;
-    },
     /** Start loading one category and return its stale-result token. */
     startCategoryLoad(category: CategoryId) {
       state.activeCategory = category;
@@ -109,10 +105,6 @@ export function createStore({
         availableItemIds: [...availableItemIds],
       };
     },
-    /** @returns Whether the mobile wardrobe is open. */
-    isWardrobeOpen() {
-      return state.wardrobeOpen;
-    },
     /** @param open - Desired mobile panel state. */
     setWardrobeOpen(open: boolean) {
       state.wardrobeOpen = open;
@@ -145,10 +137,6 @@ export function createStore({
     /** @returns A new token invalidating pending preset selections. */
     nextOutfitSelectionRequest() {
       state.outfitSelectionRequest += 1;
-      return state.outfitSelectionRequest;
-    },
-    /** @returns The latest selection token. */
-    getOutfitSelectionRequest() {
       return state.outfitSelectionRequest;
     },
     /** Identify stale async preset loads before committing their look. */

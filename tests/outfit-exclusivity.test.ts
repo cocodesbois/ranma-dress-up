@@ -69,7 +69,7 @@ describe("manual selection exclusivity", () => {
     }
     expect(appState.getOutfit()).toEqual(expected);
     expect(appState.getActiveCategory()).toBe(category);
-    expect(appState.getOutfitSelectionRequest()).toBe(1);
+    expect(appState.state.outfitSelectionRequest).toBe(1);
     expect(defaultOutfit[category]).toBe(`existing-${category}`);
     expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Selected item selected.");
@@ -84,7 +84,7 @@ describe("manual selection exclusivity", () => {
       pants: null,
       bodysuits: null,
     });
-    appState.setActiveCategory("bodysuits");
+    appState.setCategoryLoadResult("bodysuits", 0, []);
     controller.selectItem(item("bodysuit", "bodysuits", "Bodysuit"));
     expect(appState.getOutfit()).toMatchObject({
       dresses: null,
@@ -99,7 +99,7 @@ describe("manual selection exclusivity", () => {
     const { controller, appState, defaultOutfit, statusController } = setup("bodysuits");
     controller.removeActiveCategoryItem();
     expect(appState.getOutfit()).toEqual({ ...defaultOutfit, bodysuits: null });
-    expect(appState.getOutfitSelectionRequest()).toBe(1);
+    expect(appState.state.outfitSelectionRequest).toBe(1);
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Item removed.");
   });
 
@@ -117,7 +117,7 @@ describe("manual selection exclusivity", () => {
       dresses: null,
       bodysuits: null,
     });
-    appState.setActiveCategory("aprons");
+    appState.setCategoryLoadResult("aprons", 0, []);
     controller.selectItem(item("apron", "aprons"));
     const withApron = { ...appState.getOutfit() };
     expect(withApron.jumpsuits).toBe("jumpsuit");
@@ -133,7 +133,7 @@ describe("manual selection exclusivity", () => {
     expect(appState.getOutfit()).toEqual(defaultOutfit);
     expect(appState.getOutfit()).not.toBe(defaultOutfit);
     expect(appState.getActiveCategory()).toBe("tops");
-    expect(appState.getOutfitSelectionRequest()).toBe(2);
+    expect(appState.state.outfitSelectionRequest).toBe(2);
     expect(appState.state.categoryLoad).toMatchObject({
       categoryId: "tops",
       status: "ready",
