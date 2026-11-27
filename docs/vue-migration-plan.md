@@ -151,10 +151,16 @@ disposable, re-arming device-pixel-ratio listener. Remove superseded bootstrap
 and DOM wiring only when all their responsibilities have moved. Preserve
 service-worker registration and explicit error reporting.
 
+Prefer typed Vue component emits and parent listeners for user actions throughout
+the migrated UI, including the existing wardrobe and Reset components, wherever
+practical. Keep function props for operations that return values, such as sprite
+lookup, and retain the existing controller orchestration.
+
 **Accept:** Tests demonstrate one stable canvas, no duplicate observers/listeners
 or redraws from unrelated UI updates, correct disposal, and unchanged drawing
 order and fixed-size export. Startup errors, save failures, offline status,
 resize and DPR changes remain handled. No legacy writer controls Vue-owned DOM.
+Component action events use typed emits wherever practical.
 
 ## Step 6 — Parity and release readiness
 
