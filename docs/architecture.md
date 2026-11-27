@@ -143,7 +143,9 @@ dans un item, un outfit ou une paire incompatible.
   `null`. Les IDs de catégories restent des chaînes afin que le catalogue soit la
   source de vérité ; le modèle et les tests vérifient les références à l'exécution.
 - Le store copie le look initial et les looks de remplacement. `getOutfit()` expose
-  la carte courante, à traiter en lecture seule par ses consommateurs.
+  une vue réactive en lecture seule du look courant ; seules les actions du store
+  peuvent le modifier. Après un remplacement, il faut rappeler `getOutfit()` pour
+  obtenir la nouvelle vue. Les valeurs du look sont des chaînes ou `null`.
 - Les cheveux sont obligatoires dans les presets ; leur catégorie ne propose pas
   de bouton None.
 - `Catalog.incompatibleCategories` liste des paires de catégories qui ne se portent
