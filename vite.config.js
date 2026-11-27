@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 import { createHash } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
@@ -47,5 +48,5 @@ function offlineAssets() {
 
 export default defineConfig({
   base: "./",
-  plugins: [offlineAssets()],
+  plugins: [vue(), offlineAssets()],
 });

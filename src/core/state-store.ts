@@ -5,6 +5,7 @@
  */
 
 import type { CategoryId, Look } from "../types";
+import { reactive, readonly } from "vue";
 
 /**
  * Create an isolated store, copying the initial look rather than mutating a preset.
@@ -17,67 +18,71 @@ export function createStore({
   defaultOutfit: Look;
   initialActiveCategory?: CategoryId;
 }) {
-  let outfit = { ...defaultOutfit };
-  let activeCategory = initialActiveCategory;
-  let wardrobeOpen = false;
-  let outfitSelectionRequest = 0;
-  let previewReady = false;
+  const state = reactive({
+    outfit: { ...defaultOutfit },
+    activeCategory: initialActiveCategory,
+    wardrobeOpen: false,
+    outfitSelectionRequest: 0,
+    previewReady: false,
+  });
 
   return {
+    /** Readonly reactive state for Vue-owned views and computed presentation. */
+    state: readonly(state),
     /** @returns The current live map; treat it as read-only outside the store. */
     getOutfit() {
-      return outfit;
+      return state.outfit;
     },
     /** @param nextOutfit - Replace the live map with a shallow copy. */
     setOutfit(nextOutfit: Look) {
-      outfit = { ...nextOutfit };
+      state.outfit = { ...nextOutfit };
     },
     /** Set or clear one category without applying controller exclusivity rules. */
     setOutfitItem(category: CategoryId, itemId: string | null) {
-      outfit[category] = itemId;
+      state.outfit[category] = itemId;
     },
     /** @param categories - Categories whose selections become null. */
     clearOutfitItems(categories: CategoryId[]) {
       for (const category of categories) {
-        outfit[category] = null;
+        state.outfit[category] = null;
       }
     },
     /** @returns The category currently displayed in the wardrobe. */
     getActiveCategory() {
-      return activeCategory;
+      return state.activeCategory;
     },
     /** @param category - Category ID to display. */
     setActiveCategory(category: CategoryId) {
-      activeCategory = category;
+      state.activeCategory = category;
     },
     /** @returns Whether the mobile wardrobe is open. */
     isWardrobeOpen() {
-      return wardrobeOpen;
+      return state.wardrobeOpen;
     },
     /** @param open - Desired mobile panel state. */
     setWardrobeOpen(open: boolean) {
-      wardrobeOpen = open;
+      state.wardrobeOpen = open;
     },
     /** @returns A new token invalidating pending preset selections. */
     nextOutfitSelectionRequest() {
-      outfitSelectionRequest += 1;
-      return outfitSelectionRequest;
+      state.outfitSelectionRequest += 1;
+      return state.outfitSelectionRequest;
     },
     /** @returns The latest selection token. */
     getOutfitSelectionRequest() {
-      return outfitSelectionRequest;
+      return state.outfitSelectionRequest;
     },
     /** Identify stale async preset loads before committing their look. */
     isCurrentOutfitSelectionRequest(request: number) {
-      return request === outfitSelectionRequest;
+      return request === state.outfitSelectionRequest;
     },
     /** @returns Whether initial preview assets have loaded. */
     isPreviewReady() {
-      return previewReady;
+      return state.previewReady;
     },
     /** @param ready - Whether resize may redraw the preview. */
     setPreviewReady(ready: boolean) {
-      previewReady = ready;
+      state.previewReady = ready;
     },
   };
 }

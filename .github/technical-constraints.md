@@ -59,10 +59,10 @@ Use this file as the source of truth for data and behavior constraints when chan
 
 ## Modules, documentation and type checking
 
-- `src/main.ts` wires dependencies; `src/app-bootstrap.ts` binds events and starts the app. Core modules stay independent of the DOM. See [architecture](../docs/architecture.md) for the full flow.
+- `src/main.ts` wires dependencies; `src/app-bootstrap.ts` binds events and starts the app. Core modules stay independent of the DOM. `src/core/state-store.ts` owns the Vue-reactive state; Vue regions receive its readonly state view while actions remain the mutation API. See [architecture](../docs/architecture.md) for the full flow.
 - Document each runtime module's role, dependencies and exports in its JSDoc header, and keep public function contracts current. Do not repeat TypeScript types in JSDoc tags (`@param {string} id`): the signature is the contract, and `tests/source-conventions.test.ts` rejects typed tags. Keep descriptions, as in `@param id - What it identifies`.
 - Shared types live in `src/types.ts`: `Catalog`, `Item`, `Outfit`, `Look` and supporting geometry/preset/manifest types. Use type-only imports where appropriate.
-- `tsconfig.json` checks the application in strict, no-emit mode; `tsconfig.node.json` checks the Node catalog validator and `tsconfig.test.json` checks the tests.
+- `vue-tsc` checks application TypeScript and `.vue` templates in strict, no-emit mode; `tsconfig.node.json` checks the Node catalog validator and `tsconfig.test.json` checks the tests.
 - Run `npm run typecheck` when changing data or contracts. Structural types do not replace runtime validation of IDs, required hair/clothing or catalog tests.
 - Run `npm run validate:catalog` to check catalog IDs, that the catalog categories match `src/data/layer-order.ts`, outfit rules, source and optimized sprite files, thumbnails and their crops (whole pixels, inside the document, overlapping the sprite), and files that nothing refers to (unused source images, thumbnails or optimized images fail; an unused `background*` image only warns). The rules live in `scripts/catalog-validation.ts` and are tested in `tests/catalog-validation.test.ts`. The Pages workflow runs this check on every pull request and deployment.
 - Preserve generated documentation by editing the template in `scripts/sprite_optimize.py`, not just the manifest output. Do not put braces before the manifest object: Python readers locate the first JSON brace.
@@ -75,3 +75,4 @@ Use this file as the source of truth for data and behavior constraints when chan
 - When changing exclusivity (`incompatibleCategories`) or draw order, update this document and the tests, and verify behavior in the browser.
 - When changing catalog data or assets, run `npm run validate:catalog`.
 - Run `npm run lint`, `npm run format:check`, `npm run typecheck` and `npm test` before submitting changes. CI also checks optimized sprites and builds with Vite; visual/browser validation remains the maintainer's responsibility during this migration.
+- Vue-owned regions must read the same reactive store without taking ownership of DOM still updated by legacy controllers. Keep canvas contexts, decoded images and image caches outside Vue reactivity; canvas redraws remain explicit.
