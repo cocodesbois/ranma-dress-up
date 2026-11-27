@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Owns the application shell, canvas lifecycle and download presentation.
- * Receives framework-independent rendering and outfit controllers from main.
+ * Receives framework-independent rendering and outfit controllers from the composition root.
  * @module ui/app-view
  */
 import { onMounted, onUnmounted, ref } from "vue";
