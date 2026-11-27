@@ -39,13 +39,14 @@ export function createStore({
     downloadPending: false,
     previewReady: false,
   });
+  const readonlyState = readonly(state);
 
   return {
     /** Readonly reactive state for Vue-owned views and computed presentation. */
-    state: readonly(state),
-    /** @returns The current live map; treat it as read-only outside the store. */
-    getOutfit() {
-      return state.outfit;
+    state: readonlyState,
+    /** @returns A readonly reactive view of the current look. Re-read after replacement. */
+    getOutfit(): Readonly<Look> {
+      return readonlyState.outfit;
     },
     /** @param nextOutfit - Replace the live map with a shallow copy. */
     setOutfit(nextOutfit: Look) {

@@ -134,7 +134,7 @@ export function findPresetById(
 export function getMatchingOutfit(
   catalog: Catalog,
   outfitPresets: OutfitPreset[],
-  outfit: Look,
+  outfit: Readonly<Look>,
 ): OutfitPreset | undefined {
   return outfitPresets.find((preset) =>
     catalog.categories.every(

@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { createStore } from "../src/core/state-store";
+import type { Look } from "../src/types";
 
 describe("state store", () => {
   it("initializes the look and UI state without mutating the default outfit", () => {
@@ -25,6 +26,26 @@ describe("state store", () => {
     store.setOutfitItem("dresses", null);
     expect(store.getOutfit()).toEqual({ hair: "other-hair", dresses: null });
     expect(nextOutfit.dresses).toBe("dress");
+  });
+
+  it("exposes a readonly reactive look that follows actions but not replacements", () => {
+    const store = createStore({ defaultOutfit: { hair: "hair", tops: "top" } });
+    const look = store.getOutfit();
+    expectTypeOf(look).toEqualTypeOf<Readonly<Look>>();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      Reflect.set(look, "tops", "external");
+      Reflect.deleteProperty(look, "hair");
+      expect(store.getOutfit()).toEqual({ hair: "hair", tops: "top" });
+
+      store.setOutfitItem("tops", "other-top");
+      expect(look.tops).toBe("other-top");
+      store.setOutfit({ hair: "other-hair" });
+      expect(look).toEqual({ hair: "hair", tops: "other-top" });
+      expect(store.getOutfit()).toEqual({ hair: "other-hair" });
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it("sets and clears only the requested categories", () => {

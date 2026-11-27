@@ -24,7 +24,7 @@ export function createCanvasRenderer({
   catalog: Catalog;
   manifest: SpriteManifest;
   getSprite: (item: { source: string }) => Sprite | undefined;
-  getOutfit: () => Look;
+  getOutfit: () => Readonly<Look>;
   isPreviewReady: () => boolean;
 }) {
   // Width in pixels of the image saved by the download button, whatever the screen.
