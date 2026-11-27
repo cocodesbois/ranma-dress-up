@@ -23,9 +23,6 @@ function setup(activeCategory: CategoryId) {
     catalog.categories.map(({ id }) => [id, `existing-${id}`]),
   );
   const appState = createStore({ defaultOutfit, initialActiveCategory: activeCategory });
-  const outfitSelect = document.createElement("select");
-  outfitSelect.append(new Option("Default", "005"));
-  outfitSelect.value = "005";
   const canvasRenderer = {
     drawOutfit: vi.fn(),
     exportPreview: vi.fn(async () => null),
@@ -39,7 +36,6 @@ function setup(activeCategory: CategoryId) {
     outfitPresets: [],
     defaultOutfit,
     appState,
-    outfitSelect,
     canvasRenderer,
     statusController,
     imageLoader: {
@@ -55,7 +51,6 @@ function setup(activeCategory: CategoryId) {
     controller,
     appState,
     defaultOutfit,
-    outfitSelect,
     canvasRenderer,
     statusController,
   };
@@ -63,7 +58,7 @@ function setup(activeCategory: CategoryId) {
 
 describe("manual selection exclusivity", () => {
   it.each(catalog.categories)("applies exactly the exclusions for $id", ({ id: category }) => {
-    const { controller, appState, defaultOutfit, outfitSelect, canvasRenderer, statusController } =
+    const { controller, appState, defaultOutfit, canvasRenderer, statusController } =
       setup(category);
     const selected = item(`selected-${category}`, category, "Selected item");
     controller.selectItem(selected);
@@ -76,7 +71,6 @@ describe("manual selection exclusivity", () => {
     expect(appState.getActiveCategory()).toBe(category);
     expect(appState.getOutfitSelectionRequest()).toBe(1);
     expect(defaultOutfit[category]).toBe(`existing-${category}`);
-    expect(outfitSelect.value).toBe("");
     expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Selected item selected.");
   });

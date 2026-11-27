@@ -1,7 +1,7 @@
 /**
  * Coordinates look changes, exclusivity, async asset loads and UI redraws.
  * Depends on the catalog model, store, image loader, renderer, status UI and
- * preset select; exports createOutfitController.
+ * reactive presentation state; exports createOutfitController.
  * @module ui/outfit-controller
  */
 import type { Catalog, Category, Item, Look, OutfitPreset } from "../types";
@@ -18,7 +18,6 @@ export function createOutfitController({
   outfitPresets,
   defaultOutfit,
   appState,
-  outfitSelect,
   statusController,
   imageLoader,
   canvasRenderer,
@@ -29,29 +28,19 @@ export function createOutfitController({
   outfitPresets: OutfitPreset[];
   defaultOutfit: Look;
   appState: Store;
-  outfitSelect: HTMLSelectElement;
   statusController: ReturnType<typeof createStatusController>;
   imageLoader: ReturnType<typeof createImageLoader>;
   canvasRenderer: ReturnType<typeof createCanvasRenderer>;
   onError: (error: unknown) => void;
 }) {
-  function updateOutfitSelection() {
-    const matchingOutfit = catalogModel.getMatchingOutfit(
-      catalog,
-      outfitPresets,
-      appState.getOutfit(),
-    );
-    outfitSelect.value = matchingOutfit ? String(matchingOutfit.id) : "";
-  }
-
   /** Select a loaded item in the active category and clear exclusive selections. */
   function selectItem(item: Item) {
     appState.nextOutfitSelectionRequest();
+    appState.setPendingPreset(null);
     appState.clearOutfitItems(
       catalogModel.getExcludedCategories(catalog, appState.getActiveCategory()),
     );
     appState.setOutfitItem(appState.getActiveCategory(), item.id);
-    updateOutfitSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage(`${item.label} selected.`);
   }
@@ -59,8 +48,8 @@ export function createOutfitController({
   /** Clear the active category; the wardrobe UI does not offer this for hair. */
   function removeActiveCategoryItem() {
     appState.nextOutfitSelectionRequest();
+    appState.setPendingPreset(null);
     appState.setOutfitItem(appState.getActiveCategory(), null);
-    updateOutfitSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("Item removed.");
   }
@@ -116,13 +105,13 @@ export function createOutfitController({
   async function selectOutfit(preset: OutfitPreset) {
     const request = appState.nextOutfitSelectionRequest();
     const missingSources = imageLoader.getMissingSourcesForPreset(preset);
+    appState.setPendingPreset(String(preset.id), missingSources.length > 0);
 
     try {
       if (missingSources.length) {
         statusController.setStatusMessage(`Loading ${preset.label.toLowerCase()}...`, {
           loading: true,
         });
-        statusController.setOutfitControlsDisabled(true);
         await Promise.all(missingSources.map((source) => imageLoader.loadImage(source)));
       }
 
@@ -131,7 +120,6 @@ export function createOutfitController({
       }
 
       appState.setOutfit(preset.look);
-      updateOutfitSelection();
       appState.setCategoryLoadResult(
         appState.getActiveCategory(),
         catalog.items.filter(
@@ -143,18 +131,20 @@ export function createOutfitController({
       statusController.setStatusMessage(`${preset.label} selected.`);
       imageLoader.preloadAdjacentOutfits(preset);
     } catch (error) {
-      onError(error);
+      if (appState.isCurrentOutfitSelectionRequest(request)) {
+        onError(error);
+      }
     } finally {
       if (appState.isCurrentOutfitSelectionRequest(request)) {
-        statusController.setOutfitControlsDisabled(false);
+        appState.setPendingPreset(null);
       }
     }
   }
 
   function getPresetIndexByCurrentSelection() {
-    if (outfitSelect.value) {
+    if (appState.state.pendingPresetId) {
       const selectedIndex = outfitPresets.findIndex(
-        (preset) => String(preset.id) === outfitSelect.value,
+        (preset) => String(preset.id) === appState.state.pendingPresetId,
       );
       if (selectedIndex >= 0) {
         return selectedIndex;
@@ -198,6 +188,7 @@ export function createOutfitController({
   /** Restore the default look and tops category, invalidating pending selections. */
   function resetOutfit() {
     appState.nextOutfitSelectionRequest();
+    appState.setPendingPreset(null);
     appState.setOutfit(defaultOutfit);
     appState.setCategoryLoadResult(
       "tops",
@@ -205,7 +196,6 @@ export function createOutfitController({
         (item) => item.category === "tops" && !imageLoader.getSprite(item.source),
       ).length,
     );
-    updateOutfitSelection();
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("The original look has been restored.");
   }
@@ -239,13 +229,6 @@ export function createOutfitController({
     ).length;
     appState.finishCategoryLoad(categoryRequest, failedOptionalCount);
     logRejections(optionalResults);
-    for (const preset of outfitPresets) {
-      const option = document.createElement("option");
-      option.value = String(preset.id);
-      option.textContent = preset.label;
-      outfitSelect.append(option);
-    }
-    updateOutfitSelection();
     appState.setPreviewReady(true);
     canvasRenderer.drawOutfit();
     statusController.setStatusMessage("Choose an item to style the character.");

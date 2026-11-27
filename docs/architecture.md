@@ -6,25 +6,25 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 
 ## Structure et responsabilités
 
-| Module                                | Rôle et dépendances                                                                                                                                                                                                                                     |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/main.ts`                         | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                                                                                                       |
-| `src/types.ts`                        | Contrats TypeScript partagés, importés uniquement comme types. Aucune valeur métier à l'exécution.                                                                                                                                                      |
-| `src/data/sprite-catalog.ts`          | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                                                                                                |
-| `src/data/layer-order.ts`             | Liste unique des catégories, dans l'ordre de dessin ; le type `CategoryId` en est dérivé.                                                                                                                                                               |
-| `src/data/sprite-manifest.ts`         | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                                                                                                                                           |
-| `src/core/catalog-model.ts`           | Valide et résout les presets, y compris les paires de catégories incompatibles ; fournit les recherches par ID, look, preset par défaut et exclusions. Sans DOM.                                                                                        |
-| `src/core/state-store.ts`             | État Vue réactif isolé : `Look`, catégorie active et résultat de son chargement, panneau mobile, disponibilité du preview et jetons de sélection. Expose une vue en lecture seule aux interfaces Vue et conserve ses actions typées. Sans DOM ni rendu. |
-| `src/render/image-loader.ts`          | Deux caches distincts (chargements en cours, images décodées), résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                                                                                                        |
-| `src/render/canvas-renderer.ts`       | Composition des calques, ombre, redimensionnement selon la densité de pixels et export PNG à taille fixe. Lit le store via des getters et ne charge pas d'images.                                                                                       |
-| `src/ui/outfit-controller.ts`         | Orchestre sélections, exclusivités, chargements, mutations du store et redessin explicite du canvas.                                                                                                                                                    |
-| `src/ui/mount-wardrobe-island.ts`     | Monte la région Vue de la garde-robe avec le catalogue, le store et les callbacks injectés.                                                                                                                                                             |
-| `src/ui/wardrobe-island.vue`          | Région Vue des catégories et cartes accessibles, miniatures avec fallback canvas et avis de reprise ; délègue les actions au contrôleur.                                                                                                                |
-| `src/ui/status-controller.ts`         | Texte de statut et activation/désactivation des contrôles de presets.                                                                                                                                                                                   |
-| `src/ui/wardrobe-panel-controller.ts` | Panneau mobile non modal, attributs de dialogue, focus et fermeture avec Échap.                                                                                                                                                                         |
-| `src/ui/vue-store-summary.vue`        | Région Vue isolée qui lit le même store réactif ; les autres contrôles restent possédés par l'interface historique.                                                                                                                                     |
-| `src/app-bootstrap.ts`                | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                                                                                                       |
-| `src/styles/main.css`                 | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                                                                                                    |
+| Module                                     | Rôle et dépendances                                                                                                                                                                                                                                    |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/main.ts`                              | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                                                                                                      |
+| `src/types.ts`                             | Contrats TypeScript partagés, importés uniquement comme types. Aucune valeur métier à l'exécution.                                                                                                                                                     |
+| `src/data/sprite-catalog.ts`               | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                                                                                               |
+| `src/data/layer-order.ts`                  | Liste unique des catégories, dans l'ordre de dessin ; le type `CategoryId` en est dérivé.                                                                                                                                                              |
+| `src/data/sprite-manifest.ts`              | Export par défaut du manifest généré : dimensions du document, URLs WebP et offsets de recadrage par clé PNG.                                                                                                                                          |
+| `src/core/catalog-model.ts`                | Valide et résout les presets, y compris les paires de catégories incompatibles ; fournit les recherches par ID, look, preset par défaut et exclusions. Sans DOM.                                                                                       |
+| `src/core/state-store.ts`                  | État Vue réactif isolé : `Look`, chargements, statut, contrôles de presets, panneau responsive, disponibilité du preview et jetons de sélection. Expose une vue en lecture seule aux interfaces Vue et conserve ses actions typées. Sans DOM ni rendu. |
+| `src/render/image-loader.ts`               | Deux caches distincts (chargements en cours, images décodées), résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                                                                                                       |
+| `src/render/canvas-renderer.ts`            | Composition des calques, ombre, redimensionnement selon la densité de pixels et export PNG à taille fixe. Lit le store via des getters et ne charge pas d'images.                                                                                      |
+| `src/ui/outfit-controller.ts`              | Orchestre sélections, exclusivités, chargements, mutations du store et redessin explicite du canvas.                                                                                                                                                   |
+| `src/ui/wardrobe-island.vue`               | Région Vue des catégories et cartes accessibles, miniatures avec fallback canvas et avis de reprise ; délègue les actions au contrôleur.                                                                                                               |
+| `src/ui/status-controller.ts`              | Publie les messages de statut dans le store.                                                                                                                                                                                                           |
+| `src/ui/wardrobe-panel.vue`                | Présente les presets et le panneau responsive non modal, gère les attributs de dialogue, le focus et Échap, et contient la garde-robe Vue.                                                                                                             |
+| `src/ui/status-view.vue`, `reset-view.vue` | Présentent le statut réactif et l'action Reset déléguée au contrôleur.                                                                                                                                                                                 |
+| `src/ui/vue-store-summary.vue`             | Région Vue isolée qui lit le même store réactif.                                                                                                                                                                                                       |
+| `src/app-bootstrap.ts`                     | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                                                                                                      |
+| `src/styles/main.css`                      | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                                                                                                   |
 
 ## Flux des données
 
@@ -94,10 +94,10 @@ remplacer les seuils dans les conditions des media queries.
 3. Le bootstrap branche les contrôles et les observateurs de taille/densité, puis
    appelle `startApp()`.
 4. Le contrôleur charge le fond, le personnage et les pièces sélectionnées, qui sont
-   requis, puis le reste de la catégorie initiale `tops`, facultatif. Il construit
-   les options, publie le résultat du chargement au store, marque le preview prêt,
-   puis dessine et précharge les presets voisins et les autres pièces. L'îlot Vue
-   affiche les cartes depuis l'état réactif.
+   requis, puis le reste de la catégorie initiale `tops`, facultatif. Il publie le
+   résultat du chargement au store, marque le preview prêt, puis dessine et
+   précharge les presets voisins et les autres pièces. Vue affiche les options et
+   les cartes depuis l'état réactif.
 
 ### Sélections et concurrence
 
@@ -111,8 +111,10 @@ remplacer les seuils dans les conditions des media queries.
   (`incompatibleCategories`), modifie le store, synchronise le preset reconnu et
   redessine. Le store n'applique pas de règles métier lui-même.
 - Une sélection de preset obtient un jeton monotone du store. Après chargement,
-  seul le jeton encore courant peut appliquer le look et réactiver les contrôles.
-  Les sélections manuelles et Reset invalident également les requêtes en cours.
+  seul le jeton encore courant peut appliquer le look ou signaler une erreur.
+  Les sélections manuelles et Reset invalident les requêtes en cours et libèrent
+  immédiatement les contrôles ; Vue affiche le preset demandé ou celui qui
+  correspond au look courant.
 - Deux caches distincts conservent les chargements en cours et les images décodées.
   `loadImage()` renvoie toujours une promesse. `getSprite()` ne renvoie un sprite
   que lorsque l'image est décodée. `getMissingSourcesForPreset()` compte aussi comme

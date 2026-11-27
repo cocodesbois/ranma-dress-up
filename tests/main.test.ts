@@ -7,15 +7,12 @@ describe("application bootstrap", () => {
   it("places preview status and actions in the header without removing the mobile trigger", () => {
     const html = readFileSync(new NodeURL("../index.html", import.meta.url), "utf8");
     const page = new DOMParser().parseFromString(html, "text/html");
-    for (const id of ["status-message", "reset-look", "download-look"]) {
+    for (const id of ["status-view", "reset-view", "download-look"]) {
       expect(page.querySelectorAll(`#${id}`)).toHaveLength(1);
       expect(page.querySelector(`.site-header #${id}`)).not.toBeNull();
     }
-    expect(page.querySelector("#status-message")?.getAttribute("aria-live")).toBe("polite");
     expect(page.querySelector(".preview-footer")).toBeNull();
-    expect(page.querySelector("#wardrobe-toggle")?.getAttribute("aria-controls")).toBe(
-      "wardrobe-panel",
-    );
+    expect(page.querySelector("#wardrobe-view")).not.toBeNull();
   });
 
   it("reports a missing required preview instead of failing later during setup", async () => {

@@ -27,26 +27,9 @@ function setup(exportPreview: () => Promise<Blob | null>) {
   };
   const bootstrap = createAppBootstrap({
     preview: document.createElement("canvas"),
-    resetButton: button(),
     downloadButton,
-    outfitSelect: document.createElement("select"),
-    outfitPreviousButton: button(),
-    outfitNextButton: button(),
-    outfitController: {
-      selectItem: vi.fn(),
-      removeActiveCategoryItem: vi.fn(),
-      selectCategory: vi.fn(async () => {}),
-      selectAdjacentOutfit: vi.fn(),
-      selectOutfitById: vi.fn(),
-      resetOutfit: vi.fn(),
-      startApp: vi.fn(async () => {}),
-    },
+    outfitController: { startApp: vi.fn(async () => {}) },
     statusController,
-    wardrobePanelController: {
-      bindEvents: vi.fn(),
-      syncWardrobeMode: vi.fn(),
-      setWardrobeOpen: vi.fn(),
-    },
     canvasRenderer,
     onError,
   });

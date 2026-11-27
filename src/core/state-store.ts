@@ -28,7 +28,12 @@ export function createStore({
       request: 0,
     },
     wardrobeOpen: false,
+    wardrobeExpanded: false,
+    mobileWardrobe: false,
     outfitSelectionRequest: 0,
+    pendingPresetId: null as string | null,
+    outfitControlsDisabled: false,
+    status: { text: "Loading the wardrobe...", loading: false, isError: false },
     previewReady: false,
   });
 
@@ -104,6 +109,23 @@ export function createStore({
     /** @param open - Desired mobile panel state. */
     setWardrobeOpen(open: boolean) {
       state.wardrobeOpen = open;
+    },
+    /** Set the responsive panel mode. */
+    setMobileWardrobe(mobile: boolean) {
+      state.mobileWardrobe = mobile;
+    },
+    /** Set the expanded wardrobe layout. */
+    setWardrobeExpanded(expanded: boolean) {
+      state.wardrobeExpanded = expanded;
+    },
+    /** Set the requested preset and whether its controls are waiting for assets. */
+    setPendingPreset(id: string | null, disabled = false) {
+      state.pendingPresetId = id;
+      state.outfitControlsDisabled = disabled;
+    },
+    /** Publish status text and its presentation state. */
+    setStatus(text: string, loading: boolean, isError: boolean) {
+      state.status = { text, loading, isError };
     },
     /** @returns A new token invalidating pending preset selections. */
     nextOutfitSelectionRequest() {

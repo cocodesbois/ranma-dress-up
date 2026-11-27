@@ -1,21 +1,13 @@
 /**
- * Updates status text and preset-control availability using injected DOM nodes.
- * Exports createStatusController; does not read or mutate the outfit store.
+ * Publishes status messages to the reactive store.
+ * Exports createStatusController.
  * @module ui/status-controller
  */
 
-/** Bind status and preset controls. */
-export function createStatusController({
-  statusMessage,
-  outfitSelect,
-  outfitPreviousButton,
-  outfitNextButton,
-}: {
-  statusMessage: HTMLElement;
-  outfitSelect: HTMLSelectElement;
-  outfitPreviousButton: HTMLButtonElement;
-  outfitNextButton: HTMLButtonElement;
-}) {
+import type { Store } from "../core/state-store";
+
+/** Connect status updates to the shared store. */
+export function createStatusController(store: Store) {
   /** Replace the message and its loading/error presentation. */
   function setStatusMessage(
     text: string,
@@ -27,20 +19,10 @@ export function createStatusController({
       isError?: boolean;
     } = {},
   ) {
-    statusMessage.textContent = text;
-    statusMessage.classList.toggle("is-loading", loading);
-    statusMessage.classList.toggle("is-error", isError);
-  }
-
-  /** Toggle the select and both adjacent-preset buttons together. */
-  function setOutfitControlsDisabled(disabled: boolean) {
-    outfitSelect.disabled = disabled;
-    outfitPreviousButton.disabled = disabled;
-    outfitNextButton.disabled = disabled;
+    store.setStatus(text, loading, isError);
   }
 
   return {
     setStatusMessage,
-    setOutfitControlsDisabled,
   };
 }
