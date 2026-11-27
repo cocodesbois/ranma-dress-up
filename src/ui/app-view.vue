@@ -13,7 +13,6 @@ import type { createStatusController } from "./status-controller";
 import WardrobePanel from "./wardrobe-panel.vue";
 import StatusView from "./status-view.vue";
 import ResetView from "./reset-view.vue";
-import VueStoreSummary from "./vue-store-summary.vue";
 
 const props = defineProps<{
   catalog: Catalog;
@@ -120,9 +119,6 @@ onUnmounted(() => {
         </h1>
       </a>
       <StatusView :store="store" />
-      <p class="vue-store-summary">
-        <VueStoreSummary :store="store" />
-      </p>
       <p
         id="offline-status"
         class="offline-status"

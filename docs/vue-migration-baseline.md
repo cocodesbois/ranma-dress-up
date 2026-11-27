@@ -75,6 +75,41 @@ performance comparison.
 | Preview redraws per item selection | Pending | Pending | Pending | Pending                     | Pending         |
 | Preview redraws per Reset          | Pending | Pending | Pending | Pending                     | Pending         |
 
+## Step 6 production bundle comparison
+
+Measured after the Step 6 changes in the worktree based on `e0aa5bd` (the merge
+of Step 5), using `npm run build`. Vite reported the following production
+assets; raw byte lengths are from `dist\assets`:
+
+| Output               |   Step 0 raw |    Step 6 raw |     Change |  Step 0 gzip |  Step 6 gzip |
+| -------------------- | -----------: | ------------: | ---------: | -----------: | -----------: |
+| JavaScript           |     62,748 B |     135,910 B |    +116.6% |     16.47 kB |     44.77 kB |
+| CSS                  |     13,838 B |      13,872 B |      +0.2% |      3.47 kB |      3.48 kB |
+| **JavaScript + CSS** | **76,586 B** | **149,782 B** | **+95.6%** | **19.94 kB** | **48.25 kB** |
+
+Step 6 files: `index-q37B1ES2.js` (135,910 bytes) and
+`index-DCzgE5na.css` (13,872 bytes). Gzip sizes are the per-file values
+reported by Vite. This is a bundle-size comparison only; the Step 1 browser
+timings and redraw measurements were not recorded, so runtime performance
+regressions and acceptable thresholds cannot yet be assessed.
+
+## Step 6 validation and release checks
+
+- `npm run lint`: passed with 11 existing warnings and no errors.
+- `npm run format:check`: passed.
+- `npm run typecheck`: passed.
+- `npm test`: passed; Vitest 16 files / 200 tests and Python 3 tests.
+- `npm run build`: passed; the build copied `sw.js` and static assets into
+  `dist/`.
+- Maintainer browser checks remain pending: desktop/mobile visual and keyboard
+  behavior, selection races, loading/retry, PNG composition and dimensions,
+  Pages subpath assets and service-worker scope, first install, offline reload,
+  and update after a new build.
+
+**Release readiness is not complete.** The Step 1 browser measurements and
+Step 6 maintainer browser checks must be collected and reviewed before the final
+performance comparison and release sign-off.
+
 ## Step 1 validation
 
 - `npm run lint`, `npm run format:check`, `npm run typecheck`, and
