@@ -347,7 +347,8 @@ button {
   display: none;
 }
 
-.wardrobe-island {
+.wardrobe-island,
+.vue-control-host {
   display: contents;
 }
 

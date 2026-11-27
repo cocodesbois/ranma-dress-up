@@ -4,34 +4,22 @@
  * exports createAppBootstrap, leaving dependency construction to main.
  * @module app-bootstrap
  */
-import type { createOutfitController } from "./ui/outfit-controller";
 import type { createStatusController } from "./ui/status-controller";
-import type { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
 import type { createCanvasRenderer } from "./render/canvas-renderer";
 
 /** Prepare page lifecycle actions without starting or binding them yet. */
 export function createAppBootstrap({
   preview,
-  resetButton,
   downloadButton,
-  outfitSelect,
-  outfitPreviousButton,
-  outfitNextButton,
   outfitController,
   statusController,
-  wardrobePanelController,
   canvasRenderer,
   onError,
 }: {
   preview: HTMLCanvasElement;
-  resetButton: HTMLButtonElement;
   downloadButton: HTMLButtonElement;
-  outfitSelect: HTMLSelectElement;
-  outfitPreviousButton: HTMLButtonElement;
-  outfitNextButton: HTMLButtonElement;
-  outfitController: ReturnType<typeof createOutfitController>;
+  outfitController: { startApp: () => Promise<void> };
   statusController: ReturnType<typeof createStatusController>;
-  wardrobePanelController: ReturnType<typeof createWardrobePanelController>;
   canvasRenderer: ReturnType<typeof createCanvasRenderer>;
   onError: (error: unknown) => void;
 }) {
@@ -65,14 +53,7 @@ export function createAppBootstrap({
 
   /** Register page and wardrobe handlers once after dependency construction. */
   function bindEvents() {
-    resetButton.addEventListener("click", () => outfitController.resetOutfit());
     downloadButton.addEventListener("click", downloadPreview);
-    outfitSelect.addEventListener("change", () =>
-      outfitController.selectOutfitById(outfitSelect.value),
-    );
-    outfitPreviousButton.addEventListener("click", () => outfitController.selectAdjacentOutfit(-1));
-    outfitNextButton.addEventListener("click", () => outfitController.selectAdjacentOutfit(1));
-    wardrobePanelController.bindEvents();
   }
 
   /**
@@ -80,8 +61,6 @@ export function createAppBootstrap({
    * @returns Startup rejection is forwarded to onError.
    */
   function start() {
-    wardrobePanelController.syncWardrobeMode();
-
     if (typeof ResizeObserver !== "undefined") {
       new ResizeObserver(canvasRenderer.resizePreview).observe(preview);
     } else {

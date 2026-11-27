@@ -13,12 +13,13 @@ import { createStore } from "./core/state-store";
 import { createImageLoader } from "./render/image-loader";
 import { createCanvasRenderer } from "./render/canvas-renderer";
 import { createStatusController } from "./ui/status-controller";
-import { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
 import { createOutfitController } from "./ui/outfit-controller";
-import { mountWardrobeIsland } from "./ui/mount-wardrobe-island";
+import WardrobePanel from "./ui/wardrobe-panel.vue";
+import StatusView from "./ui/status-view.vue";
+import ResetView from "./ui/reset-view.vue";
 import VueStoreSummary from "./ui/vue-store-summary.vue";
 import { createAppBootstrap } from "./app-bootstrap";
-import type { Sprite } from "./types";
+import type { Category, Item, Sprite } from "./types";
 
 function requireElement<T extends HTMLElement>(selector: string, type: { new (): T }): T {
   const element = document.querySelector(selector);
@@ -29,17 +30,7 @@ function requireElement<T extends HTMLElement>(selector: string, type: { new ():
 }
 
 const preview = requireElement("#outfit-preview", HTMLCanvasElement);
-const outfitSelect = requireElement("#outfit-select", HTMLSelectElement);
-const outfitPreviousButton = requireElement("#outfit-previous", HTMLButtonElement);
-const outfitNextButton = requireElement("#outfit-next", HTMLButtonElement);
-const statusMessage = requireElement("#status-message", HTMLElement);
-const wardrobePanel = requireElement("#wardrobe-panel", HTMLElement);
-const wardrobeToggle = requireElement("#wardrobe-toggle", HTMLButtonElement);
-const wardrobeClose = requireElement("#wardrobe-close", HTMLButtonElement);
-const wardrobeSize = requireElement("#wardrobe-size", HTMLButtonElement);
-const wardrobeBackdrop = requireElement("#wardrobe-backdrop", HTMLElement);
 const mobileWardrobe = window.matchMedia("(max-width: 720px)");
-const resetButton = requireElement("#reset-look", HTMLButtonElement);
 const downloadButton = requireElement("#download-look", HTMLButtonElement);
 
 if (!spriteManifest) {
@@ -61,12 +52,8 @@ createApp(VueStoreSummary, { store: appState }).mount(
   requireElement("#vue-store-summary", HTMLElement),
 );
 
-const statusController = createStatusController({
-  statusMessage,
-  outfitSelect,
-  outfitPreviousButton,
-  outfitNextButton,
-});
+const statusController = createStatusController(appState);
+createApp(StatusView, { store: appState }).mount(requireElement("#status-view", HTMLElement));
 
 const imageLoader = createImageLoader({
   outfitPresets,
@@ -90,16 +77,6 @@ const canvasRenderer = createCanvasRenderer({
   isPreviewReady: () => appState.isPreviewReady(),
 });
 
-const wardrobePanelController = createWardrobePanelController({
-  appState,
-  wardrobePanel,
-  wardrobeToggle,
-  wardrobeClose,
-  wardrobeSize,
-  wardrobeBackdrop,
-  mobileWardrobe,
-});
-
 let outfitController: ReturnType<typeof createOutfitController>;
 
 /** Report controller/startup failures both to developers and in the status area. */
@@ -116,31 +93,31 @@ outfitController = createOutfitController({
   outfitPresets,
   defaultOutfit,
   appState,
-  outfitSelect,
   statusController,
   imageLoader,
   canvasRenderer,
   onError: showError,
 });
-mountWardrobeIsland({
-  container: requireElement("#wardrobe-island", HTMLElement),
+createApp(ResetView, { onReset: () => outfitController.resetOutfit() }).mount(
+  requireElement("#reset-view", HTMLElement),
+);
+createApp(WardrobePanel, {
   catalog,
   store: appState,
+  presets: outfitPresets,
+  mobileWardrobe,
   getSprite,
-  onCategorySelect: (category) => outfitController.selectCategory(category),
-  onItemSelect: (item) => outfitController.selectItem(item),
+  onCategorySelect: (category: Category) => outfitController.selectCategory(category),
+  onItemSelect: (item: Item) => outfitController.selectItem(item),
   onNoneSelect: () => outfitController.removeActiveCategoryItem(),
-});
+  onPresetSelect: (id: string) => outfitController.selectOutfitById(id),
+  onAdjacentSelect: (step: number) => outfitController.selectAdjacentOutfit(step),
+}).mount(requireElement("#wardrobe-view", HTMLElement));
 const appBootstrap = createAppBootstrap({
   preview,
-  resetButton,
   downloadButton,
-  outfitSelect,
-  outfitPreviousButton,
-  outfitNextButton,
   outfitController,
   statusController,
-  wardrobePanelController,
   canvasRenderer,
   onError: showError,
 });

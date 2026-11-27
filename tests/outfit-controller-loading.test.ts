@@ -55,7 +55,6 @@ function setup({ failing = new Set<string>() } = {}) {
     outfitPresets,
     defaultOutfit,
     appState,
-    outfitSelect: document.createElement("select"),
     statusController,
     imageLoader,
     canvasRenderer,
@@ -233,19 +232,83 @@ describe("preset selection and redraws", () => {
     const preset = required(outfitPresets.find(({ id }) => String(id) !== "001"));
     const source = required(preset.items[0]).source;
     const slow = deferred();
-    const { controller, imageLoader, canvasRenderer, appState } = setup();
+    const { controller, imageLoader, canvasRenderer, appState, onError } = setup();
     imageLoader.getMissingSourcesForPreset.mockReturnValue([source]);
     imageLoader.loadImage.mockImplementation(() => slow.promise);
 
     controller.selectOutfitById(preset.id);
+    expect(appState.state.outfitControlsDisabled).toBe(true);
     controller.resetOutfit();
 
     expect(appState.getOutfit()).toEqual(defaultOutfit);
+    expect(appState.state.outfitControlsDisabled).toBe(false);
+    expect(appState.state.pendingPresetId).toBeNull();
     expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
-    slow.resolve(document.createElement("img"));
+    slow.reject(new Error("stale failure"));
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
     expect(appState.getOutfit()).toEqual(defaultOutfit);
     expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it("releases controls and reports a current preset load failure", async () => {
+    const preset = required(outfitPresets.find(({ id }) => id !== "001"));
+    const slow = deferred();
+    const { controller, imageLoader, appState, onError } = setup();
+    imageLoader.getMissingSourcesForPreset.mockReturnValue([preset.items[0].source]);
+    imageLoader.loadImage.mockImplementation(() => slow.promise);
+    controller.selectOutfitById(preset.id);
+    expect(appState.state.pendingPresetId).toBe(preset.id);
+    slow.reject(new Error("load failed"));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(appState.getOutfit()).toEqual(defaultOutfit);
+    expect(appState.state.pendingPresetId).toBeNull();
+    expect(appState.state.outfitControlsDisabled).toBe(false);
+    expect(onError).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a newer preset pending when an older load finishes", async () => {
+    const first = outfitPresets[1];
+    const second = outfitPresets[2];
+    const old = deferred();
+    const current = deferred();
+    const { controller, imageLoader, appState } = setup();
+    imageLoader.getMissingSourcesForPreset.mockReturnValue(["missing"]);
+    imageLoader.loadImage.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
+    controller.selectOutfitById(first.id);
+    controller.selectOutfitById(second.id);
+    old.resolve(document.createElement("img"));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(appState.state.pendingPresetId).toBe(second.id);
+    expect(appState.state.outfitControlsDisabled).toBe(true);
+    current.resolve(document.createElement("img"));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(appState.getOutfit()).toEqual(second.look);
+    expect(appState.state.outfitControlsDisabled).toBe(false);
+  });
+
+  it("navigates from a custom look and wraps around matching presets", () => {
+    const { controller, appState } = setup();
+    appState.setOutfitItem("tops", "custom");
+    controller.selectAdjacentOutfit(-1);
+    expect(appState.getOutfit()).toEqual(outfitPresets.at(-1)?.look);
+    controller.selectAdjacentOutfit(1);
+    expect(appState.getOutfit()).toEqual(outfitPresets[0].look);
+  });
+
+  it("reenables controls when a manual item invalidates a pending preset", async () => {
+    const preset = outfitPresets[1];
+    const slow = deferred();
+    const { controller, imageLoader, appState, onError } = setup();
+    imageLoader.getMissingSourcesForPreset.mockReturnValue(["missing"]);
+    imageLoader.loadImage.mockImplementation(() => slow.promise);
+    controller.selectOutfitById(preset.id);
+    controller.selectItem(topItems[0]);
+    expect(appState.state.outfitControlsDisabled).toBe(false);
+    slow.reject(new Error("stale failure"));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(appState.getOutfit().tops).toBe(topItems[0].id);
+    expect(onError).not.toHaveBeenCalled();
   });
 });
