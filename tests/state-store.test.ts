@@ -9,9 +9,9 @@ describe("state store", () => {
     expect(store.getOutfit()).toEqual(defaultOutfit);
     expect(store.getOutfit()).not.toBe(defaultOutfit);
     expect(store.getActiveCategory()).toBe("tops");
-    expect(store.isWardrobeOpen()).toBe(false);
+    expect(store.state.wardrobeOpen).toBe(false);
     expect(store.isPreviewReady()).toBe(false);
-    expect(store.getOutfitSelectionRequest()).toBe(0);
+    expect(store.state.outfitSelectionRequest).toBe(0);
     store.setOutfitItem("tops", "other-top");
     expect(defaultOutfit.tops).toBe("top");
   });
@@ -62,16 +62,16 @@ describe("state store", () => {
   it("updates category, wardrobe and preview state independently", () => {
     const store = createStore({ defaultOutfit: {}, initialActiveCategory: "hair" });
     expect(store.getActiveCategory()).toBe("hair");
-    store.setActiveCategory("dresses");
+    store.setCategoryLoadResult("dresses", 0, []);
     store.setWardrobeOpen(true);
     store.setPreviewReady(true);
     expect(store.getActiveCategory()).toBe("dresses");
-    expect(store.isWardrobeOpen()).toBe(true);
+    expect(store.state.wardrobeOpen).toBe(true);
     expect(store.isPreviewReady()).toBe(true);
     store.setWardrobeOpen(false);
     store.setPreviewReady(false);
     expect(store.getActiveCategory()).toBe("dresses");
-    expect(store.isWardrobeOpen()).toBe(false);
+    expect(store.state.wardrobeOpen).toBe(false);
     expect(store.isPreviewReady()).toBe(false);
   });
 
@@ -82,7 +82,7 @@ describe("state store", () => {
     expect(store.isCurrentOutfitSelectionRequest(first)).toBe(true);
     const second = store.nextOutfitSelectionRequest();
     expect(second).toBe(2);
-    expect(store.getOutfitSelectionRequest()).toBe(second);
+    expect(store.state.outfitSelectionRequest).toBe(second);
     expect(store.isCurrentOutfitSelectionRequest(first)).toBe(false);
     expect(store.isCurrentOutfitSelectionRequest(second)).toBe(true);
     expect(store.isCurrentOutfitSelectionRequest(second + 1)).toBe(false);
@@ -128,14 +128,14 @@ describe("state store", () => {
     const first = createStore({ defaultOutfit });
     const second = createStore({ defaultOutfit });
     first.setOutfitItem("tops", null);
-    first.setActiveCategory("hair");
+    first.setCategoryLoadResult("hair", 0, []);
     first.setWardrobeOpen(true);
     first.setPreviewReady(true);
     first.nextOutfitSelectionRequest();
     expect(second.getOutfit()).toEqual(defaultOutfit);
     expect(second.getActiveCategory()).toBe("tops");
-    expect(second.isWardrobeOpen()).toBe(false);
+    expect(second.state.wardrobeOpen).toBe(false);
     expect(second.isPreviewReady()).toBe(false);
-    expect(second.getOutfitSelectionRequest()).toBe(0);
+    expect(second.state.outfitSelectionRequest).toBe(0);
   });
 });

@@ -58,6 +58,28 @@ Le shell `app-view.vue` synchronise les classes de mise en page du `body` avec
 l'état du panneau dans le store et les retire à son démontage. Le panneau gère
 ses interactions et son focus sans posséder le cycle de vie de ces classes.
 
+### Périmètre du store
+
+L'analyse de l'étape 6 retient un seul store par application, avec la réactivité
+native de Vue, plutôt qu'un découpage ou Pinia. Avant nettoyage, le store exposait
+22 méthodes : trois n'étaient utilisées que par les tests et ont été retirées.
+Le panneau consomme le look, les presets et le layout ; la garde-robe consomme
+le look, la catégorie et son chargement ; le shell et le contrôleur de statut
+consomment les états de présentation. Le contrôleur de tenue coordonne ces
+domaines sans dupliquer leur état, et les services PWA et de preview publient
+respectivement les états hors ligne et de téléchargement.
+
+L'invariant est un look courant et un seul jeton de sélection de preset par
+instance de store, construite une fois dans `main.ts`. Le jeton de chargement de
+catégorie est distinct : il protège la disponibilité des items, pas la sélection
+du look. Une sélection manuelle ou Reset invalide la sélection de preset ; un
+preset ou Reset publie aussi le résultat de la catégorie active et invalide ses
+chargements antérieurs. Ces transitions restent explicites dans le contrôleur et
+sont couvertes par les tests de chargement et d'exclusivité. Les actions du store
+restent le seul moyen de modifier l'état ; les images et le canvas restent hors
+réactivité. Un découpage ou Pinia ajouterait ici du câblage sans supprimer de
+comportement dupliqué ni répondre à un besoin d'état partagé entre instances.
+
 Sur grand écran (au-delà de 720 px), le preview détermine la hauteur commune des
 deux panneaux : leurs bords supérieur et inférieur sont alignés, sans déformer
 l'image. La garde-robe utilise `contain: size` pour que son contenu n'agrandisse
