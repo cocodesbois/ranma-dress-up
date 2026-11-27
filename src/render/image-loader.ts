@@ -1,6 +1,6 @@
 /**
  * Resolves PNG keys through the manifest and caches decoded WebP images and pending loads.
- * Depends on browser Image/idle APIs; exports createImageLoader and its preload API.
+ * Depends on browser Image/idle APIs; exports createImageLoader and createSpriteLookup.
  * @module render/image-loader
  */
 import type { OutfitPreset, Sprite, SpriteManifest } from "../types";
@@ -30,6 +30,7 @@ export function createImageLoader({
     if (!entry) {
       throw new Error(`No optimized sprite for ${source}. Run: python scripts/optimize-sprites.py`);
     }
+
     return entry;
   }
 
@@ -163,4 +164,9 @@ export function createImageLoader({
     preloadAdjacentOutfits,
     preloadAllOutfitsInBackground,
   };
+}
+
+/** Adapt layers to the loader's stable source key without loading new images. */
+export function createSpriteLookup(imageLoader: ReturnType<typeof createImageLoader>) {
+  return (item: { source: string }): Sprite | undefined => imageLoader.getSprite(item.source);
 }

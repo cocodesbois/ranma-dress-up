@@ -8,7 +8,7 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 
 | Module                                     | Rôle et dépendances                                                                                                                                                                                                                                    |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/main.ts`                              | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                                                                                                      |
+| `src/main.ts`                              | Point d'entrée chargé par `index.html` : construit les dépendances, monte Vue et enregistre le service worker. Aucun export public.                                                                                                                    |
 | `src/types.ts`                             | Contrats TypeScript partagés, importés uniquement comme types. Aucune valeur métier à l'exécution.                                                                                                                                                     |
 | `src/data/sprite-catalog.ts`               | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                                                                                               |
 | `src/data/layer-order.ts`                  | Liste unique des catégories, dans l'ordre de dessin ; le type `CategoryId` en est dérivé.                                                                                                                                                              |
@@ -17,13 +17,15 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 | `src/core/state-store.ts`                  | État Vue réactif isolé : `Look`, chargements, statut, contrôles de presets, panneau responsive, disponibilité du preview et jetons de sélection. Expose une vue en lecture seule aux interfaces Vue et conserve ses actions typées. Sans DOM ni rendu. |
 | `src/render/image-loader.ts`               | Deux caches distincts (chargements en cours, images décodées), résolution PNG → WebP par le manifest, préchargement adjacent et en arrière-plan.                                                                                                       |
 | `src/render/canvas-renderer.ts`            | Composition des calques, ombre, redimensionnement selon la densité de pixels et export PNG à taille fixe. Lit le store via des getters et ne charge pas d'images.                                                                                      |
+| `src/render/create-preview.ts`             | Fournit la factory qui construit le renderer et le contrôleur de tenue pour le canvas monté, à partir des dépendances fournies par `main.ts`.                                                                                                          |
+| `src/pwa/register-offline-support.ts`      | Enregistre le service worker après le chargement de la page, publie son statut et nettoie ses écouteurs au démontage.                                                                                                                                  |
 | `src/ui/outfit-controller.ts`              | Orchestre sélections, exclusivités, chargements, mutations du store et redessin explicite du canvas.                                                                                                                                                   |
 | `src/ui/wardrobe-island.vue`               | Région Vue des catégories et cartes accessibles, miniatures avec fallback canvas et avis de reprise ; délègue les actions au contrôleur.                                                                                                               |
 | `src/ui/status-controller.ts`              | Publie les messages de statut dans le store.                                                                                                                                                                                                           |
 | `src/ui/wardrobe-panel.vue`                | Présente les presets et le panneau responsive non modal, gère les attributs de dialogue, le focus et Échap, et contient la garde-robe Vue.                                                                                                             |
 | `src/ui/status-view.vue`, `reset-view.vue` | Présentent le statut réactif et l'action Reset déléguée au contrôleur.                                                                                                                                                                                 |
 | `src/ui/vue-store-summary.vue`             | Région Vue isolée qui lit le même store réactif.                                                                                                                                                                                                       |
-| `src/app-bootstrap.ts`                     | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                                                                                                      |
+| `src/ui/app-view.vue`                      | Possède le canvas stable, initialise le rendu après montage, observe taille et densité, et déclenche le téléchargement PNG à taille fixe. Nettoie les observateurs au démontage.                                                                       |
 | `src/styles/main.css`                      | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                                                                                                   |
 
 ## Flux des données
@@ -34,7 +36,7 @@ sprite-catalog.ts ──→ catalog-model ──→ presets validés + look par 
                                                ▼
                                            state-store
                                                ▲
-DOM ──→ bootstrap / island Vue ──→ outfit-controller ──→ state-store
+DOM ──→ application Vue ──→ outfit-controller ──→ state-store
                                         │                    │
                                         │                    ├──→ island Vue
                                         │                    └──→ autres régions Vue
@@ -91,8 +93,8 @@ remplacer les seuils dans les conditions des media queries.
    les catégories, la présence de cheveux et d'au moins un vêtement.
 2. `main.ts` choisit le preset `001`, ou le premier disponible, et copie son look
    dans un nouveau store.
-3. Le bootstrap branche les contrôles et les observateurs de taille/densité, puis
-   appelle `startApp()`.
+3. Après montage du canvas, Vue initialise le renderer et le contrôleur, branche
+   les observateurs de taille/densité, puis appelle `startApp()`.
 4. Le contrôleur charge le fond, le personnage et les pièces sélectionnées, qui sont
    requis, puis le reste de la catégorie initiale `tops`, facultatif. Il publie le
    résultat du chargement au store, marque le preview prêt, puis dessine et
@@ -152,7 +154,8 @@ dans un item, un outfit ou une paire incompatible.
   Les tabliers et robes-tablier (`aprons`) sont des calques facultatifs au-dessus
   des vêtements et sous les cheveux ; ils ne suffisent pas seuls à valider un
   preset avec les cheveux. Les combinaisons excluent pantalons, robes et
-  bodysuits, mais restent compatibles avec les tops et les sous-vêtements. Les
+  bodysuits, mais restent compatibles avec les tops et les sous-vêtements.
+  Les robes et les tops s'excluent mutuellement. Les
   gants et les bracelets ne peuvent pas être portés ensemble.
 
 ## Assets et géométrie

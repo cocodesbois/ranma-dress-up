@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createImageLoader } from "../src/render/image-loader";
+import { createImageLoader, createSpriteLookup } from "../src/render/image-loader";
 import type { OutfitPreset, SpriteManifest } from "../src/types";
 import { item, manifest as createManifest } from "./fixtures";
 
@@ -69,8 +69,10 @@ describe("image loader caches", () => {
 
   it("never exposes a sprite until the image is decoded", async () => {
     const loader = setup();
+    const getSprite = createSpriteLookup(loader);
     const promise = loader.loadImage(A);
     expect(loader.getSprite(A)).toBeUndefined();
+    expect(getSprite({ source: A })).toBeUndefined();
     created[0].succeed();
     await promise;
     expect(loader.getSprite(A)).toEqual({
@@ -81,6 +83,7 @@ describe("image loader caches", () => {
       height: 40,
       scale: 0.5,
     });
+    expect(getSprite({ source: A })).toEqual(loader.getSprite(A));
   });
 
   it("shares one load between concurrent requests", () => {

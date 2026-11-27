@@ -10,9 +10,9 @@ import { item } from "./fixtures";
 const exclusions: Partial<Record<CategoryId, CategoryId[]>> = {
   bodysuits: ["tops", "pants", "dresses", "slips", "jumpsuits"],
   slips: ["bodysuits"],
-  tops: ["bodysuits"],
+  tops: ["bodysuits", "dresses"],
   pants: ["bodysuits", "dresses", "jumpsuits"],
-  dresses: ["bodysuits", "pants", "jumpsuits"],
+  dresses: ["bodysuits", "pants", "tops", "jumpsuits"],
   jumpsuits: ["pants", "dresses", "bodysuits"],
   gloves: ["bracelets"],
   bracelets: ["gloves"],
@@ -75,12 +75,12 @@ describe("manual selection exclusivity", () => {
     expect(statusController.setStatusMessage).toHaveBeenCalledWith("Selected item selected.");
   });
 
-  it("preserves tops when selecting a dress, then replaces it with a bodysuit", () => {
+  it("removes tops when selecting a dress, then replaces it with a bodysuit", () => {
     const { controller, appState } = setup("dresses");
     controller.selectItem(item("dress", "dresses", "Dress"));
     expect(appState.getOutfit()).toMatchObject({
       dresses: "dress",
-      tops: "existing-tops",
+      tops: null,
       pants: null,
       bodysuits: null,
     });

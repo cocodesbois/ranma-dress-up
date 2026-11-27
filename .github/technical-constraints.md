@@ -40,9 +40,9 @@ Use this file as the source of truth for data and behavior constraints when chan
 2. Mutual exclusivity rules when selecting an item manually come from `catalog.incompatibleCategories` through `getExcludedCategories` (not from controller code). The current pairs give:
    - `bodysuits` clears `tops`, `pants`, `dresses`, `slips`, `jumpsuits`
    - `slips` clears `bodysuits`
-   - `tops` clears `bodysuits`
+   - `tops` clears `bodysuits`, `dresses`
    - `pants` clears `bodysuits`, `dresses`, `jumpsuits`
-   - `dresses` clears `bodysuits`, `pants`, `jumpsuits`
+   - `dresses` clears `bodysuits`, `pants`, `tops`, `jumpsuits`
    - `jumpsuits` clears `pants`, `dresses`, `bodysuits`, but preserves tops, bras, slips and tights
    - `gloves` and `bracelets` clear each other
    - `aprons` has no exclusions and can be selected or removed independently
@@ -59,7 +59,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 
 ## Modules, documentation and type checking
 
-- `src/main.ts` wires dependencies; `src/app-bootstrap.ts` binds events and starts the app. Core modules stay independent of the DOM. `src/core/state-store.ts` owns the Vue-reactive state; Vue regions receive its readonly state view while actions remain the mutation API. See [architecture](../docs/architecture.md) for the full flow.
+- `src/main.ts` wires dependencies and mounts Vue; `src/ui/app-view.vue` owns the canvas lifecycle, startup and download action. Core modules stay independent of the DOM. `src/core/state-store.ts` owns the Vue-reactive state; Vue regions receive its readonly state view while actions remain the mutation API. See [architecture](../docs/architecture.md) for the full flow.
 - Document each runtime module's role, dependencies and exports in its JSDoc header, and keep public function contracts current. Do not repeat TypeScript types in JSDoc tags (`@param {string} id`): the signature is the contract, and `tests/source-conventions.test.ts` rejects typed tags. Keep descriptions, as in `@param id - What it identifies`.
 - Shared types live in `src/types.ts`: `Catalog`, `Item`, `Outfit`, `Look` and supporting geometry/preset/manifest types. Use type-only imports where appropriate.
 - `vue-tsc` checks application TypeScript and `.vue` templates in strict, no-emit mode; `tsconfig.node.json` checks the Node catalog validator and `tsconfig.test.json` checks the tests.

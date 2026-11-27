@@ -1,6 +1,6 @@
 /**
  * Publishes status messages to the reactive store.
- * Exports createStatusController.
+ * Exports createStatusController and createErrorReporter.
  * @module ui/status-controller
  */
 
@@ -24,5 +24,15 @@ export function createStatusController(store: Store) {
 
   return {
     setStatusMessage,
+  };
+}
+
+/** Report failures to the console and the shared status presentation. */
+export function createErrorReporter(statusController: ReturnType<typeof createStatusController>) {
+  return (error: unknown) => {
+    console.error(error);
+    statusController.setStatusMessage(error instanceof Error ? error.message : String(error), {
+      isError: true,
+    });
   };
 }

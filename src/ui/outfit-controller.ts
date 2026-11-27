@@ -203,7 +203,7 @@ export function createOutfitController({
   /**
    * Load the initial scene and look, build the UI and warm remaining presets. Items of the
    * initial category that fail to load are not fatal: the wardrobe offers a retry for them.
-   * @throws Failures to load the scene or the initial look reject for bootstrap to report.
+   * @throws Failures to load the scene or the initial look reject for the caller to report.
    */
   async function startApp() {
     statusController.setStatusMessage("Loading the wardrobe...", { loading: true });

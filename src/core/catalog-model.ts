@@ -109,6 +109,18 @@ export function getDefaultOutfitLook(
   );
 }
 
+/**
+ * Return the preferred or first look, requiring at least one valid preset.
+ * @throws If no complete outfit is available.
+ */
+export function requireDefaultOutfitLook(outfitPresets: OutfitPreset[], preferredId = "001"): Look {
+  const look = getDefaultOutfitLook(outfitPresets, preferredId);
+  if (!look) {
+    throw new Error("No complete outfits with a hairstyle are available.");
+  }
+  return look;
+}
+
 /** Find a preset after normalizing its ID to a string. */
 export function findPresetById(
   outfitPresets: OutfitPreset[],

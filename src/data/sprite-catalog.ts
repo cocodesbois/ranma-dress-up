@@ -54,6 +54,7 @@ const catalog: Catalog = {
     ["bodysuits", "dresses"],
     ["bodysuits", "slips"],
     ["pants", "dresses"],
+    ["tops", "dresses"],
     ["jumpsuits", "pants"],
     ["jumpsuits", "dresses"],
     ["jumpsuits", "bodysuits"],
