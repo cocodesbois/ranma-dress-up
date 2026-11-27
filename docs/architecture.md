@@ -54,6 +54,10 @@ présentation. Les factories reçoivent leurs collaborateurs et les tests inject
 des doubles pour les API du navigateur, les images ou le contexte canvas sans
 lancer de navigateur ; les tests de présentation s'exécutent dans jsdom.
 
+Le shell `app-view.vue` synchronise les classes de mise en page du `body` avec
+l'état du panneau dans le store et les retire à son démontage. Le panneau gère
+ses interactions et son focus sans posséder le cycle de vie de ces classes.
+
 Sur grand écran (au-delà de 720 px), le preview détermine la hauteur commune des
 deux panneaux : leurs bords supérieur et inférieur sont alignés, sans déformer
 l'image. La garde-robe utilise `contain: size` pour que son contenu n'agrandisse

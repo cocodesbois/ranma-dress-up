@@ -79,7 +79,8 @@ describe("Vue wardrobe controls", () => {
     size.click();
     await nextTick();
     expect(size.getAttribute("aria-expanded")).toBe("true");
-    expect(document.body.classList.contains("wardrobe-expanded")).toBe(true);
+    expect(view.store.state.wardrobeExpanded).toBe(true);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(false);
     const tab = new KeyboardEvent("keydown", { key: "Tab", cancelable: true });
     document.dispatchEvent(tab);
     expect(tab.defaultPrevented).toBe(false);
@@ -105,7 +106,12 @@ describe("Vue wardrobe controls", () => {
     expect(view.element("#wardrobe-panel").hasAttribute("aria-hidden")).toBe(false);
     view.element<HTMLButtonElement>("#wardrobe-size").click();
     await nextTick();
-    expect(document.body.classList.contains("wardrobe-expanded")).toBe(true);
+    expect(view.store.state.wardrobeExpanded).toBe(true);
+    Object.defineProperty(view.mobileWardrobe, "matches", { value: true });
+    view.mobileWardrobe.dispatchEvent(new Event("change"));
+    await nextTick();
+    expect(view.store.state.mobileWardrobe).toBe(true);
+    expect(view.element("#wardrobe-panel").getAttribute("aria-hidden")).toBe("true");
     view.unmount();
   });
 
@@ -120,9 +126,22 @@ describe("Vue wardrobe controls", () => {
     expect(document.activeElement).toBe(view.element("#wardrobe-toggle"));
     view.unmount();
     view.store.setWardrobeOpen(true);
+    Object.defineProperty(view.mobileWardrobe, "matches", { value: false });
+    view.mobileWardrobe.dispatchEvent(new Event("change"));
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     expect(view.store.state.wardrobeOpen).toBe(true);
+    expect(view.store.state.mobileWardrobe).toBe(true);
     expect(document.body.classList.contains("wardrobe-open")).toBe(false);
+  });
+
+  it("does not mutate layout classes owned by its parent", () => {
+    document.body.classList.add("wardrobe-open", "wardrobe-expanded");
+    const view = setup(false);
+    expect(document.body.classList.contains("wardrobe-open")).toBe(true);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(true);
+    view.unmount();
+    expect(document.body.classList.contains("wardrobe-open")).toBe(true);
+    expect(document.body.classList.contains("wardrobe-expanded")).toBe(true);
   });
 
   it("renders matching, pending and custom presets and delegates controls", async () => {

@@ -4,6 +4,7 @@
  * Delegates preview lifecycle and user actions to the app preview composable.
  * @module ui/app-view
  */
+import { onUnmounted, watch } from "vue";
 import { useAppPreview } from "./use-app-preview";
 import type { AppServices } from "./use-app-preview";
 import WardrobePanel from "./wardrobe-panel.vue";
@@ -22,6 +23,18 @@ const {
   selectAdjacentOutfit,
 } = useAppPreview(props.services);
 const faviconUrl = "favicon.svg";
+
+watch(
+  () => [store.state.wardrobeOpen, store.state.wardrobeExpanded] as const,
+  ([open, expanded]) => {
+    document.body.classList.toggle("wardrobe-open", open);
+    document.body.classList.toggle("wardrobe-expanded", expanded);
+  },
+  { immediate: true, flush: "sync" },
+);
+onUnmounted(() => {
+  document.body.classList.remove("wardrobe-open", "wardrobe-expanded");
+});
 </script>
 
 <template>
