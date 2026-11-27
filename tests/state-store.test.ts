@@ -77,26 +77,28 @@ describe("state store", () => {
       status: "loading",
       failedCount: 0,
     });
-    expect(store.finishCategoryLoad(first, 2)).toBe(false);
-    expect(store.finishCategoryLoad(retry, 1)).toBe(true);
+    expect(store.finishCategoryLoad(first, 2, ["stale"])).toBe(false);
+    expect(store.finishCategoryLoad(retry, 1, ["loaded"])).toBe(true);
     expect(store.state.categoryLoad).toMatchObject({
       categoryId: "tops",
       status: "ready",
       failedCount: 1,
+      availableItemIds: ["loaded"],
     });
   });
 
   it("invalidates category loads when a non-loading result is published", () => {
     const store = createStore({ defaultOutfit: {}, initialActiveCategory: "tops" });
     const request = store.startCategoryLoad("dresses");
-    store.setCategoryLoadResult("tops", 0);
+    store.setCategoryLoadResult("tops", 0, ["top"]);
 
     expect(store.getActiveCategory()).toBe("tops");
-    expect(store.finishCategoryLoad(request, 3)).toBe(false);
+    expect(store.finishCategoryLoad(request, 3, ["stale"])).toBe(false);
     expect(store.state.categoryLoad).toMatchObject({
       categoryId: "tops",
       status: "ready",
       failedCount: 0,
+      availableItemIds: ["top"],
     });
   });
 

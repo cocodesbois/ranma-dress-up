@@ -26,6 +26,7 @@ export function createStore({
       status: "idle" as "idle" | "loading" | "ready",
       failedCount: 0,
       request: 0,
+      availableItemIds: [] as string[],
     },
     wardrobeOpen: false,
     wardrobeExpanded: false,
@@ -76,11 +77,12 @@ export function createStore({
         status: "loading",
         failedCount: 0,
         request: state.categoryLoad.request + 1,
+        availableItemIds: [],
       };
       return state.categoryLoad.request;
     },
-    /** Commit a category load only while its category and request remain current. */
-    finishCategoryLoad(request: number, failedCount: number) {
+    /** Commit loaded item IDs only while the category and request remain current. */
+    finishCategoryLoad(request: number, failedCount: number, availableItemIds: string[]) {
       if (
         request !== state.categoryLoad.request ||
         state.activeCategory !== state.categoryLoad.categoryId
@@ -91,17 +93,19 @@ export function createStore({
         ...state.categoryLoad,
         status: "ready",
         failedCount,
+        availableItemIds: [...availableItemIds],
       };
       return true;
     },
     /** Show the current category immediately and invalidate any pending category load. */
-    setCategoryLoadResult(category: CategoryId, failedCount: number) {
+    setCategoryLoadResult(category: CategoryId, failedCount: number, availableItemIds: string[]) {
       state.activeCategory = category;
       state.categoryLoad = {
         categoryId: category,
         status: "ready",
         failedCount,
         request: state.categoryLoad.request + 1,
+        availableItemIds: [...availableItemIds],
       };
     },
     /** @returns Whether the mobile wardrobe is open. */

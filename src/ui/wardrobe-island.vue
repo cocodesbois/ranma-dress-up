@@ -29,7 +29,10 @@ const categoryLoad = computed(() => props.store.state.categoryLoad);
 const categoryItems = computed(() =>
   props.catalog.items.filter((item) => item.category === activeCategory.value),
 );
-const availableItems = computed(() => categoryItems.value.filter((item) => props.getSprite(item)));
+const availableItems = computed(() => {
+  const availableIds = new Set(categoryLoad.value.availableItemIds);
+  return categoryItems.value.filter((item) => availableIds.has(item.id));
+});
 const isLoading = computed(
   () =>
     categoryLoad.value.categoryId === activeCategory.value &&
