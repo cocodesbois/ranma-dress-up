@@ -32,6 +32,10 @@ Run one session per step. Each session:
 
 Do not combine two cleanup steps in one PR unless one cannot be verified
 independently. Merge and validate each PR before starting the next session.
+Step 7 is also a separate session, starts only after Step 6 is merged, and must
+not turn missing maintainer-owned browser evidence into agent-run or inferred
+results. It records the evidence available in the baseline and identifies each
+remaining check as pending until its result is actually collected.
 
 ### Reusable kickoff prompt
 
@@ -215,10 +219,21 @@ cross-instance state management is genuinely required.
 explicitly leaves runtime browser timings and maintainer checks pending. Release
 readiness cannot be concluded from bundle and unit-test evidence alone.
 
-**Assignment:** Follow the existing browser protocol in
-`docs/vue-migration-baseline.md`. Record Step 1 and final results only under the
-same conditions, or clearly preserve missing measurements rather than fabricating
-them.
+**Assignment:** In a separate session based on the latest merged `main`, first
+verify that Step 6 is merged. Follow the browser protocol in
+`docs/vue-migration-baseline.md`. Record Step 1 and final results only when they
+were collected under the same conditions. Preserve missing measurements as
+pending; do not infer timings, browser conditions, or maintainer-check results.
+
+At the start of this step, the available evidence is the Step 0 and Step 6
+production bundle comparison and the Step 6 automated validation recorded in
+`docs/vue-migration-baseline.md`. These establish bundle size and automated
+check results only. The baseline records no browser timing samples, redraw
+counts, or browser/device/network/cache conditions. Its maintainer-owned
+desktop/mobile, loading/race, PNG, Pages/service-worker, install, offline, and
+update checks are still pending. Keep this evidence inventory current, linking
+each measured result to its source and leaving unavailable results explicitly
+pending.
 
 Collect:
 
@@ -233,12 +248,17 @@ Collect:
 
 **Acceptance:**
 
-- Baseline/provided results include browser, device, viewport, DPR, network,
-  cache policy, sample count, median and range.
-- `docs/vue-migration-baseline.md` or a linked evidence artifact distinguishes
-  measured results from pending checks.
+- Results include the browser and version, device, viewport, DPR, network
+  profile, cache policy, sample count, median, and range. Timing and redraw
+  results use the baseline protocol and the same recorded conditions for Step 1
+  and final runs.
+- The baseline or a linked evidence artifact names the source and status of
+  every result, clearly separating measurements and completed checks from
+  pending maintainer-owned work. If evidence is unavailable, state what remains
+  pending and do not fill in a value.
 - No bundle-size or runtime performance claim goes beyond the data.
-- Browser findings create follow-up fixes when they expose actual regressions.
+- Browser findings create follow-up fixes when they expose actual regressions;
+  pending checks are not presented as release sign-off.
 
 ## Recommended result
 
