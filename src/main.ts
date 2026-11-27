@@ -7,6 +7,7 @@
 
 import catalog from "./data/sprite-catalog";
 import spriteManifest from "./data/sprite-manifest";
+import { createApp } from "vue";
 import * as catalogModel from "./core/catalog-model";
 import { createStore } from "./core/state-store";
 import { createImageLoader } from "./render/image-loader";
@@ -15,6 +16,7 @@ import { createWardrobeUi } from "./ui/wardrobe-ui";
 import { createStatusController } from "./ui/status-controller";
 import { createWardrobePanelController } from "./ui/wardrobe-panel-controller";
 import { createOutfitController } from "./ui/outfit-controller";
+import VueStoreSummary from "./ui/vue-store-summary.vue";
 import { createAppBootstrap } from "./app-bootstrap";
 import type { Sprite } from "./types";
 
@@ -57,6 +59,9 @@ const appState = createStore({
   defaultOutfit,
   initialActiveCategory: "tops",
 });
+createApp(VueStoreSummary, { store: appState }).mount(
+  requireElement("#vue-store-summary", HTMLElement),
+);
 
 const statusController = createStatusController({
   statusMessage,
