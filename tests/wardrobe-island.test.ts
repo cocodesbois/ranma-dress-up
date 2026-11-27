@@ -232,6 +232,7 @@ describe("wardrobe items", () => {
     const drawImage = vi.fn();
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
       drawImage,
+      clearRect: vi.fn(),
     } as unknown as CanvasRenderingContext2D);
     const view = setup();
     const thumbnail = required(view.container.querySelector<HTMLImageElement>(".item-thumbnail"));
@@ -239,6 +240,9 @@ describe("wardrobe items", () => {
     await nextTick();
 
     expect(view.container.querySelector("canvas.item-thumbnail")).not.toBeNull();
+    expect(drawImage).toHaveBeenCalledOnce();
+    view.store.setOutfitItem("tops", view.categoryItems[0].id);
+    await nextTick();
     expect(drawImage).toHaveBeenCalledOnce();
     view.app.unmount();
   });
