@@ -179,3 +179,43 @@ describe("starting the app", () => {
     expect(canvasRenderer.drawOutfit).not.toHaveBeenCalled();
   });
 });
+
+describe("preset selection and redraws", () => {
+  it("draws once after a preset finishes loading", async () => {
+    const preset = required(outfitPresets.find(({ id }) => String(id) !== "001"));
+    const source = required(preset.items[0]).source;
+    const slow = deferred();
+    const { controller, imageLoader, canvasRenderer, appState } = setup();
+    imageLoader.getMissingSourcesForPreset.mockReturnValue([source]);
+    imageLoader.loadImage.mockImplementation(() => slow.promise);
+
+    controller.selectOutfitById(preset.id);
+
+    expect(canvasRenderer.drawOutfit).not.toHaveBeenCalled();
+    slow.resolve(document.createElement("img"));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    expect(appState.getOutfit()).toEqual(preset.look);
+    expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
+  });
+
+  it("does not apply or redraw a preset load invalidated by Reset", async () => {
+    const preset = required(outfitPresets.find(({ id }) => String(id) !== "001"));
+    const source = required(preset.items[0]).source;
+    const slow = deferred();
+    const { controller, imageLoader, canvasRenderer, appState } = setup();
+    imageLoader.getMissingSourcesForPreset.mockReturnValue([source]);
+    imageLoader.loadImage.mockImplementation(() => slow.promise);
+
+    controller.selectOutfitById(preset.id);
+    controller.resetOutfit();
+
+    expect(appState.getOutfit()).toEqual(defaultOutfit);
+    expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
+    slow.resolve(document.createElement("img"));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    expect(appState.getOutfit()).toEqual(defaultOutfit);
+    expect(canvasRenderer.drawOutfit).toHaveBeenCalledOnce();
+  });
+});
