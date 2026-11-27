@@ -59,7 +59,7 @@ Use this file as the source of truth for data and behavior constraints when chan
 
 ## Modules, documentation and type checking
 
-- `src/main.ts` wires dependencies; `src/app-bootstrap.ts` binds events and starts the app. Core modules stay independent of the DOM. `src/core/state-store.ts` owns the Vue-reactive state; Vue regions receive its readonly state view while actions remain the mutation API. See [architecture](../docs/architecture.md) for the full flow.
+- `src/main.ts` wires dependencies and mounts Vue; `src/ui/app-view.vue` owns the canvas lifecycle, startup and download action. Core modules stay independent of the DOM. `src/core/state-store.ts` owns the Vue-reactive state; Vue regions receive its readonly state view while actions remain the mutation API. See [architecture](../docs/architecture.md) for the full flow.
 - Document each runtime module's role, dependencies and exports in its JSDoc header, and keep public function contracts current. Do not repeat TypeScript types in JSDoc tags (`@param {string} id`): the signature is the contract, and `tests/source-conventions.test.ts` rejects typed tags. Keep descriptions, as in `@param id - What it identifies`.
 - Shared types live in `src/types.ts`: `Catalog`, `Item`, `Outfit`, `Look` and supporting geometry/preset/manifest types. Use type-only imports where appropriate.
 - `vue-tsc` checks application TypeScript and `.vue` templates in strict, no-emit mode; `tsconfig.node.json` checks the Node catalog validator and `tsconfig.test.json` checks the tests.

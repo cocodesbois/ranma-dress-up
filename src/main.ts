@@ -14,8 +14,7 @@ import { createCanvasRenderer } from "./render/canvas-renderer";
 import { createStatusController } from "./ui/status-controller";
 import { createOutfitController } from "./ui/outfit-controller";
 import AppView from "./ui/app-view.vue";
-import { createAppBootstrap } from "./app-bootstrap";
-import type { Category, Item, Sprite } from "./types";
+import type { Sprite } from "./types";
 
 function requireElement<T extends HTMLElement>(selector: string, type: { new (): T }): T {
   const element = document.querySelector(selector);
@@ -60,11 +59,6 @@ function getSprite(item: { source: string }): Sprite | undefined {
   return imageLoader.getSprite(item.source);
 }
 
-let outfitController: ReturnType<typeof createOutfitController>;
-let appBootstrap: ReturnType<typeof createAppBootstrap> | undefined;
-let disposeOfflineSupport: (() => void) | undefined;
-let previewInitialized = false;
-
 /** Report controller/startup failures both to developers and in the status area. */
 function showError(error: unknown) {
   console.error(error);
@@ -73,60 +67,28 @@ function showError(error: unknown) {
   });
 }
 
-/** Initialize drawing only after Vue has mounted its stable preview canvas. */
-function initializePreview(preview: HTMLCanvasElement) {
-  if (previewInitialized) {
-    showError(new Error("The outfit preview canvas was initialized more than once."));
-    return;
-  }
-  previewInitialized = true;
-
-  try {
-    const canvasRenderer = createCanvasRenderer({
-      preview,
-      catalog,
-      manifest: spriteManifest,
-      getSprite,
-      getOutfit: () => appState.getOutfit(),
-      isPreviewReady: () => appState.isPreviewReady(),
-    });
-
-    outfitController = createOutfitController({
-      catalog,
-      catalogModel,
-      outfitPresets,
-      defaultOutfit,
-      appState,
-      statusController,
-      imageLoader,
-      canvasRenderer,
-      onError: showError,
-    });
-
-    appBootstrap = createAppBootstrap({
-      preview,
-      outfitController,
-      statusController,
-      canvasRenderer,
-      onError: showError,
-      isDownloadPending: () => appState.state.downloadPending,
-      setDownloadPending: appState.setDownloadPending,
-    });
-    appBootstrap.start();
-  } catch (error) {
-    showError(error);
-  }
-}
-
-/** Run an action only after the mounted preview has completed controller setup. */
-function withOutfitController(
-  action: (controller: ReturnType<typeof createOutfitController>) => void,
-) {
-  if (!outfitController) {
-    showError(new Error("The outfit preview is not ready."));
-    return;
-  }
-  action(outfitController);
+/** Construct the framework-independent preview and controller for the mounted canvas. */
+function createPreview(preview: HTMLCanvasElement) {
+  const renderer = createCanvasRenderer({
+    preview,
+    catalog,
+    manifest: spriteManifest,
+    getSprite,
+    getOutfit: () => appState.getOutfit(),
+    isPreviewReady: () => appState.isPreviewReady(),
+  });
+  const controller = createOutfitController({
+    catalog,
+    catalogModel,
+    outfitPresets,
+    defaultOutfit,
+    appState,
+    statusController,
+    imageLoader,
+    canvasRenderer: renderer,
+    onError: showError,
+  });
+  return { renderer, controller };
 }
 
 /** Register offline support and report its progress in Vue-owned state. */
@@ -160,6 +122,7 @@ function registerOfflineSupport() {
     navigator.serviceWorker
       .register(`${import.meta.env.BASE_URL}sw.js`)
       .then((registration) => {
+        if (disposed) return;
         worker = registration.installing ?? undefined;
         if (worker && !registration.active) {
           workerStateListener = () => {
@@ -195,29 +158,9 @@ const app = createApp(AppView, {
   presets: outfitPresets,
   mobileWardrobe,
   getSprite,
-  onPreviewMounted: initializePreview,
-  onAppUnmounted: () => {
-    appBootstrap?.dispose();
-    appBootstrap = undefined;
-    disposeOfflineSupport?.();
-    disposeOfflineSupport = undefined;
-  },
-  onCategorySelect: (category: Category) =>
-    withOutfitController((controller) => void controller.selectCategory(category)),
-  onItemSelect: (item: Item) => withOutfitController((controller) => controller.selectItem(item)),
-  onNoneSelect: () => withOutfitController((controller) => controller.removeActiveCategoryItem()),
-  onPresetSelect: (id: string) =>
-    withOutfitController((controller) => controller.selectOutfitById(id)),
-  onAdjacentSelect: (step: number) =>
-    withOutfitController((controller) => controller.selectAdjacentOutfit(step)),
-  onReset: () => withOutfitController((controller) => controller.resetOutfit()),
-  onDownload: () => {
-    if (!appBootstrap) {
-      showError(new Error("The outfit preview is not ready to save."));
-      return;
-    }
-    void appBootstrap.downloadPreview();
-  },
+  createPreview,
+  statusController,
+  onError: showError,
 });
 app.mount(appRoot);
-disposeOfflineSupport = registerOfflineSupport();
+app.onUnmount(registerOfflineSupport());

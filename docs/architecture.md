@@ -8,7 +8,7 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 
 | Module                                     | Rôle et dépendances                                                                                                                                                                                                                                    |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/main.ts`                              | Point d'entrée chargé par `index.html` : récupère le DOM, construit les dépendances et démarre le bootstrap. Aucun export public.                                                                                                                      |
+| `src/main.ts`                              | Point d'entrée chargé par `index.html` : construit les dépendances, monte Vue et enregistre le service worker. Aucun export public.                                                                                                                    |
 | `src/types.ts`                             | Contrats TypeScript partagés, importés uniquement comme types. Aucune valeur métier à l'exécution.                                                                                                                                                     |
 | `src/data/sprite-catalog.ts`               | Export par défaut du `Catalog` : fond, personnage, catégories, paires incompatibles, `Item` et `Outfit`.                                                                                                                                               |
 | `src/data/layer-order.ts`                  | Liste unique des catégories, dans l'ordre de dessin ; le type `CategoryId` en est dérivé.                                                                                                                                                              |
@@ -23,7 +23,7 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 | `src/ui/wardrobe-panel.vue`                | Présente les presets et le panneau responsive non modal, gère les attributs de dialogue, le focus et Échap, et contient la garde-robe Vue.                                                                                                             |
 | `src/ui/status-view.vue`, `reset-view.vue` | Présentent le statut réactif et l'action Reset déléguée au contrôleur.                                                                                                                                                                                 |
 | `src/ui/vue-store-summary.vue`             | Région Vue isolée qui lit le même store réactif.                                                                                                                                                                                                       |
-| `src/app-bootstrap.ts`                     | Branche les événements, observe le canvas, lance le chargement initial et déclenche le téléchargement PNG (export à taille fixe).                                                                                                                      |
+| `src/ui/app-view.vue`                      | Possède le canvas stable, initialise le rendu après montage, observe taille et densité, et déclenche le téléchargement PNG à taille fixe. Nettoie les observateurs au démontage.                                                                       |
 | `src/styles/main.css`                      | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                                                                                                   |
 
 ## Flux des données
@@ -34,7 +34,7 @@ sprite-catalog.ts ──→ catalog-model ──→ presets validés + look par 
                                                ▼
                                            state-store
                                                ▲
-DOM ──→ bootstrap / island Vue ──→ outfit-controller ──→ state-store
+DOM ──→ application Vue ──→ outfit-controller ──→ state-store
                                         │                    │
                                         │                    ├──→ island Vue
                                         │                    └──→ autres régions Vue
@@ -91,8 +91,8 @@ remplacer les seuils dans les conditions des media queries.
    les catégories, la présence de cheveux et d'au moins un vêtement.
 2. `main.ts` choisit le preset `001`, ou le premier disponible, et copie son look
    dans un nouveau store.
-3. Le bootstrap branche les contrôles et les observateurs de taille/densité, puis
-   appelle `startApp()`.
+3. Après montage du canvas, Vue initialise le renderer et le contrôleur, branche
+   les observateurs de taille/densité, puis appelle `startApp()`.
 4. Le contrôleur charge le fond, le personnage et les pièces sélectionnées, qui sont
    requis, puis le reste de la catégorie initiale `tops`, facultatif. Il publie le
    résultat du chargement au store, marque le preview prêt, puis dessine et

@@ -1,47 +1,104 @@
 <script setup lang="ts">
 /**
- * Owns the application shell and stable preview canvas, forwarding UI actions
- * while the composition root owns rendering and browser side effects.
+ * Owns the application shell, canvas lifecycle and download presentation.
+ * Receives framework-independent rendering and outfit controllers from main.
  * @module ui/app-view
  */
 import { onMounted, onUnmounted, ref } from "vue";
 import type { Store } from "../core/state-store";
-import type { Catalog, Category, Item, OutfitPreset, Sprite } from "../types";
+import type { Catalog, Item, OutfitPreset, Sprite } from "../types";
+import type { createCanvasRenderer } from "../render/canvas-renderer";
+import type { createOutfitController } from "./outfit-controller";
+import type { createStatusController } from "./status-controller";
 import WardrobePanel from "./wardrobe-panel.vue";
 import StatusView from "./status-view.vue";
 import ResetView from "./reset-view.vue";
 import VueStoreSummary from "./vue-store-summary.vue";
 
-defineProps<{
+const props = defineProps<{
   catalog: Catalog;
   presets: OutfitPreset[];
   store: Store;
   mobileWardrobe: MediaQueryList;
   getSprite: (item: Item) => Sprite | undefined;
-}>();
-
-const emit = defineEmits<{
-  previewMounted: [preview: HTMLCanvasElement];
-  appUnmounted: [];
-  categorySelect: [category: Category];
-  itemSelect: [item: Item];
-  noneSelect: [];
-  presetSelect: [id: string];
-  adjacentSelect: [step: number];
-  reset: [];
-  download: [];
+  createPreview: (preview: HTMLCanvasElement) => {
+    renderer: ReturnType<typeof createCanvasRenderer>;
+    controller: ReturnType<typeof createOutfitController>;
+  };
+  statusController: ReturnType<typeof createStatusController>;
+  onError: (error: unknown) => void;
 }>();
 
 const preview = ref<HTMLCanvasElement | null>(null);
 const faviconUrl = "favicon.svg";
+let renderer: ReturnType<typeof createCanvasRenderer> | undefined;
+let controller: ReturnType<typeof createOutfitController> | undefined;
+let resizeObserver: ResizeObserver | undefined;
+let stopWatchingDevicePixelRatio: (() => void) | undefined;
+
+function withController(action: (controller: ReturnType<typeof createOutfitController>) => void) {
+  if (!controller) {
+    props.onError(new Error("The outfit preview is not ready."));
+    return;
+  }
+  action(controller);
+}
+
+async function downloadPreview() {
+  if (!renderer) {
+    props.onError(new Error("The outfit preview is not ready to save."));
+    return;
+  }
+  if (props.store.state.downloadPending) return;
+  props.store.setDownloadPending(true);
+  try {
+    props.statusController.setStatusMessage("Preparing your look...", { loading: true });
+    const blob = await renderer.exportPreview();
+    if (!blob) {
+      props.statusController.setStatusMessage("The preview could not be saved.", { isError: true });
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ranma-dress-up.png";
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    props.statusController.setStatusMessage("Your look has been downloaded.");
+  } catch (error) {
+    props.onError(error);
+  } finally {
+    props.store.setDownloadPending(false);
+  }
+}
 
 onMounted(() => {
-  if (!preview.value) {
-    throw new Error("The outfit preview canvas did not mount.");
+  try {
+    if (!preview.value) {
+      throw new Error("The outfit preview canvas did not mount.");
+    }
+    const setup = props.createPreview(preview.value);
+    renderer = setup.renderer;
+    controller = setup.controller;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(renderer.resizePreview);
+      resizeObserver.observe(preview.value);
+    } else {
+      window.addEventListener("resize", renderer.resizePreview);
+    }
+    stopWatchingDevicePixelRatio = renderer.watchDevicePixelRatio();
+    renderer.resizePreview();
+    controller.startApp().catch(props.onError);
+  } catch (error) {
+    props.onError(error);
   }
-  emit("previewMounted", preview.value);
 });
-onUnmounted(() => emit("appUnmounted"));
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+  if (renderer) window.removeEventListener("resize", renderer.resizePreview);
+  stopWatchingDevicePixelRatio?.();
+});
 </script>
 
 <template>
@@ -77,13 +134,13 @@ onUnmounted(() => emit("appUnmounted"));
         {{ store.state.offlineStatus.text }}
       </p>
       <div class="action-buttons">
-        <ResetView @reset="emit('reset')" />
+        <ResetView @reset="withController((controller) => controller.resetOutfit())" />
         <button
           id="download-look"
           class="button button-primary"
           type="button"
           :disabled="store.state.downloadPending"
-          @click="emit('download')"
+          @click="downloadPreview"
         >
           <svg
             class="button-icon"
@@ -136,11 +193,11 @@ onUnmounted(() => emit("appUnmounted"));
         :presets="presets"
         :mobile-wardrobe="mobileWardrobe"
         :get-sprite="getSprite"
-        @category-select="emit('categorySelect', $event)"
-        @item-select="emit('itemSelect', $event)"
-        @none-select="emit('noneSelect')"
-        @preset-select="emit('presetSelect', $event)"
-        @adjacent-select="emit('adjacentSelect', $event)"
+        @category-select="withController((controller) => void controller.selectCategory($event))"
+        @item-select="withController((controller) => controller.selectItem($event))"
+        @none-select="withController((controller) => controller.removeActiveCategoryItem())"
+        @preset-select="withController((controller) => controller.selectOutfitById($event))"
+        @adjacent-select="withController((controller) => controller.selectAdjacentOutfit($event))"
       />
     </main>
   </div>
