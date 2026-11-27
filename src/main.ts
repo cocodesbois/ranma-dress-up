@@ -41,24 +41,26 @@ const getSprite = createSpriteLookup(imageLoader);
 const showError = createErrorReporter(statusController);
 
 const app = createApp(AppView, {
-  catalog,
-  store: appState,
-  presets: outfitPresets,
-  mobileWardrobe,
-  getSprite,
-  createPreview: createPreviewFactory({
+  services: {
     catalog,
-    manifest: spriteManifest,
-    outfitPresets,
-    defaultOutfit,
-    appState,
-    statusController,
-    imageLoader,
+    store: appState,
+    presets: outfitPresets,
+    mobileWardrobe,
     getSprite,
+    createPreview: createPreviewFactory({
+      catalog,
+      manifest: spriteManifest,
+      outfitPresets,
+      defaultOutfit,
+      appState,
+      statusController,
+      imageLoader,
+      getSprite,
+      onError: showError,
+    }),
+    statusController,
     onError: showError,
-  }),
-  statusController,
-  onError: showError,
+  },
 });
 app.mount(appRoot);
 app.onUnmount(registerOfflineSupport(appState));

@@ -25,7 +25,8 @@ presets sont des données versionnées ; le look courant vit uniquement en mémo
 | `src/ui/status-controller.ts`              | Publie les messages de statut dans le store.                                                                                                                                                                                                           |
 | `src/ui/wardrobe-panel.vue`                | Présente les presets et le panneau responsive non modal, gère les attributs de dialogue, le focus et Échap, et contient la garde-robe Vue.                                                                                                             |
 | `src/ui/status-view.vue`, `reset-view.vue` | Présentent le statut réactif et l'action Reset déléguée au contrôleur.                                                                                                                                                                                 |
-| `src/ui/app-view.vue`                      | Possède le canvas stable, initialise le rendu après montage, observe taille et densité, et déclenche le téléchargement PNG à taille fixe. Nettoie les observateurs au démontage.                                                                       |
+| `src/ui/app-view.vue`                      | Présente le shell et le canvas stable ; délègue ses actions et le cycle de vie du preview au composable.                                                                                                                                               |
+| `src/ui/use-app-preview.ts`                | Reçoit les services composés par `main.ts`, initialise le preview après montage, observe taille et densité, orchestre les actions et l'export PNG, puis nettoie les observateurs au démontage.                                                         |
 | `src/styles/main.css`                      | Présentation responsive ; le seuil mobile utilisé par les contrôleurs est de 720 px.                                                                                                                                                                   |
 
 ## Flux des données
@@ -95,8 +96,8 @@ remplacer les seuils dans les conditions des media queries.
    les catégories, la présence de cheveux et d'au moins un vêtement.
 2. `main.ts` choisit le preset `001`, ou le premier disponible, et copie son look
    dans un nouveau store.
-3. Après montage du canvas, Vue initialise le renderer et le contrôleur, branche
-   les observateurs de taille/densité, puis appelle `startApp()`.
+3. Après montage du canvas, le composable initialise le renderer et le contrôleur,
+   branche les observateurs de taille/densité, puis appelle `startApp()`.
 4. Le contrôleur charge le fond, le personnage et les pièces sélectionnées, qui sont
    requis, puis le reste de la catégorie initiale `tops`, facultatif. Il publie le
    résultat du chargement au store, marque le preview prêt, puis dessine et
